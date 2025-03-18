@@ -15,7 +15,14 @@ const Carousel = ({ title, items, type }) => {
   if (!items || items.length === 0) {
     return (
       <div className="loading">
-        <div className="loading-text">Loading...</div>
+        <div class="wrapper">
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <div class="shadow"></div>
+          <div class="shadow"></div>
+          <div class="shadow"></div>
+        </div>
       </div>
     );
   }
