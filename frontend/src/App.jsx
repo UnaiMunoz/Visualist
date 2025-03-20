@@ -4,8 +4,8 @@ import Home from './pages/Home';
 import Anime from './pages/Anime';
 import Movies from './pages/Movies';
 import Series from './pages/Series';
-import Register from './pages/Register';  // Import Register component
-import Login from './pages/Login';  // Import Login component
+import Register from './pages/Register';  
+import Login from './pages/Login';  
 
 function App() {
   return (
@@ -16,8 +16,8 @@ function App() {
           <Route path="/anime" element={<Anime />} />
           <Route path="/movies" element={<Movies />} />
           <Route path="/series" element={<Series />} />
-          <Route path="/register" element={<Register />} />  {/* Register route */}
-          <Route path="/login" element={<Login />} />  {/* Login route */}
+          <Route path="/register" element={<Register />} /> 
+          <Route path="/login" element={<Login />} /> 
         </Routes>
       </Layout>
     </Router>

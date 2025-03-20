@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
 import Carousel from '../components/Carousel';
-import { fetchTopAnime } from '../services/anilistApi';
-import { fetchTopMovies, fetchTopSeries } from '../services/tmdbApi';
+import { fetchTopAnime } from '../services/animeServices';
+import { fetchTopMovies } from '../services/moviesServices';
+import { fetchTopSeries } from '../services/seriesServices';
 
 const Home = () => {
   const [anime, setAnime] = useState([]);
@@ -35,13 +36,13 @@ const Home = () => {
   if (loading) {
     return (
       <div className="loading">
-        <div class="wrapper">
-          <div class="circle"></div>
-          <div class="circle"></div>
-          <div class="circle"></div>
-          <div class="shadow"></div>
-          <div class="shadow"></div>
-          <div class="shadow"></div>
+        <div className="wrapper">
+          <div className="circle"></div>
+          <div className="circle"></div>
+          <div className="circle"></div>
+          <div className="shadow"></div>
+          <div className="shadow"></div>
+          <div className="shadow"></div>
         </div>
       </div>
     );

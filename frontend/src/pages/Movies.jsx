@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchTopMovies } from "../services/tmdbApi";
+import { fetchTopMovies } from "../services/moviesServices";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);

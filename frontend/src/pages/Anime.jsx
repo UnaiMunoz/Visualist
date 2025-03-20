@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchAllAnime, searchAnime } from "../services/anilistApi";
+import { fetchAllAnime, searchAnime } from "../services/animeServices";
 
 const Anime = () => {
   const [anime, setAnime] = useState([]);
@@ -84,13 +84,13 @@ const Anime = () => {
   if (loading) {
     return (
       <div className="loading">
-        <div class="wrapper">
-          <div class="circle"></div>
-          <div class="circle"></div>
-          <div class="circle"></div>
-          <div class="shadow"></div>
-          <div class="shadow"></div>
-          <div class="shadow"></div>
+        <div className="wrapper">
+          <div className="circle"></div>
+          <div className="circle"></div>
+          <div className="circle"></div>
+          <div className="shadow"></div>
+          <div className="shadow"></div>
+          <div className="shadow"></div>
         </div>
       </div>
     );

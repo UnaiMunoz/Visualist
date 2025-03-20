@@ -1,5 +1,23 @@
+const CACHE_TIME = 10 * 60 * 1000; // 10 minutos en milisegundos
+
 export const fetchTopAnime = async () => {
   try {
+    const cachedData = localStorage.getItem('topAnime');
+    const cachedTime = localStorage.getItem('topAnimeTimestamp');
+
+    // Verificar si los datos están en caché y no han expirado
+    if (cachedData && cachedTime) {
+      const now = Date.now();
+      if (now - parseInt(cachedTime) < CACHE_TIME) {
+        console.log('Usando datos de caché');
+        return JSON.parse(cachedData); // Devolver los datos del caché si no han expirado
+      } else {
+        console.log('Caché expirado, haciendo nueva llamada a la API');
+      }
+    }
+
+    // Hacer la llamada a la API si no hay caché o si el caché ha expirado
+    console.log('Haciendo llamada a la API');
     const query = `
         query {
           Page(page: 1, perPage: 10) {
@@ -30,7 +48,13 @@ export const fetchTopAnime = async () => {
     });
 
     const data = await response.json();
-    return data.data.Page.media;
+    const animeData = data.data.Page.media;
+
+    // Guardar los datos y el timestamp en localStorage
+    localStorage.setItem('topAnime', JSON.stringify(animeData));
+    localStorage.setItem('topAnimeTimestamp', Date.now().toString());
+
+    return animeData;
   } catch (error) {
     console.error("Error fetching anime:", error);
     return [];
@@ -107,7 +131,6 @@ export const fetchAllAnime = async (page = 1, perPage = 24) => {
   }
 };
 
-
 export const searchAnime = async (searchTerm, page = 1, perPage = 24) => {
   try {
     const query = `
@@ -181,4 +204,3 @@ export const searchAnime = async (searchTerm, page = 1, perPage = 24) => {
     };
   }
 };
-

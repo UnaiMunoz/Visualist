@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchTopSeries } from "../services/tmdbApi";
+import { fetchTopSeries } from "../services/seriesServices";
 
 const Series = () => {
   const [series, setSeries] = useState([]);
