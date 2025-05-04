@@ -13,7 +13,7 @@ const Anime = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [itemsPerPage, setItemsPerPage] = useState(24); // Default value
+  const itemsPerPage = 24;
 
   const fetchData = async (page = 1) => {
     setLoading(true);
@@ -46,7 +46,7 @@ const Anime = () => {
 
   useEffect(() => {
     fetchData();
-  }, [itemsPerPage]); // Re-fetch when itemsPerPage changes
+  }, []); // Removed itemsPerPage dependency as it's now a constant
 
   const handlePageChange = (newPage) => {
     window.scrollTo(0, 0);
@@ -98,9 +98,7 @@ const Anime = () => {
     fetchData();
   };
 
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(Number(e.target.value));
-  };
+  // Removed handleItemsPerPageChange function as it's no longer needed
 
   if (loading) {
     return (
@@ -146,21 +144,7 @@ const Anime = () => {
         </form>
       </div>
 
-      <div className="items-per-page-container" style={{ padding: '0 16px', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-        <label htmlFor="itemsPerPage" style={{ marginRight: '10px' }}>Items per page:</label>
-        <select
-          id="itemsPerPage"
-          value={itemsPerPage}
-          onChange={handleItemsPerPageChange}
-          className="form-input"
-          style={{ width: 'auto', padding: '8px 12px' }}
-        >
-          <option value={12}>12</option>
-          <option value={24}>24</option>
-          <option value={36}>36</option>
-          <option value={48}>48</option>
-        </select>
-      </div>
+      {/* Removed items per page container */}
 
       {isSearching && (
         <div className="search-results-info">
