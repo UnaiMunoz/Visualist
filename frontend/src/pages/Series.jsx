@@ -1,35 +1,113 @@
 import { useState, useEffect } from "react";
-import { fetchTopSeries } from "../services/seriesServices";
+import { fetchAllSeries, searchSeries } from "../services/seriesServices";
 
 const Series = () => {
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pageInfo, setPageInfo] = useState({
+    currentPage: 1,
+    lastPage: 1,
+    hasNextPage: false,
+    total: 0,
+    perPage: 24,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const itemsPerPage = 24;
+
+  const fetchData = async (page = 1) => {
+    setLoading(true);
+    try {
+      console.log(`Fetching series page ${page} with ${itemsPerPage} items per page`);
+      const data = await fetchAllSeries(page, itemsPerPage);
+      console.log("Response data:", data);
+      
+      if (!data || !data.series) {
+        console.error("Invalid data structure received:", data);
+        setSeries([]);
+        setPageInfo({
+          currentPage: page,
+          lastPage: 1,
+          hasNextPage: false,
+          total: 0,
+          perPage: itemsPerPage
+        });
+      } else {
+        setSeries(data.series);
+        setPageInfo(data.pageInfo);
+      }
+    } catch (error) {
+      console.error("Error fetching series:", error);
+      setSeries([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchTopSeries();
-        setSeries(data);
-      } catch (error) {
-        console.error("Error fetching series:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const handlePageChange = (newPage) => {
+    window.scrollTo(0, 0);
+    if (isSearching) {
+      handleSearchWithPage(searchTerm, newPage);
+    } else {
+      fetchData(newPage);
+    }
+  };
+
+  const handleSearchWithPage = async (term, page = 1) => {
+    setLoading(true);
+    try {
+      const data = await searchSeries(term, page, itemsPerPage);
+      setSeries(data.series);
+
+      // If we're on the last page, adjust the total to reflect only the loaded results
+      if (page === data.pageInfo.lastPage) {
+        setPageInfo({
+          ...data.pageInfo,
+          total: (page - 1) * data.pageInfo.perPage + data.series.length,
+        });
+      } else {
+        setPageInfo(data.pageInfo);
+      }
+    } catch (error) {
+      console.error("Error searching series:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
+    if (!searchTerm.trim()) {
+      setIsSearching(false);
+      fetchData();
+      return;
+    }
+
+    setIsSearching(true);
+    handleSearchWithPage(searchTerm);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+    setIsSearching(false);
+    fetchData();
+  };
 
   if (loading) {
     return (
       <div className="loading">
-        <div class="wrapper">
-          <div class="circle"></div>
-          <div class="circle"></div>
-          <div class="circle"></div>
-          <div class="shadow"></div>
-          <div class="shadow"></div>
-          <div class="shadow"></div>
+        <div className="wrapper">
+          <div className="circle"></div>
+          <div className="circle"></div>
+          <div className="circle"></div>
+          <div className="shadow"></div>
+          <div className="shadow"></div>
+          <div className="shadow"></div>
         </div>
       </div>
     );
@@ -37,29 +115,96 @@ const Series = () => {
 
   return (
     <div className="container">
-      <h1 className="page-title">TV Series</h1>
+      <div className="search-container">
+        <h1 className="page-title">TV Series</h1>
+
+        <form onSubmit={handleSearch} className="search-form">
+          <input
+            type="text"
+            placeholder="Search series..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button type="submit" className="navbar-btn search-button">
+            Search
+          </button>
+
+          {isSearching && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="navbar-btn clear-button"
+            >
+              Clear
+            </button>
+          )}
+        </form>
+      </div>
+
+      {isSearching && (
+        <div className="search-results-info">
+          <p>
+            Search results for: <strong>{searchTerm}</strong> ({pageInfo.total}{" "}
+            results)
+          </p>
+        </div>
+      )}
+
       <div className="media-grid">
-        {series.map((show) => (
-          <div key={show.id} className="media-grid-card">
-            <img
-              src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
-              alt={show.name}
-              className="media-grid-img"
-            />
-            <div className="media-grid-body">
-              <h3 className="media-grid-title">{show.name}</h3>
-              <div className="media-grid-footer">
-                <span className="media-card-info">
-                  {new Date(show.first_air_date).getFullYear()}
-                </span>
-                <span className="media-card-score">
-                  {Math.round(show.vote_average * 10)}%
-                </span>
-              </div>
-              <p className="media-overview">{show.overview}</p>
-            </div>
+        {series.length === 0 && isSearching ? (
+          <div className="no-results">
+            No results found for "{searchTerm}". Try a different search term.
           </div>
-        ))}
+        ) : series.length === 0 ? (
+          <div className="no-results">
+            No series data available. Please try again later.
+          </div>
+        ) : (
+          series.map((show) => (
+            <div key={show.id} className="media-grid-card">
+              <img
+                src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                alt={show.name}
+                className="media-grid-img"
+              />
+              <div className="media-grid-body">
+                <h3 className="media-grid-title">{show.name}</h3>
+                <div className="media-grid-footer">
+                  <span className="media-card-info">
+                    {new Date(show.first_air_date).getFullYear()}
+                  </span>
+                  <span className="media-card-score">
+                    {Math.round(show.vote_average * 10)}%
+                  </span>
+                </div>
+                <p className="media-overview">{show.overview}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(pageInfo.currentPage - 1)}
+          disabled={pageInfo.currentPage === 1}
+          className="navbar-btn"
+        >
+          Previous
+        </button>
+
+        <span className="page-info">
+          Page {pageInfo.currentPage} of {pageInfo.lastPage || 1}
+        </span>
+
+        <button
+          onClick={() => handlePageChange(pageInfo.currentPage + 1)}
+          disabled={!pageInfo.hasNextPage}
+          className="navbar-btn"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

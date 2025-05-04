@@ -2,7 +2,7 @@
 // Configuration file
 
 // API Keys
-define('TMDB_API_KEY', 'api_key_here');
+define('TMDB_API_KEY', 'fb424b3e81ac48e070f8fa508b829271');
 
 // API URLs
 define('ANILIST_API_URL', 'https://graphql.anilist.co');
@@ -23,8 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // Helper function for error responses
-function sendErrorResponse($message, $statusCode = 500)
-{
+function sendErrorResponse($message, $statusCode = 500){
     http_response_code($statusCode);
     echo json_encode(['error' => $message]);
     exit;
