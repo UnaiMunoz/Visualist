@@ -10,8 +10,9 @@ define('TMDB_API_URL', 'https://api.themoviedb.org/3');
 
 // Headers
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *'); // Allow from any origin while testing
-// header('Access-Control-Allow-Origin: http://localhost:5173'); // Uncomment for production
+
+// CORS headers - Permitir específicamente el origen del frontend
+header('Access-Control-Allow-Origin: http://localhost:5173'); // Origen específico de tu frontend
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 

@@ -13,15 +13,32 @@ const Anime = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(24); // Default value
 
   const fetchData = async (page = 1) => {
     setLoading(true);
     try {
-      const data = await fetchAllAnime(page, 24);
-      setAnime(data.anime);
-      setPageInfo(data.pageInfo);
+      console.log(`Fetching anime page ${page} with ${itemsPerPage} items per page`);
+      const data = await fetchAllAnime(page, itemsPerPage);
+      console.log("Response data:", data);
+      
+      if (!data || !data.anime) {
+        console.error("Invalid data structure received:", data);
+        setAnime([]);
+        setPageInfo({
+          currentPage: page,
+          lastPage: 1,
+          hasNextPage: false,
+          total: 0,
+          perPage: itemsPerPage
+        });
+      } else {
+        setAnime(data.anime);
+        setPageInfo(data.pageInfo);
+      }
     } catch (error) {
       console.error("Error fetching anime:", error);
+      setAnime([]);
     } finally {
       setLoading(false);
     }
@@ -29,7 +46,7 @@ const Anime = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [itemsPerPage]); // Re-fetch when itemsPerPage changes
 
   const handlePageChange = (newPage) => {
     window.scrollTo(0, 0);
@@ -43,10 +60,10 @@ const Anime = () => {
   const handleSearchWithPage = async (term, page = 1) => {
     setLoading(true);
     try {
-      const data = await searchAnime(term, page, 24);
+      const data = await searchAnime(term, page, itemsPerPage);
       setAnime(data.anime);
 
-      // Si estamos en la última página, ajustamos el total para que refleje solo los resultados cargados
+      // If we're on the last page, adjust the total to reflect only the loaded results
       if (page === data.pageInfo.lastPage) {
         setPageInfo({
           ...data.pageInfo,
@@ -79,6 +96,10 @@ const Anime = () => {
     setSearchTerm("");
     setIsSearching(false);
     fetchData();
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
   };
 
   if (loading) {
@@ -125,6 +146,22 @@ const Anime = () => {
         </form>
       </div>
 
+      <div className="items-per-page-container" style={{ padding: '0 16px', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+        <label htmlFor="itemsPerPage" style={{ marginRight: '10px' }}>Items per page:</label>
+        <select
+          id="itemsPerPage"
+          value={itemsPerPage}
+          onChange={handleItemsPerPageChange}
+          className="form-input"
+          style={{ width: 'auto', padding: '8px 12px' }}
+        >
+          <option value={12}>12</option>
+          <option value={24}>24</option>
+          <option value={36}>36</option>
+          <option value={48}>48</option>
+        </select>
+      </div>
+
       {isSearching && (
         <div className="search-results-info">
           <p>
@@ -138,6 +175,10 @@ const Anime = () => {
         {anime.length === 0 && isSearching ? (
           <div className="no-results">
             No results found for "{searchTerm}". Try a different search term.
+          </div>
+        ) : anime.length === 0 ? (
+          <div className="no-results">
+            No anime data available. Please try again later.
           </div>
         ) : (
           anime.map((item) => (
@@ -178,12 +219,12 @@ const Anime = () => {
         </button>
 
         <span className="page-info">
-          Page {pageInfo.currentPage} of {pageInfo.lastPage}
+          Page {pageInfo.currentPage} of {pageInfo.lastPage || 1}
         </span>
 
         <button
           onClick={() => handlePageChange(pageInfo.currentPage + 1)}
-          disabled={pageInfo.currentPage === pageInfo.lastPage}
+          disabled={!pageInfo.hasNextPage}
           className="navbar-btn"
         >
           Next

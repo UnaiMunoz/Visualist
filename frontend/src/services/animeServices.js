@@ -1,11 +1,11 @@
 // frontend/src/services/animeServices.js
-const API_URL = "http://localhost/visualist/backend/api";
-const CACHE_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
+const API_URL = "/api"; // Simplemente "/api" para usar el proxy
 
 export const fetchTopAnime = async () => {
   try {
     const cachedData = localStorage.getItem("topAnime");
     const cachedTime = localStorage.getItem("topAnimeTimestamp");
+    const CACHE_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
 
     // Check if data is in cache and hasn't expired
     if (cachedData && cachedTime) {
@@ -23,31 +23,19 @@ export const fetchTopAnime = async () => {
     const response = await fetch(`${API_URL}/anime/top`);
 
     console.log("Response status:", response.status);
-    console.log("Response headers:", Object.fromEntries([...response.headers]));
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const responseText = await response.text();
-    console.log("Raw response text:", responseText);
-
-    let animeData;
-    try {
-      animeData = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      console.error("Response wasn't valid JSON:", responseText);
-      throw new Error("Failed to parse response as JSON");
-    }
-
-    console.log("Parsed anime data:", animeData);
+    const data = await response.json();
+    console.log("Parsed anime data:", data);
 
     // Save data and timestamp in localStorage
-    localStorage.setItem("topAnime", JSON.stringify(animeData));
+    localStorage.setItem("topAnime", JSON.stringify(data));
     localStorage.setItem("topAnimeTimestamp", Date.now().toString());
 
-    return animeData;
+    return data;
   } catch (error) {
     console.error("Error fetching anime:", error);
     return [];
@@ -66,21 +54,7 @@ export const fetchAllAnime = async (page = 1, perPage = 24) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const responseText = await response.text();
-    console.log(
-      "Raw response text (first 100 chars):",
-      responseText.substring(0, 100)
-    );
-
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      console.error("Response wasn't valid JSON:", responseText);
-      throw new Error("Failed to parse response as JSON");
-    }
-
+    const data = await response.json();
     console.log("Parsed anime list data:", data);
     return data;
   } catch (error) {
@@ -112,21 +86,7 @@ export const searchAnime = async (searchTerm, page = 1, perPage = 24) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const responseText = await response.text();
-    console.log(
-      "Raw response text (first 100 chars):",
-      responseText.substring(0, 100)
-    );
-
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      console.error("Response wasn't valid JSON:", responseText);
-      throw new Error("Failed to parse response as JSON");
-    }
-
+    const data = await response.json();
     console.log("Parsed anime search data:", data);
     return data;
   } catch (error) {
@@ -140,7 +100,6 @@ export const searchAnime = async (searchTerm, page = 1, perPage = 24) => {
         hasNextPage: false,
         perPage: perPage,
       },
-      totalResults: 0,
     };
   }
 };
