@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { fetchAllAnime, searchAnime } from "../services/animeServices";
 
 const Anime = () => {
@@ -18,10 +19,12 @@ const Anime = () => {
   const fetchData = async (page = 1) => {
     setLoading(true);
     try {
-      console.log(`Fetching anime page ${page} with ${itemsPerPage} items per page`);
+      console.log(
+        `Fetching anime page ${page} with ${itemsPerPage} items per page`
+      );
       const data = await fetchAllAnime(page, itemsPerPage);
       console.log("Response data:", data);
-      
+
       if (!data || !data.anime) {
         console.error("Invalid data structure received:", data);
         setAnime([]);
@@ -30,7 +33,7 @@ const Anime = () => {
           lastPage: 1,
           hasNextPage: false,
           total: 0,
-          perPage: itemsPerPage
+          perPage: itemsPerPage,
         });
       } else {
         setAnime(data.anime);
@@ -98,8 +101,6 @@ const Anime = () => {
     fetchData();
   };
 
-  // Removed handleItemsPerPageChange function as it's no longer needed
-
   if (loading) {
     return (
       <div className="loading">
@@ -144,8 +145,6 @@ const Anime = () => {
         </form>
       </div>
 
-      {/* Removed items per page container */}
-
       {isSearching && (
         <div className="search-results-info">
           <p>
@@ -166,7 +165,11 @@ const Anime = () => {
           </div>
         ) : (
           anime.map((item) => (
-            <div key={item.id} className="media-grid-card">
+            <Link
+              key={item.id}
+              to={`/anime/${item.id}`}
+              className="media-grid-card"
+            >
               <img
                 src={item.coverImage.large}
                 alt={item.title.english || item.title.romaji}
@@ -188,7 +191,7 @@ const Anime = () => {
                   ))}
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         )}
       </div>
