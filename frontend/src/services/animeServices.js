@@ -104,58 +104,55 @@ export const searchAnime = async (searchTerm, page = 1, perPage = 24) => {
   }
 };
 
-// Función corregida para obtener detalles de anime por ID
+// Enhanced getAnimeDetails function for animeServices.js
+
 export const getAnimeDetails = async (id) => {
   try {
-    // Primero, verificamos si tenemos datos en caché
+    // Check for cached data first
     const cachedAnime = localStorage.getItem(`anime_${id}`);
     const cachedTime = localStorage.getItem(`anime_${id}_timestamp`);
-    const CACHE_TIME = 30 * 60 * 1000; // 30 minutos en milisegundos
+    const CACHE_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-    // Verificamos si los datos están en caché y no han expirado
+    // If cached data exists and isn't expired
     if (cachedAnime && cachedTime) {
       const now = Date.now();
       if (now - parseInt(cachedTime) < CACHE_TIME) {
-        console.log(`Usando datos en caché para el anime ID ${id}`);
+        console.log(`Using cached data for anime ID ${id}`);
         return JSON.parse(cachedAnime);
       }
     }
 
-    // Siempre intentamos obtener los datos del backend primero
-    console.log(`Obteniendo detalles del anime ID ${id} del backend`);
+    // Try to get data from backend first
+    console.log(`Fetching details for anime ID ${id} from backend`);
     try {
       const url = `${API_URL}/anime/detail?id=${id}`;
       console.log("Making API call to:", url);
 
       const response = await fetch(url);
 
-      // Solo procedemos si la respuesta es correcta
       if (response.ok) {
         const data = await response.json();
         console.log("Parsed anime detail data:", data);
 
-        // Guardamos los datos en caché
+        // Save data to cache
         localStorage.setItem(`anime_${id}`, JSON.stringify(data));
         localStorage.setItem(`anime_${id}_timestamp`, Date.now().toString());
 
-        return data;
+        // Process the data to ensure all required fields
+        return enhanceAnimeData(data);
       } else {
         console.log(
-          `Error al obtener datos del anime ID ${id} del backend: ${response.status}`
+          `Error fetching anime ID ${id} from backend: ${response.status}`
         );
-        // Si hay un error, continuamos con las estrategias alternativas
+        // Continue with fallback strategies
       }
     } catch (error) {
-      console.error(
-        `Error en la petición al backend para el anime ID ${id}:`,
-        error
-      );
-      // Si hay un error, continuamos con las estrategias alternativas
+      console.error(`Error in backend request for anime ID ${id}:`, error);
+      // Continue with fallback strategies
     }
 
-    // Intentamos buscar en los datos almacenados localmente
-    // Primero en el top de animes
-    console.log("Buscando en datos locales...");
+    // Search in locally stored data
+    console.log("Looking in local cache data...");
     const topAnimeCached = localStorage.getItem("topAnime");
     if (topAnimeCached) {
       const topAnimeList = JSON.parse(topAnimeCached);
@@ -163,10 +160,9 @@ export const getAnimeDetails = async (id) => {
         (anime) => anime.id === parseInt(id)
       );
       if (foundAnime) {
-        console.log(`Encontrado anime con ID ${id} en caché de top animes`);
+        console.log(`Found anime with ID ${id} in top anime cache`);
 
-        // Importante: estos datos pueden estar incompletos, así que intentamos obtener más datos
-        // haciendo otra petición de búsqueda
+        // Try to get more data through search
         try {
           const searchResult = await searchAnime(
             foundAnime.title.english || foundAnime.title.romaji
@@ -176,57 +172,100 @@ export const getAnimeDetails = async (id) => {
             searchResult.anime &&
             searchResult.anime.length > 0
           ) {
-            // Buscamos una coincidencia exacta por ID
+            // Look for exact match by ID
             const exactMatch = searchResult.anime.find(
               (anime) => anime.id === parseInt(id)
             );
             if (exactMatch) {
-              console.log(
-                `Encontrado anime con ID ${id} en resultados de búsqueda`
-              );
+              console.log(`Found anime with ID ${id} in search results`);
 
-              // Guardamos en caché y devolvemos
-              localStorage.setItem(`anime_${id}`, JSON.stringify(exactMatch));
+              // Enhanced with additional info
+              const enhancedData = enhanceAnimeData(exactMatch);
+
+              // Save to cache and return
+              localStorage.setItem(`anime_${id}`, JSON.stringify(enhancedData));
               localStorage.setItem(
                 `anime_${id}_timestamp`,
                 Date.now().toString()
               );
 
-              return exactMatch;
+              return enhancedData;
             }
           }
         } catch (searchError) {
-          console.error("Error al buscar anime por título:", searchError);
+          console.error("Error searching anime by title:", searchError);
         }
 
-        // Si no encontramos más datos, devolvemos lo que tenemos
-        return foundAnime;
+        // Return basic data if enhanced data not available
+        return enhanceAnimeData(foundAnime);
       }
     }
 
-    // Último recurso: intentamos buscar en la lista general de animes
+    // Last resort: check general anime list
     try {
-      console.log("Intentando obtener datos generales de animes...");
+      console.log("Trying to fetch from general anime list...");
       const allAnimeResponse = await fetchAllAnime();
       if (allAnimeResponse && allAnimeResponse.anime) {
         const foundAnime = allAnimeResponse.anime.find(
           (anime) => anime.id === parseInt(id)
         );
         if (foundAnime) {
-          console.log(`Encontrado anime con ID ${id} en lista general`);
-          return foundAnime;
+          console.log(`Found anime with ID ${id} in general list`);
+          return enhanceAnimeData(foundAnime);
         }
       }
     } catch (error) {
-      console.error("Error al buscar en lista general de animes:", error);
+      console.error("Error searching general anime list:", error);
     }
 
-    // Si llegamos aquí, no pudimos encontrar el anime en ninguna fuente
-    throw new Error(
-      `No se pudo encontrar información para el anime con ID ${id}`
-    );
+    // If all fails, throw error
+    throw new Error(`Could not find information for anime with ID ${id}`);
   } catch (error) {
-    console.error(`Error obteniendo detalles del anime para ID ${id}:`, error);
+    console.error(`Error getting anime details for ID ${id}:`, error);
     throw error;
   }
+};
+
+// Helper function to ensure data has all required fields
+const enhanceAnimeData = (data) => {
+  // Create default structure for fields that might be missing
+  const enhanced = {
+    ...data,
+    title: data.title || { english: null, romaji: null, native: null },
+    coverImage: data.coverImage || { large: null },
+    bannerImage: data.bannerImage || null,
+    description: data.description || null,
+    episodes: data.episodes || null,
+    status: data.status || null,
+    season: data.season || null,
+    seasonYear: data.seasonYear || null,
+    averageScore: data.averageScore || null,
+    meanScore: data.meanScore || null,
+    popularity: data.popularity || 0,
+    favourites: data.favourites || 0,
+    genres: data.genres || [],
+    format: data.format || null,
+    duration: data.duration || null,
+    startDate: data.startDate || { year: null, month: null, day: null },
+    endDate: data.endDate || { year: null, month: null, day: null },
+    studios: data.studios || { nodes: [] },
+    characters: data.characters || [],
+  };
+
+  // Ensure nested objects have proper structure
+  if (
+    typeof enhanced.studios === "object" &&
+    !Array.isArray(enhanced.studios)
+  ) {
+    enhanced.studios = enhanced.studios.nodes || [];
+  }
+
+  if (
+    typeof enhanced.characters === "object" &&
+    !Array.isArray(enhanced.characters)
+  ) {
+    enhanced.characters = enhanced.characters.nodes || [];
+  }
+
+  return enhanced;
 };
