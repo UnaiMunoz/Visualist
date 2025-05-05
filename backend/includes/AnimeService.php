@@ -212,21 +212,41 @@ class AnimeService
             seasonYear
             averageScore
             genres
+            format
+            duration
+            startDate {
+              year
+              month
+              day
+            }
+            endDate {
+              year
+              month
+              day
+            }
+            popularity
+            meanScore
+            favourites
             studios {
               nodes {
                 id
                 name
               }
             }
-            characters(sort: ROLE, perPage: 6) {
+            characters(sort: ROLE, perPage: 8) {
               nodes {
                 id
                 name {
                   full
+                  native
                 }
                 image {
                   medium
+                  large
                 }
+                gender
+                age
+                description
               }
             }
           }
@@ -262,6 +282,13 @@ class AnimeService
         'seasonYear' => $anime['seasonYear'],
         'averageScore' => $anime['averageScore'],
         'genres' => $anime['genres'],
+        'format' => $anime['format'],
+        'duration' => $anime['duration'],
+        'startDate' => $anime['startDate'],
+        'endDate' => $anime['endDate'],
+        'popularity' => $anime['popularity'],
+        'meanScore' => $anime['meanScore'],
+        'favourites' => $anime['favourites'],
         'studios' => $anime['studios']['nodes'],
         'characters' => $anime['characters']['nodes']
       ];
