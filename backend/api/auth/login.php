@@ -1,4 +1,8 @@
 <?php
+// Set session to expire in 1 week (7 days)
+$oneWeek = 7 * 24 * 60 * 60; // 7 days in seconds
+session_set_cookie_params($oneWeek); // ✅ Esto debe ir antes de session_start()
+
 // Start session
 session_start();
 
@@ -8,8 +12,8 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
-// Include database and user model
-require_once '../../includes/User.php';
+// Include user model
+require_once __DIR__ . '/../../includes/User.php';
 
 // Instantiate user object
 $user = new User();
@@ -26,39 +30,32 @@ if (!empty($data->email) && !empty($data->password)) {
     // Attempt to login
     if ($user->login()) {
         // Login successful
-        // Set session variables
         $_SESSION['user_id'] = $user->user_id;
         $_SESSION['user_name'] = $user->name;
         $_SESSION['user_email'] = $user->email;
 
-        // Set session to expire in 1 week (7 days)
-        $oneWeek = 7 * 24 * 60 * 60; // 7 days in seconds
-        session_set_cookie_params($oneWeek);
-
         // Regenerate session ID for security
         session_regenerate_id();
 
-        // Set session expiry time
+        // Store session expiration timestamp
         $_SESSION['expires'] = time() + $oneWeek;
 
-        // Return success response with user data
+        // Return success response
         http_response_code(200);
-        echo json_encode(array(
+        echo json_encode([
             "success" => true,
             "message" => "Login successful",
-            "user" => array(
+            "user" => [
                 "id" => $user->user_id,
                 "name" => $user->name,
                 "email" => $user->email
-            )
-        ));
+            ]
+        ]);
     } else {
-        // Login failed
         http_response_code(401);
-        echo json_encode(array("success" => false, "message" => "Invalid email or password"));
+        echo json_encode(["success" => false, "message" => "Invalid email or password"]);
     }
 } else {
-    // Missing required data
     http_response_code(400);
-    echo json_encode(array("success" => false, "message" => "Unable to login. Email or password missing."));
+    echo json_encode(["success" => false, "message" => "Unable to login. Email or password missing."]);
 }
