@@ -13,6 +13,7 @@ import Movies from "./pages/Movies";
 import Series from "./pages/Series";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -85,6 +86,14 @@ const AppRoutes = () => {
             <PublicRoute>
               <Login />
             </PublicRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
           }
         />
       </Routes>

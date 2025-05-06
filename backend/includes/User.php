@@ -59,7 +59,7 @@ class User
     // Login user
     public function login()
     {
-        $query = "SELECT user_id, name, email, password FROM " . $this->table . " 
+        $query = "SELECT user_id, name, email, password, short_bio FROM " . $this->table . " 
                   WHERE email = :email";
 
         $stmt = $this->conn->prepare($query);
@@ -81,6 +81,7 @@ class User
 
             $this->user_id = $row['user_id'];
             $this->name = $row['name'];
+            $this->short_bio = $row['short_bio'];
             $db_password = $row['password'];
 
             // Verify password
@@ -92,6 +93,87 @@ class User
         }
 
         return false;
+    }
+
+    // Get user by ID
+    public function getUserById()
+    {
+        $query = "SELECT user_id, name, email, short_bio, created_at FROM " . $this->table . " 
+                  WHERE user_id = :user_id";
+
+        $stmt = $this->conn->prepare($query);
+
+        // Bind parameters
+        $stmt->bindParam(':user_id', $this->user_id);
+
+        // Execute query
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $this->name = $row['name'];
+            $this->email = $row['email'];
+            $this->short_bio = $row['short_bio'];
+            $this->created_at = $row['created_at'];
+            return true;
+        }
+
+        return false;
+    }
+
+    // Verify the current password
+    public function verifyPassword($password)
+    {
+        $query = "SELECT password FROM " . $this->table . " WHERE user_id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $this->user_id);
+        $stmt->execute();
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            return password_verify($password, $row['password']);
+        }
+
+        return false;
+    }
+
+    // Update user profile
+    public function updateProfile($updatePassword = false)
+    {
+        // Start with basic profile update query
+        $query = "UPDATE " . $this->table . " SET 
+                  name = :name, 
+                  short_bio = :short_bio";
+
+        // Add password update if needed
+        if ($updatePassword) {
+            $query .= ", password = :password";
+        }
+
+        $query .= " WHERE user_id = :user_id";
+
+        $stmt = $this->conn->prepare($query);
+
+        // Sanitize inputs
+        $this->name = htmlspecialchars(strip_tags($this->name));
+        if ($this->short_bio) {
+            $this->short_bio = htmlspecialchars(strip_tags($this->short_bio));
+        }
+
+        // Bind parameters
+        $stmt->bindParam(':name', $this->name);
+        $stmt->bindParam(':short_bio', $this->short_bio);
+        $stmt->bindParam(':user_id', $this->user_id);
+
+        // Bind password if updating
+        if ($updatePassword) {
+            // Hash the new password
+            $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+            $stmt->bindParam(':password', $password_hash);
+        }
+
+        // Execute query and return result
+        return $stmt->execute();
     }
 
     // Check if email already exists

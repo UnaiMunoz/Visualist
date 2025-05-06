@@ -1,34 +1,13 @@
-import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { checkSession, logout } from "../services/authServices";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { isLoggedIn, currentUser, loading, logout } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const verifySession = async () => {
-      try {
-        const { isLoggedIn, user } = await checkSession();
-        setIsLoggedIn(isLoggedIn);
-        setUser(user);
-      } catch (error) {
-        console.error("Session verification error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verifySession();
-  }, []);
 
   const handleLogout = async () => {
     try {
       await logout();
-      setIsLoggedIn(false);
-      setUser(null);
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
@@ -58,7 +37,9 @@ const Navbar = () => {
           <div className="loading-spinner-small"></div>
         ) : isLoggedIn ? (
           <>
-            <span className="user-greeting">Hi, {user?.name || "User"}</span>
+            <Link to="/profile" className="user-greeting">
+              Hi, {currentUser?.name || "User"}
+            </Link>
             <button onClick={handleLogout} className="navbar-btn">
               Logout
             </button>

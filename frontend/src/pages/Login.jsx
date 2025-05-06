@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/authServices";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +30,8 @@ function Login() {
       const response = await login({ email, password, remember: rememberMe });
 
       if (response.success) {
+        // Update auth context
+        authLogin(response.user);
         // Navigate to home page
         navigate("/");
       } else {
