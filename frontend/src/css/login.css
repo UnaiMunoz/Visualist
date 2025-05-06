@@ -1,0 +1,147 @@
+/* Login page styles */
+.login-container {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0d1117;
+  padding: 24px;
+}
+
+.login-card {
+  background-color: #161b22;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-title {
+  color: #ffffff;
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a8b2c1;
+  font-size: 0.875rem;
+}
+
+.form-label {
+  color: #a8b2c1;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.form-input {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.form-error {
+  color: #f87171;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+.success-message {
+  background-color: #064e3b;
+  color: #ecfdf5;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.login-btn {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.login-btn:disabled {
+  background-color: #4b5563;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  color: #a8b2c1;
+  font-size: 0.875rem;
+}
+
+.login-link {
+  color: #58a6ff;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-link:hover {
+  color: #88b9ff;
+}
+
+.user-greeting {
+  color: #a8b2c1;
+  margin-right: 10px;
+  font-size: 0.9rem;
+}
+
+.loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border-top-color: #58a6ff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

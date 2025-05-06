@@ -20,10 +20,10 @@ if (strpos($requestUri, $basePath) === 0) {
     // Split the path into segments
     $segments = explode('/', $path);
 
-    // Extract the resource type (anime, movies, series)
+    // Extract the resource type (anime, movies, series, auth)
     $resourceType = isset($segments[0]) ? $segments[0] : '';
 
-    // Extract the action (top, search, etc.)
+    // Extract the action (top, search, register, login, etc.)
     $action = isset($segments[1]) ? $segments[1] : '';
 
     // Construct the file path based on the resource type and action
@@ -32,6 +32,7 @@ if (strpos($requestUri, $basePath) === 0) {
     if (!empty($resourceType)) {
         if (!empty($action)) {
             // Example: /api/anime/top -> /api/anime/top.php
+            // Example: /api/auth/login -> /api/auth/login.php
             $filePath = __DIR__ . "/api/{$resourceType}/{$action}.php";
         } else {
             // Example: /api/anime -> /api/anime/index.php

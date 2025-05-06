@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS Visualist
+
+USE Visualist
+
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -6,6 +10,7 @@ CREATE TABLE Users (
     short_bio TEXT,
     profile_picture VARCHAR(255), -- Store the URL or file path of the profile picture
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Follows (

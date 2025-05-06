@@ -1,34 +1,44 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../services/authServices";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await fetch('http://localhost/login.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          email,
-          password,
-        }),
-      });
+    // Validate form
+    if (!email || !password) {
+      setErrorMessage("Email and password are required");
+      return;
+    }
 
-      const result = await response.json();
-      if (result.success) {
-        alert('Login successful!');
+    // Set loading state
+    setLoading(true);
+
+    try {
+      // Login user
+      const response = await login({ email, password, remember: rememberMe });
+
+      if (response.success) {
+        // Navigate to home page
+        navigate("/");
       } else {
-        setErrorMessage(result.message);
+        // Show error message
+        setErrorMessage(response.message || "Invalid email or password");
       }
-    } catch {
-      setErrorMessage('An error occurred. Please try again later.');
+    } catch (error) {
+      setErrorMessage("An error occurred. Please try again later.");
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,7 +48,9 @@ function Login() {
         <h2 className="login-title">Welcome Back</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="email" className="form-label">Email</label>
+            <label htmlFor="email" className="form-label">
+              Email
+            </label>
             <input
               id="email"
               type="email"
@@ -46,11 +58,15 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              disabled={loading}
               required
             />
           </div>
+
           <div className="form-group">
-            <label htmlFor="password" className="form-label">Password</label>
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -58,16 +74,32 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              disabled={loading}
               required
             />
           </div>
+
+          <div className="form-group form-checkbox">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+                disabled={loading}
+              />
+              <span>Remember me for 7 days</span>
+            </label>
+          </div>
+
           {errorMessage && <p className="form-error">{errorMessage}</p>}
-          <button type="submit" className="login-btn">
-            Sign In
+
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
+
         <div className="login-footer">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/register" className="login-link">
             Create one
           </Link>
