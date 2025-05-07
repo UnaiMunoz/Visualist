@@ -37,8 +37,15 @@ export const login = async (credentials) => {
     const data = await response.json();
 
     if (data.success) {
-      // Store user data in localStorage for client-side persistence
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // Only store user in localStorage if "remember me" is checked
+      if (credentials.remember) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        // Use sessionStorage instead for temporary storage (clears when browser closes)
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+        // Make sure to clear any previously stored values in localStorage
+        localStorage.removeItem("user");
+      }
     }
 
     return data;
@@ -59,24 +66,30 @@ export const logout = async () => {
       credentials: "include", // Important for cookies
     });
 
-    // Clear local storage data
+    // Clear both storages
     localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
 
     return await response.json();
   } catch (error) {
     console.error("Logout error:", error);
-    // Still clear local storage even if API call fails
+    // Still clear both storages even if API call fails
     localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     return { success: true, message: "Logged out locally" };
   }
 };
 
 // Check if user is logged in
 export const checkSession = async () => {
-  // First check localStorage (client-side session)
+  // First check localStorage (persistent session)
   const localUser = localStorage.getItem("user");
+  // Then check sessionStorage (temporary session)
+  const sessionUser = sessionStorage.getItem("user");
 
-  if (localUser) {
+  const storedUser = localUser || sessionUser;
+
+  if (storedUser) {
     try {
       // Verify the session with the server
       const response = await fetch(`${API_URL}/auth/session`, {
@@ -89,14 +102,15 @@ export const checkSession = async () => {
       if (data.logged_in) {
         return { isLoggedIn: true, user: data.user };
       } else {
-        // Server says session is invalid, clear local storage
+        // Server says session is invalid, clear both storages
         localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
         return { isLoggedIn: false };
       }
     } catch (error) {
       // Network error, assume user is still logged in locally
       console.error("Session check error:", error);
-      return { isLoggedIn: true, user: JSON.parse(localUser) };
+      return { isLoggedIn: true, user: JSON.parse(storedUser) };
     }
   }
 
@@ -105,6 +119,8 @@ export const checkSession = async () => {
 
 // Get current user
 export const getCurrentUser = () => {
-  const user = localStorage.getItem("user");
+  const localUser = localStorage.getItem("user");
+  const sessionUser = sessionStorage.getItem("user");
+  const user = localUser || sessionUser;
   return user ? JSON.parse(user) : null;
 };

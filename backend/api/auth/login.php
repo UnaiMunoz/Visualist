@@ -1,7 +1,17 @@
 <?php
-// Set session to expire in 1 week (7 days)
-$oneWeek = 7 * 24 * 60 * 60; // 7 days in seconds
-session_set_cookie_params($oneWeek); // ✅ Esto debe ir antes de session_start()
+// Check if remember me is set in the request data
+$data = json_decode(file_get_contents("php://input"));
+$remember = isset($data->remember) && $data->remember === true;
+
+// Only set a long session if remember me is checked
+if ($remember) {
+    // Set session to expire in 1 week (7 days)
+    $oneWeek = 7 * 24 * 60 * 60; // 7 days in seconds
+    session_set_cookie_params($oneWeek); // ✅ This must come before session_start()
+} else {
+    // Set session to expire when browser closes (default behavior)
+    session_set_cookie_params(0);
+}
 
 // Start session
 session_start();
@@ -38,7 +48,9 @@ if (!empty($data->email) && !empty($data->password)) {
         session_regenerate_id();
 
         // Store session expiration timestamp
-        $_SESSION['expires'] = time() + $oneWeek;
+        if ($remember) {
+            $_SESSION['expires'] = time() + $oneWeek;
+        }
 
         // Return success response
         http_response_code(200);

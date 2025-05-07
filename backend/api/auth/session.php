@@ -18,17 +18,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Check if user is logged in and session is valid
 if (
     isset($_SESSION['user_id']) &&
-    isset($_SESSION['expires']) &&
-    time() < $_SESSION['expires']
+    (!isset($_SESSION['expires']) || time() < $_SESSION['expires'])
 ) {
     // Session is valid
-    // Extend session if more than halfway through its lifetime
-    $timeLeft = $_SESSION['expires'] - time();
-    $original_lifetime = $_SESSION['expires'] - (isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : time());
+    // Extend session if more than halfway through its lifetime and "remember me" was checked
+    if (isset($_SESSION['expires'])) {
+        $timeLeft = $_SESSION['expires'] - time();
+        $original_lifetime = $_SESSION['expires'] - (isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : time());
 
-    if ($timeLeft < ($original_lifetime / 2)) {
-        // Extend the session
-        $_SESSION['expires'] = time() + $original_lifetime;
+        if ($timeLeft < ($original_lifetime / 2)) {
+            // Extend the session
+            $_SESSION['expires'] = time() + $original_lifetime;
+        }
     }
 
     // Update last activity timestamp
