@@ -66,52 +66,6 @@ const AnimeDetail = () => {
       .join(" ");
   };
 
-  const formatDate = (date) => {
-    if (!date || !date.year) return "Unknown";
-
-    let result = `${date.year}`;
-    if (date.month) {
-      const months = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
-      result = `${months[date.month - 1]} ${result}`;
-    }
-
-    if (date.day) {
-      result = `${date.day} ${result}`;
-    }
-
-    return result;
-  };
-
-  const formatSeason = (season, year) => {
-    if (!season && !year) return "Unknown";
-
-    let result = "";
-    if (season) {
-      // Capitalize first letter
-      result = season.charAt(0) + season.slice(1).toLowerCase();
-    }
-
-    if (year) {
-      if (result) result += " ";
-      result += year;
-    }
-
-    return result;
-  };
-
   // Format duration in minutes to hours and minutes
   const formatDuration = (minutes) => {
     if (!minutes) return "Unknown";
@@ -365,108 +319,6 @@ const AnimeDetail = () => {
                 </span>
               </div>
 
-              {(anime.season || anime.seasonYear) && (
-                <div className="anime-stat-item">
-                  <span className="stat-label">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="3"
-                        y="4"
-                        width="18"
-                        height="18"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    Released:
-                  </span>
-                  <span className="stat-value">
-                    {formatSeason(anime.season, anime.seasonYear)}
-                  </span>
-                </div>
-              )}
-
-              {anime.startDate && anime.startDate.year && (
-                <div className="anime-stat-item">
-                  <span className="stat-label">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="3"
-                        y="4"
-                        width="18"
-                        height="18"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    Start Date:
-                  </span>
-                  <span className="stat-value">
-                    {formatDate(anime.startDate)}
-                  </span>
-                </div>
-              )}
-
-              {anime.endDate && anime.endDate.year && (
-                <div className="anime-stat-item">
-                  <span className="stat-label">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="3"
-                        y="4"
-                        width="18"
-                        height="18"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    End Date:
-                  </span>
-                  <span className="stat-value">
-                    {formatDate(anime.endDate)}
-                  </span>
-                </div>
-              )}
-
               {anime.genres && anime.genres.length > 0 && (
                 <div className="anime-stat-item anime-stat-genres">
                   <span className="stat-label">
@@ -505,42 +357,6 @@ const AnimeDetail = () => {
                           <line x1="7" y1="7" x2="7.01" y2="7"></line>
                         </svg>
                         {genre}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {anime.studios && anime.studios.length > 0 && (
-                <div className="anime-stat-item">
-                  <span className="stat-label">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect
-                        x="2"
-                        y="7"
-                        width="20"
-                        height="14"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                    </svg>
-                    Studios:
-                  </span>
-                  <div className="studios-list">
-                    {anime.studios.map((studio) => (
-                      <span key={studio.id} className="studio-item">
-                        {studio.name}
                       </span>
                     ))}
                   </div>
@@ -597,97 +413,17 @@ const AnimeDetail = () => {
                 </svg>
                 Characters
               </button>
-
-              <button
-                className={`tab-button ${
-                  activeTab === "stats" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("stats")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                Stats
-              </button>
             </div>
 
             <div className="anime-tab-content">
               {activeTab === "overview" && (
                 <div className="tab-pane">
-                  {anime.description && (
-                    <div className="anime-description">
-                      <h3 className="section-title">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                          <line x1="16" y1="13" x2="8" y2="13"></line>
-                          <line x1="16" y1="17" x2="8" y2="17"></line>
-                          <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Description
-                      </h3>
-                      <div
-                        className="description-content"
-                        dangerouslySetInnerHTML={{ __html: anime.description }}
-                      ></div>
-                    </div>
-                  )}
-
                   {/* Additional information in a two-column grid */}
                   <div className="anime-info-grid">
-                    {anime.format && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Format</div>
-                        <div className="anime-info-value">
-                          {anime.format.replace(/_/g, " ")}
-                        </div>
-                      </div>
-                    )}
-
                     {anime.episodes && (
                       <div className="anime-info-card">
                         <div className="anime-info-title">Episodes</div>
                         <div className="anime-info-value">{anime.episodes}</div>
-                      </div>
-                    )}
-
-                    {anime.duration && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Episode Duration</div>
-                        <div className="anime-info-value">
-                          {formatDuration(anime.duration)}
-                        </div>
-                      </div>
-                    )}
-
-                    {anime.season && anime.seasonYear && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Season</div>
-                        <div className="anime-info-value">
-                          {formatSeason(anime.season, anime.seasonYear)}
-                        </div>
                       </div>
                     )}
                   </div>
@@ -695,7 +431,7 @@ const AnimeDetail = () => {
               )}
 
               {activeTab === "characters" && (
-                <div className="tab-pane characters-section">
+                <div className="tab-pane">
                   <h3 className="section-title">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -768,67 +504,6 @@ const AnimeDetail = () => {
                       No character information available for this anime.
                     </p>
                   )}
-                </div>
-              )}
-
-              {activeTab === "stats" && (
-                <div className="tab-pane">
-                  <h3 className="section-title">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="20" x2="18" y2="10"></line>
-                      <line x1="12" y1="20" x2="12" y2="4"></line>
-                      <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    Statistics
-                  </h3>
-
-                  <div className="anime-stats-grid">
-                    {anime.averageScore && (
-                      <div className="stat-card">
-                        <div className="stat-card-value">
-                          {anime.averageScore}%
-                        </div>
-                        <div className="stat-card-label">Average Score</div>
-                      </div>
-                    )}
-
-                    {anime.meanScore && (
-                      <div className="stat-card">
-                        <div className="stat-card-value">
-                          {anime.meanScore}%
-                        </div>
-                        <div className="stat-card-label">Mean Score</div>
-                      </div>
-                    )}
-
-                    {anime.popularity && (
-                      <div className="stat-card">
-                        <div className="stat-card-value">
-                          {anime.popularity.toLocaleString()}
-                        </div>
-                        <div className="stat-card-label">Popularity</div>
-                      </div>
-                    )}
-
-                    {anime.favourites && (
-                      <div className="stat-card">
-                        <div className="stat-card-value">
-                          {anime.favourites.toLocaleString()}
-                        </div>
-                        <div className="stat-card-label">Favorites</div>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
             </div>
