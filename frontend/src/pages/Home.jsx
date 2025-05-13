@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import Hero from '../components/Hero';
-import Carousel from '../components/Carousel';
-import { fetchTopAnime } from '../services/animeServices';
-import { fetchTopMovies } from '../services/moviesServices';
-import { fetchTopSeries } from '../services/seriesServices';
+import { useState, useEffect } from "react";
+import Hero from "../components/Hero";
+import Carousel from "../components/Carousel";
+import { fetchTopAnime } from "../services/animeServices";
+import { fetchTopMovies } from "../services/moviesServices";
+import { fetchTopSeries } from "../services/seriesServices";
 
 const Home = () => {
   const [anime, setAnime] = useState([]);
@@ -17,14 +17,14 @@ const Home = () => {
         const [animeData, moviesData, seriesData] = await Promise.all([
           fetchTopAnime(),
           fetchTopMovies(),
-          fetchTopSeries()
+          fetchTopSeries(),
         ]);
 
         setAnime(animeData);
         setMovies(moviesData);
         setSeries(seriesData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }

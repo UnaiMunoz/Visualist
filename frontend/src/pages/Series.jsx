@@ -18,10 +18,12 @@ const Series = () => {
   const fetchData = async (page = 1) => {
     setLoading(true);
     try {
-      console.log(`Fetching series page ${page} with ${itemsPerPage} items per page`);
+      console.log(
+        `Fetching series page ${page} with ${itemsPerPage} items per page`
+      );
       const data = await fetchAllSeries(page, itemsPerPage);
       console.log("Response data:", data);
-      
+
       if (!data || !data.series) {
         console.error("Invalid data structure received:", data);
         setSeries([]);
@@ -30,7 +32,7 @@ const Series = () => {
           lastPage: 1,
           hasNextPage: false,
           total: 0,
-          perPage: itemsPerPage
+          perPage: itemsPerPage,
         });
       } else {
         setSeries(data.series);
@@ -172,13 +174,14 @@ const Series = () => {
                 <h3 className="media-grid-title">{show.name}</h3>
                 <div className="media-grid-footer">
                   <span className="media-card-info">
-                    {new Date(show.first_air_date).getFullYear()}
+                    {show.first_air_date
+                      ? new Date(show.first_air_date).getFullYear()
+                      : "N/A"}
                   </span>
                   <span className="media-card-score">
                     {Math.round(show.vote_average * 10)}%
                   </span>
                 </div>
-                <p className="media-overview">{show.overview}</p>
               </div>
             </div>
           ))

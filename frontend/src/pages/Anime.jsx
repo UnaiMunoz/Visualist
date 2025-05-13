@@ -183,13 +183,6 @@ const Anime = () => {
                   <span className="media-card-info">{item.episodes} eps</span>
                   <span className="media-card-score">{item.averageScore}%</span>
                 </div>
-                <div className="genre-tags">
-                  {item.genres.slice(0, 3).map((genre) => (
-                    <span key={genre} className="genre-tag">
-                      {genre}
-                    </span>
-                  ))}
-                </div>
               </div>
             </Link>
           ))

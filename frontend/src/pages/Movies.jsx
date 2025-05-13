@@ -18,10 +18,12 @@ const Movies = () => {
   const fetchData = async (page = 1) => {
     setLoading(true);
     try {
-      console.log(`Fetching movies page ${page} with ${itemsPerPage} items per page`);
+      console.log(
+        `Fetching movies page ${page} with ${itemsPerPage} items per page`
+      );
       const data = await fetchAllMovies(page, itemsPerPage);
       console.log("Response data:", data);
-      
+
       if (!data || !data.movies) {
         console.error("Invalid data structure received:", data);
         setMovies([]);
@@ -30,7 +32,7 @@ const Movies = () => {
           lastPage: 1,
           hasNextPage: false,
           total: 0,
-          perPage: itemsPerPage
+          perPage: itemsPerPage,
         });
       } else {
         setMovies(data.movies);
@@ -178,7 +180,6 @@ const Movies = () => {
                     {Math.round(movie.vote_average * 10)}%
                   </span>
                 </div>
-                <p className="media-overview">{movie.overview}</p>
               </div>
             </div>
           ))
