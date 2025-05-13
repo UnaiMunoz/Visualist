@@ -52,10 +52,10 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2 className="login-title">Welcome Back</h2>
-        <form onSubmit={handleSubmit} className="login-form">
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">Welcome Back</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email" className="form-label">
               Email
@@ -145,14 +145,14 @@ function Login() {
 
           {errorMessage && <p className="form-error">{errorMessage}</p>}
 
-          <button type="submit" className="login-btn" disabled={loading}>
+          <button type="submit" className="auth-btn" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <div className="login-footer">
+        <div className="auth-footer">
           Don't have an account?{" "}
-          <Link to="/register" className="login-link">
+          <Link to="/register" className="auth-link">
             Create one
           </Link>
         </div>

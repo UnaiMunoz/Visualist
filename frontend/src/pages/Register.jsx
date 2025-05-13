@@ -89,15 +89,15 @@ function Register() {
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <h2 className="register-title">Create Account</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">Create Account</h2>
 
         {successMessage && (
           <div className="success-message">{successMessage}</div>
         )}
 
-        <form onSubmit={handleSubmit} className="register-form">
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="name" className="form-label">
               Name
@@ -164,14 +164,14 @@ function Register() {
 
           {errorMessage && <p className="form-error">{errorMessage}</p>}
 
-          <button type="submit" className="register-btn" disabled={loading}>
+          <button type="submit" className="auth-btn" disabled={loading}>
             {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
-        <div className="register-footer">
+        <div className="auth-footer">
           Already have an account?{" "}
-          <Link to="/login" className="login-link">
+          <Link to="/login" className="auth-link">
             Sign in
           </Link>
         </div>
