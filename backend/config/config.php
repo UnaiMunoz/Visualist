@@ -2,7 +2,7 @@
 // Configuration file
 
 // API Keys
-define('TMDB_API_KEY', 'tmdb_api_key_here');
+define('TMDB_API_KEY', 'fb424b3e81ac48e070f8fa508b829271');
 
 // API URLs
 define('ANILIST_API_URL', 'https://graphql.anilist.co');
