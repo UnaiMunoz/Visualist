@@ -9,7 +9,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/visualist/backend/api')
+        rewrite: (path) => path.replace(/^\/api/, '/Visualist/backend/api')
       }
     }
   }

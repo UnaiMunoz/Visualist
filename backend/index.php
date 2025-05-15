@@ -9,12 +9,19 @@ error_reporting(E_ALL);
 
 // Parse the request URI
 $requestUri = $_SERVER['REQUEST_URI'];
-$basePath = '/visualist/backend/api'; // Adjust this to match your base path
+$basePath = '/Visualist/backend/api'; // Ajusta esto a tu ruta base correcta
 
 // Check if the request is for the API
 if (strpos($requestUri, $basePath) === 0) {
     // Remove the base path from the request URI
     $path = substr($requestUri, strlen($basePath));
+
+    // Eliminar parámetros de consulta si existen
+    $queryPos = strpos($path, '?');
+    if ($queryPos !== false) {
+        $path = substr($path, 0, $queryPos);
+    }
+
     $path = trim($path, '/');
 
     // Split the path into segments
@@ -32,7 +39,6 @@ if (strpos($requestUri, $basePath) === 0) {
     if (!empty($resourceType)) {
         if (!empty($action)) {
             // Example: /api/anime/top -> /api/anime/top.php
-            // Example: /api/auth/login -> /api/auth/login.php
             $filePath = __DIR__ . "/api/{$resourceType}/{$action}.php";
         } else {
             // Example: /api/anime -> /api/anime/index.php

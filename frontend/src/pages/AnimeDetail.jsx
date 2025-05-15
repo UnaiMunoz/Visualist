@@ -8,6 +8,7 @@ const AnimeDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [expandedDescription, setExpandedDescription] = useState(false);
 
   useEffect(() => {
     const fetchAnimeData = async () => {
@@ -418,7 +419,71 @@ const AnimeDetail = () => {
             <div className="anime-tab-content">
               {activeTab === "overview" && (
                 <div className="tab-pane">
-                  {/* Additional information in a two-column grid */}
+                  {/* Descripción */}
+                  {anime.description && (
+                    <div className="anime-description">
+                      <h3 className="section-title">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                          <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Synopsis
+                      </h3>
+                      <div
+                        className={`description-content ${
+                          expandedDescription ? "expanded" : "collapsed"
+                        }`}
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            anime.description || "No description available.",
+                        }}
+                      ></div>
+                      {anime.description && anime.description.length > 300 && (
+                        <button
+                          onClick={() =>
+                            setExpandedDescription(!expandedDescription)
+                          }
+                          className="expand-btn"
+                        >
+                          {expandedDescription ? "Show Less" : "Read More"}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Información básica */}
+                  <h3 className="section-title">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    Details
+                  </h3>
+
                   <div className="anime-info-grid">
                     {anime.episodes && (
                       <div className="anime-info-card">
@@ -426,7 +491,107 @@ const AnimeDetail = () => {
                         <div className="anime-info-value">{anime.episodes}</div>
                       </div>
                     )}
+
+                    {anime.duration && (
+                      <div className="anime-info-card">
+                        <div className="anime-info-title">Episode Duration</div>
+                        <div className="anime-info-value">
+                          {formatDuration(anime.duration)}
+                        </div>
+                      </div>
+                    )}
+
+                    {anime.status && (
+                      <div className="anime-info-card">
+                        <div className="anime-info-title">Status</div>
+                        <div className="anime-info-value">
+                          {formatStatus(anime.status)}
+                        </div>
+                      </div>
+                    )}
+
+                    {anime.season && anime.seasonYear && (
+                      <div className="anime-info-card">
+                        <div className="anime-info-title">Season</div>
+                        <div className="anime-info-value">
+                          {anime.season.charAt(0) +
+                            anime.season.slice(1).toLowerCase()}{" "}
+                          {anime.seasonYear}
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Estadísticas */}
+                  <h3 className="section-title">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    Statistics
+                  </h3>
+
+                  <div className="anime-stats-grid">
+                    <div className="stat-card">
+                      <div className="stat-card-value">
+                        {anime.averageScore || "-"}%
+                      </div>
+                      <div className="stat-card-label">Average Score</div>
+                    </div>
+
+                    <div className="stat-card">
+                      <div className="stat-card-value">
+                        {anime.popularity?.toLocaleString() || "-"}
+                      </div>
+                      <div className="stat-card-label">Popularity</div>
+                    </div>
+
+                    <div className="stat-card">
+                      <div className="stat-card-value">
+                        {anime.favourites?.toLocaleString() || "-"}
+                      </div>
+                      <div className="stat-card-label">Favorites</div>
+                    </div>
+                  </div>
+
+                  {/* Studios */}
+                  {anime.studios && anime.studios.length > 0 && (
+                    <>
+                      <h3 className="section-title">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Studios
+                      </h3>
+                      <div className="studios-list">
+                        {anime.studios.map((studio) => (
+                          <span key={studio.id} className="studio-item">
+                            {studio.name}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 

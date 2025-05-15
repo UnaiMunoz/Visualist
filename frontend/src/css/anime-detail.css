@@ -571,6 +571,50 @@
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
 }
 
+.description-content.collapsed {
+  max-height: 50px; /* Altura fija para la descripción colapsada */
+  overflow: hidden;
+  position: relative;
+}
+
+.description-content.expanded {
+  max-height: none;
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 0.9rem;
+  padding: 8px 0;
+  cursor: pointer;
+  font-weight: 500;
+  display: block;
+  margin-top: 8px;
+  text-align: right;
+  transition: color 0.2s;
+}
+
+.expand-btn:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+/* Para asegurar que toda la pestaña tenga una altura mínima consistente */
+.anime-tab-content {
+  min-height: 500px;  /* Ajusta este valor según la altura que deseas como mínimo */
+}
+
+/* Asegúrate que todos los componentes dentro de la pestaña usen un espacio vertical consistente */
+.anime-info-grid, .anime-stats-grid, .studios-list {
+  margin-bottom: 32px;
+}
+
+/* Último elemento en la pestaña debe tener un margen inferior para mantener consistencia */
+.tab-pane > *:last-child {
+  margin-bottom: 32px;
+}
+
 /* Responsive design */
 @media (max-width: 1024px) {
   .anime-detail-content {
