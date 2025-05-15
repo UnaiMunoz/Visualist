@@ -24,7 +24,7 @@ if (
     // Extend session if more than halfway through its lifetime and "remember me" was checked
     if (isset($_SESSION['expires'])) {
         $timeLeft = $_SESSION['expires'] - time();
-        $original_lifetime = $_SESSION['expires'] - (isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : time());
+        $original_lifetime = SESSION_LIFETIME; // Use the constant instead of hardcoded value
 
         if ($timeLeft < ($original_lifetime / 2)) {
             // Extend the session
