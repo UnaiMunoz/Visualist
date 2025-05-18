@@ -9,11 +9,11 @@ const Movies = () => {
     lastPage: 1,
     hasNextPage: false,
     total: 0,
-    perPage: 24,
+    perPage: 24, // Mantenemos 24 items por página
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const itemsPerPage = 24;
+  const itemsPerPage = 24; // Constante para items por página
 
   const fetchData = async (page = 1) => {
     setLoading(true);
@@ -64,16 +64,7 @@ const Movies = () => {
     try {
       const data = await searchMovies(term, page, itemsPerPage);
       setMovies(data.movies);
-
-      // If we're on the last page, adjust the total to reflect only the loaded results
-      if (page === data.pageInfo.lastPage) {
-        setPageInfo({
-          ...data.pageInfo,
-          total: (page - 1) * data.pageInfo.perPage + data.movies.length,
-        });
-      } else {
-        setPageInfo(data.pageInfo);
-      }
+      setPageInfo(data.pageInfo);
     } catch (error) {
       console.error("Error searching movies:", error);
     } finally {
@@ -165,16 +156,24 @@ const Movies = () => {
         ) : (
           movies.map((movie) => (
             <div key={movie.id} className="media-grid-card">
-              <img
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                alt={movie.title}
-                className="media-grid-img"
-              />
+              {movie.poster_path ? (
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt={movie.title}
+                  className="media-grid-img"
+                />
+              ) : (
+                <div className="no-poster">
+                  <span>No Poster Available</span>
+                </div>
+              )}
               <div className="media-grid-body">
                 <h3 className="media-grid-title">{movie.title}</h3>
                 <div className="media-grid-footer">
                   <span className="media-card-info">
-                    {new Date(movie.release_date).getFullYear()}
+                    {movie.release_date
+                      ? new Date(movie.release_date).getFullYear()
+                      : "N/A"}
                   </span>
                   <span className="media-card-score">
                     {Math.round(movie.vote_average * 10)}%

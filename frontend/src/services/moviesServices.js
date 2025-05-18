@@ -56,7 +56,7 @@ export const fetchAllMovies = async (page = 1, perPage = 24) => {
 
     const data = await response.json();
     console.log("Parsed movies list data:", data);
-    
+
     // Format response to match the expected structure
     const formattedData = {
       movies: data.results || [],
@@ -66,9 +66,9 @@ export const fetchAllMovies = async (page = 1, perPage = 24) => {
         lastPage: data.total_pages || 1,
         hasNextPage: (data.page || page) < (data.total_pages || 1),
         perPage: perPage,
-      }
+      },
     };
-    
+
     return formattedData;
   } catch (error) {
     console.error("Error fetching all movies:", error);
@@ -101,7 +101,7 @@ export const searchMovies = async (searchTerm, page = 1, perPage = 24) => {
 
     const data = await response.json();
     console.log("Parsed movie search data:", data);
-    
+
     // Format response to match the expected structure if needed
     const formattedData = {
       movies: data.results || [],
@@ -111,9 +111,9 @@ export const searchMovies = async (searchTerm, page = 1, perPage = 24) => {
         lastPage: data.total_pages || 1,
         hasNextPage: page < (data.total_pages || 1),
         perPage: perPage,
-      }
+      },
     };
-    
+
     return formattedData;
   } catch (error) {
     console.error("Error searching movies:", error);

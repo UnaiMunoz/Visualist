@@ -95,44 +95,53 @@ class TMDBService
     /**
      * Get top-rated movies with pagination
      * 
-     * @param int $page Page number
-     * @param int $perPage Items per page (TMDb API only supports 20 per page)
+     * @param int $page Page number requested by client
+     * @param int $perPage Items per page requested (ideally 24 for UI grid)
      * @return array Paginated movies data
      */
     public function getPopularMovies($page = 1, $perPage = 24)
     {
         try {
-            // Use top_rated endpoint instead of popular to match sort by rating requirement
-            $url = TMDB_API_URL . '/movie/top_rated?api_key=' . TMDB_API_KEY . '&language=en-US&page=' . $page;
-            $response = ApiHelper::restRequest($url);
+            // Calculate how many TMDb pages we need (each has 20 results)
+            $tmdbItemsPerPage = 20; // TMDb API fixed page size
+            $numberOfTmdbPages = ceil($perPage / $tmdbItemsPerPage);
 
-            if (!isset($response['results'])) {
-                throw new Exception('Invalid TMDb API response');
-            }
+            // Calculate the starting TMDb page number based on our custom pagination
+            $startTmdbPage = (($page - 1) * $perPage) / $tmdbItemsPerPage + 1;
 
-            // TMDb API returns 20 items per page by default
-            // To get 24 items, we need to fetch from two pages if needed
-            $results = $response['results'];
+            $allResults = [];
+            $tmdbTotalPages = 0;
+            $tmdbTotalResults = 0;
 
-            // If we need more items to reach perPage and there are more pages
-            if (count($results) < $perPage && $response['page'] < $response['total_pages']) {
-                // Fetch next page
-                $nextPage = $page + 1;
-                $nextUrl = TMDB_API_URL . '/movie/top_rated?api_key=' . TMDB_API_KEY . '&language=en-US&page=' . $nextPage;
-                $nextResponse = ApiHelper::restRequest($nextUrl);
+            // Fetch required pages from TMDb
+            for ($i = 0; $i < $numberOfTmdbPages; $i++) {
+                $tmdbPage = floor($startTmdbPage) + $i;
+                $url = TMDB_API_URL . '/movie/top_rated?api_key=' . TMDB_API_KEY . '&language=en-US&page=' . $tmdbPage;
+                $response = ApiHelper::restRequest($url);
 
-                if (isset($nextResponse['results'])) {
-                    // Add items from next page until we reach perPage
-                    $needed = $perPage - count($results);
-                    $results = array_merge($results, array_slice($nextResponse['results'], 0, $needed));
+                if (!isset($response['results'])) {
+                    continue; // Skip if invalid response
                 }
+
+                $allResults = array_merge($allResults, $response['results']);
+                $tmdbTotalPages = max($tmdbTotalPages, $response['total_pages']);
+                $tmdbTotalResults = $response['total_results'];
             }
+
+            // Calculate the offset within our aggregated results
+            $offset = (($page - 1) * $perPage) % $tmdbItemsPerPage;
+
+            // Get just the items needed for the current page
+            $paginatedResults = array_slice($allResults, $offset, $perPage);
+
+            // Calculate proper pagination info for our custom page size
+            $totalPages = ceil($tmdbTotalResults / $perPage);
 
             return [
-                'results' => $results,
-                'page' => $response['page'],
-                'total_pages' => $response['total_pages'],
-                'total_results' => $response['total_results']
+                'results' => $paginatedResults,
+                'page' => $page,
+                'total_pages' => $totalPages,
+                'total_results' => $tmdbTotalResults
             ];
         } catch (Exception $e) {
             throw new Exception('Error fetching top-rated movies: ' . $e->getMessage());
@@ -144,20 +153,53 @@ class TMDBService
      * 
      * @param string $query Search query
      * @param int $page Page number
-     * @param int $perPage Items per page (not used as TMDb has fixed page size)
+     * @param int $perPage Items per page (e.g., 24)
      * @return array Search results with pagination info
      */
-    public function searchMovies($query, $page = 1, $perPage = 20)
+    public function searchMovies($query, $page = 1, $perPage = 24)
     {
         try {
-            $url = TMDB_API_URL . '/search/movie?api_key=' . TMDB_API_KEY . '&language=en-US&query=' . urlencode($query) . '&page=' . $page;
-            $response = ApiHelper::restRequest($url);
+            // Calculate how many TMDb pages we need (each has 20 results)
+            $tmdbItemsPerPage = 20; // TMDb API fixed page size
+            $numberOfTmdbPages = ceil($perPage / $tmdbItemsPerPage);
 
-            if (!isset($response['results'])) {
-                throw new Exception('Invalid TMDb API response');
+            // Calculate the starting TMDb page number based on our custom pagination
+            $startTmdbPage = (($page - 1) * $perPage) / $tmdbItemsPerPage + 1;
+
+            $allResults = [];
+            $tmdbTotalPages = 0;
+            $tmdbTotalResults = 0;
+
+            // Fetch required pages from TMDb
+            for ($i = 0; $i < $numberOfTmdbPages; $i++) {
+                $tmdbPage = floor($startTmdbPage) + $i;
+                $url = TMDB_API_URL . '/search/movie?api_key=' . TMDB_API_KEY . '&language=en-US&query=' . urlencode($query) . '&page=' . $tmdbPage;
+                $response = ApiHelper::restRequest($url);
+
+                if (!isset($response['results'])) {
+                    continue; // Skip if invalid response
+                }
+
+                $allResults = array_merge($allResults, $response['results']);
+                $tmdbTotalPages = max($tmdbTotalPages, $response['total_pages']);
+                $tmdbTotalResults = $response['total_results'];
             }
 
-            return $response;
+            // Calculate the offset within our aggregated results
+            $offset = (($page - 1) * $perPage) % $tmdbItemsPerPage;
+
+            // Get just the items needed for the current page
+            $paginatedResults = array_slice($allResults, $offset, $perPage);
+
+            // Calculate proper pagination info for our custom page size
+            $totalPages = ceil($tmdbTotalResults / $perPage);
+
+            return [
+                'results' => $paginatedResults,
+                'page' => $page,
+                'total_pages' => $totalPages,
+                'total_results' => $tmdbTotalResults
+            ];
         } catch (Exception $e) {
             throw new Exception('Error searching movies: ' . $e->getMessage());
         }
@@ -206,56 +248,57 @@ class TMDBService
      * Get top-rated TV series with pagination (excluding animes)
      * 
      * @param int $page Page number
-     * @param int $perPage Items per page (TMDb API only supports 20 per page)
+     * @param int $perPage Items per page (e.g., 24)
      * @return array Paginated TV series data
      */
     public function getPopularSeries($page = 1, $perPage = 24)
     {
         try {
-            // Use top_rated endpoint instead of popular to match sort by rating requirement
-            $url = TMDB_API_URL . '/tv/top_rated?api_key=' . TMDB_API_KEY . '&language=en-US&page=' . $page;
-            $response = ApiHelper::restRequest($url);
+            // Calculate how many TMDb pages we need (each has 20 results)
+            $tmdbItemsPerPage = 20; // TMDb API fixed page size
+            $numberOfTmdbPages = ceil($perPage / $tmdbItemsPerPage) + 1; // Add one extra page to account for filtering
 
-            if (!isset($response['results'])) {
-                throw new Exception('Invalid TMDb API response');
-            }
+            // Calculate the starting TMDb page number based on our custom pagination
+            $startTmdbPage = (($page - 1) * $perPage) / $tmdbItemsPerPage + 1;
 
-            // Filtrar animes de los resultados
-            $filteredResults = $this->filterAnimes($response['results']);
+            $allResults = [];
+            $tmdbTotalPages = 0;
+            $tmdbTotalResults = 0;
 
-            // Si no tenemos suficientes resultados después de filtrar, cargar más páginas
-            $currentResultCount = count($filteredResults);
-            $additionalPage = $page + 1;
+            // Fetch required pages from TMDb
+            for ($i = 0; $i < $numberOfTmdbPages; $i++) {
+                $tmdbPage = floor($startTmdbPage) + $i;
+                $url = TMDB_API_URL . '/tv/top_rated?api_key=' . TMDB_API_KEY . '&language=en-US&page=' . $tmdbPage;
+                $response = ApiHelper::restRequest($url);
 
-            while ($currentResultCount < $perPage && $additionalPage <= $response['total_pages']) {
-                $nextUrl = TMDB_API_URL . '/tv/top_rated?api_key=' . TMDB_API_KEY . '&language=en-US&page=' . $additionalPage;
-                $nextResponse = ApiHelper::restRequest($nextUrl);
-
-                if (isset($nextResponse['results'])) {
-                    $additionalResults = $this->filterAnimes($nextResponse['results']);
-                    $filteredResults = array_merge($filteredResults, $additionalResults);
-                    $currentResultCount = count($filteredResults);
+                if (!isset($response['results'])) {
+                    continue; // Skip if invalid response
                 }
 
-                $additionalPage++;
+                // Filter animes from this page's results
+                $filteredPageResults = $this->filterAnimes($response['results']);
+                $allResults = array_merge($allResults, $filteredPageResults);
 
-                // Evitar demasiadas llamadas a la API
-                if ($additionalPage > $page + 3) {
-                    break;
-                }
+                $tmdbTotalPages = max($tmdbTotalPages, $response['total_pages']);
+                // Estimate total results based on ratio of filtered items
+                $filterRatio = count($filteredPageResults) / count($response['results']);
+                $tmdbTotalResults = round($response['total_results'] * $filterRatio);
             }
 
-            // Limitar al número de resultados por página solicitados
-            $limitedResults = array_slice($filteredResults, 0, $perPage);
+            // Calculate the offset within our aggregated results
+            $offset = (($page - 1) * $perPage) % $tmdbItemsPerPage;
 
-            // Ajustar total_results para reflejar el filtrado
-            $estimatedTotal = $response['total_results'] / 2; // Estimación aproximada después del filtrado
+            // Get just the items needed for the current page
+            $paginatedResults = array_slice($allResults, $offset, $perPage);
+
+            // Calculate proper pagination info for our custom page size
+            $totalPages = ceil($tmdbTotalResults / $perPage);
 
             return [
-                'results' => $limitedResults,
-                'page' => $response['page'],
-                'total_pages' => $response['total_pages'],
-                'total_results' => $estimatedTotal
+                'results' => $paginatedResults,
+                'page' => $page,
+                'total_pages' => $totalPages,
+                'total_results' => $tmdbTotalResults
             ];
         } catch (Exception $e) {
             throw new Exception('Error fetching top-rated series: ' . $e->getMessage());
@@ -267,30 +310,59 @@ class TMDBService
      * 
      * @param string $query Search query
      * @param int $page Page number
-     * @param int $perPage Items per page (not used as TMDb has fixed page size)
+     * @param int $perPage Items per page (e.g., 24)
      * @return array Search results with pagination info
      */
-    public function searchSeries($query, $page = 1, $perPage = 20)
+    public function searchSeries($query, $page = 1, $perPage = 24)
     {
         try {
-            $url = TMDB_API_URL . '/search/tv?api_key=' . TMDB_API_KEY . '&language=en-US&query=' . urlencode($query) . '&page=' . $page;
-            $response = ApiHelper::restRequest($url);
+            // Calculate how many TMDb pages we need (each has 20 results)
+            $tmdbItemsPerPage = 20; // TMDb API fixed page size
+            $numberOfTmdbPages = ceil($perPage / $tmdbItemsPerPage) + 1; // Add one extra page to account for filtering
 
-            if (!isset($response['results'])) {
-                throw new Exception('Invalid TMDb API response');
+            // Calculate the starting TMDb page number based on our custom pagination
+            $startTmdbPage = (($page - 1) * $perPage) / $tmdbItemsPerPage + 1;
+
+            $allResults = [];
+            $tmdbTotalPages = 0;
+            $tmdbTotalResults = 0;
+
+            // Fetch required pages from TMDb
+            for ($i = 0; $i < $numberOfTmdbPages; $i++) {
+                $tmdbPage = floor($startTmdbPage) + $i;
+                $url = TMDB_API_URL . '/search/tv?api_key=' . TMDB_API_KEY . '&language=en-US&query=' . urlencode($query) . '&page=' . $tmdbPage;
+                $response = ApiHelper::restRequest($url);
+
+                if (!isset($response['results'])) {
+                    continue; // Skip if invalid response
+                }
+
+                // Filter animes from this page's results
+                $filteredPageResults = $this->filterAnimes($response['results']);
+                $allResults = array_merge($allResults, $filteredPageResults);
+
+                $tmdbTotalPages = max($tmdbTotalPages, $response['total_pages']);
+                // Estimate total results based on ratio of filtered items
+                $filterRatio = count($filteredPageResults) / max(1, count($response['results']));
+                $estimatedTotal = round($response['total_results'] * $filterRatio);
+                $tmdbTotalResults = max($tmdbTotalResults, $estimatedTotal);
             }
 
-            // Filtrar animes de los resultados
-            $filteredResults = $this->filterAnimes($response['results']);
+            // Calculate the offset within our aggregated results
+            $offset = (($page - 1) * $perPage) % $tmdbItemsPerPage;
 
-            // Ajustar el total de resultados en base al filtrado (estimación)
-            $filterRatio = count($filteredResults) / count($response['results']);
-            $estimatedTotal = round($response['total_results'] * $filterRatio);
+            // Get just the items needed for the current page
+            $paginatedResults = array_slice($allResults, $offset, $perPage);
 
-            $response['results'] = $filteredResults;
-            $response['total_results'] = $estimatedTotal;
+            // Calculate proper pagination info for our custom page size
+            $totalPages = ceil($tmdbTotalResults / $perPage);
 
-            return $response;
+            return [
+                'results' => $paginatedResults,
+                'page' => $page,
+                'total_pages' => $totalPages,
+                'total_results' => $tmdbTotalResults
+            ];
         } catch (Exception $e) {
             throw new Exception('Error searching series: ' . $e->getMessage());
         }
