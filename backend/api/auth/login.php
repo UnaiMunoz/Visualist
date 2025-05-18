@@ -60,7 +60,8 @@ if (!empty($data->email) && !empty($data->password)) {
             "user" => [
                 "id" => $user->user_id,
                 "name" => $user->name,
-                "email" => $user->email
+                "email" => $user->email,
+                "short_bio" => $user->short_bio // Añadir short_bio a la respuesta
             ]
         ]);
     } else {

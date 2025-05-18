@@ -1,9 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
 
 const Navbar = () => {
   const { isLoggedIn, currentUser, loading, logout } = useAuth();
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
+
+  // Update username whenever currentUser changes
+  useEffect(() => {
+    if (currentUser && currentUser.name) {
+      setUserName(currentUser.name);
+    }
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -38,7 +47,7 @@ const Navbar = () => {
         ) : isLoggedIn ? (
           <>
             <Link to="/profile" className="user-greeting">
-              Hi, {currentUser?.name || "User"}
+              Hi, {userName || "User"}
             </Link>
             <button onClick={handleLogout} className="navbar-btn">
               Logout

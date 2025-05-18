@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Include user model to get additional user data
+require_once __DIR__ . '/../../includes/User.php';
+
 // Check if user is logged in and session is valid
 if (
     isset($_SESSION['user_id']) &&
@@ -35,14 +38,20 @@ if (
     // Update last activity timestamp
     $_SESSION['last_activity'] = time();
 
-    // Return user info
+    // Obtener información adicional del usuario desde la base de datos
+    $user = new User();
+    $user->user_id = $_SESSION['user_id'];
+    $user->getUserById(); // Obtener datos completos del usuario
+
+    // Return user info including short_bio
     http_response_code(200);
     echo json_encode([
         'logged_in' => true,
         'user' => [
             'id' => $_SESSION['user_id'],
             'name' => $_SESSION['user_name'],
-            'email' => $_SESSION['user_email']
+            'email' => $_SESSION['user_email'],
+            'short_bio' => $user->short_bio // Incluir short_bio en la respuesta
         ]
     ]);
 } else {

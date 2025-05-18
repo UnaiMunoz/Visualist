@@ -191,6 +191,22 @@
   font-weight: 500;
 }
 
+.about-me-content {
+  color: #e5e5e5;
+  padding: 8px 0;
+  line-height: 1.6;
+}
+
+.no-bio {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.bio-textarea {
+  min-height: 100px;
+  line-height: 1.6;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .profile-content {

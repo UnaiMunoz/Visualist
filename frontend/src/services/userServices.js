@@ -4,8 +4,6 @@ const API_URL = "/api";
 // Get user profile data
 export const getUserProfile = async () => {
   try {
-    // For now, use the current user session information
-    // In the future, this could be expanded to get additional user data
     const response = await fetch(`${API_URL}/auth/session`, {
       method: "GET",
       credentials: "include", // Important for cookies
@@ -33,9 +31,11 @@ export const getUserProfile = async () => {
   }
 };
 
-// Update user profile
+// Make the API call to update user profile
 export const updateUserProfile = async (profileData) => {
   try {
+    console.log("Sending profile data to server:", profileData); // Debug log
+
     const response = await fetch(`${API_URL}/auth/update-profile`, {
       method: "POST",
       headers: {
@@ -45,7 +45,10 @@ export const updateUserProfile = async (profileData) => {
       credentials: "include", // Important for cookies
     });
 
-    return await response.json();
+    const responseData = await response.json();
+    console.log("Server response:", responseData); // Debug log
+
+    return responseData;
   } catch (error) {
     console.error("Error updating profile:", error);
     return {
@@ -55,24 +58,60 @@ export const updateUserProfile = async (profileData) => {
   }
 };
 
-// Update user profile with new information and update local storage
-export const updateProfile = async (profileData) => {
-  const response = await updateUserProfile(profileData);
+// Get current user from storage
+export const getCurrentUser = () => {
+  const localUser = localStorage.getItem("user");
+  const sessionUser = sessionStorage.getItem("user");
+  const user = localUser || sessionUser;
+  return user ? JSON.parse(user) : null;
+};
 
-  if (response.success) {
-    // Update local storage with new user data
-    const currentUser = localStorage.getItem("user");
-    if (currentUser) {
-      const userData = JSON.parse(currentUser);
-      const updatedUser = {
-        ...userData,
-        name: profileData.name,
-        bio: profileData.bio || userData.bio,
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+// Simplified update profile function
+export const updateProfile = async (profileData) => {
+  // Prepare backend data format - map 'bio' to 'short_bio'
+  const backendProfileData = {
+    ...profileData,
+    short_bio: profileData.bio, // This is the field expected by backend
+  };
+
+  // Call the API
+  const response = await updateUserProfile(backendProfileData);
+
+  // If successful, update local storage and trigger auth event
+  if (response.success && response.user) {
+    console.log(
+      "Profile update successful, updating storage with:",
+      response.user
+    ); // Debug
+
+    // Helper function to update storage
+    const updateStorage = (storage) => {
+      const userStr = storage.getItem("user");
+      if (userStr) {
+        try {
+          const userData = JSON.parse(userStr);
+          const updatedUser = {
+            ...userData,
+            name: response.user.name,
+            short_bio: response.user.short_bio,
+          };
+          storage.setItem("user", JSON.stringify(updatedUser));
+          console.log("Updated storage with:", updatedUser); // Debug
+        } catch (e) {
+          console.error("Error updating storage:", e);
+        }
+      }
+    };
+
+    // Update both storage locations
+    if (localStorage.getItem("user")) {
+      updateStorage(localStorage);
+    }
+    if (sessionStorage.getItem("user")) {
+      updateStorage(sessionStorage);
     }
 
-    // Dispatch auth state change event
+    // Trigger the auth state change event to update context
     window.dispatchEvent(new CustomEvent("auth_state_change"));
   }
 

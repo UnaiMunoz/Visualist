@@ -16,6 +16,9 @@ const Profile = () => {
     confirmPassword: "",
   });
 
+  // Estado separado para mostrar la biografía, independiente del estado de currentUser
+  const [bioDisplay, setBioDisplay] = useState("");
+
   const [errors, setErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
@@ -28,15 +31,20 @@ const Profile = () => {
     }
   }, [isLoggedIn, loading, navigate]);
 
-  // Set form data from user info
+  // Set form data and bioDisplay from user info whenever currentUser changes
   useEffect(() => {
     if (currentUser) {
+      console.log("Current user data in Profile component:", currentUser); // Debug log
+
       setFormData((prevData) => ({
         ...prevData,
         name: currentUser.name || "",
         email: currentUser.email || "",
         bio: currentUser.short_bio || "",
       }));
+
+      // Actualiza el estado de visualización de la biografía
+      setBioDisplay(currentUser.short_bio || "");
     }
   }, [currentUser]);
 
@@ -101,16 +109,27 @@ const Profile = () => {
       const response = await updateProfile(profileData);
 
       if (response.success) {
+        console.log("Profile updated successfully, server response:", response); // Debug log
+
+        // Actualiza inmediatamente el estado local para mostrar la biografía
+        setBioDisplay(formData.bio);
+
+        // También actualiza manualmente el objeto currentUser local para anticipar
+        // la actualización del contexto
+        if (currentUser) {
+          currentUser.short_bio = formData.bio;
+        }
+
         setUpdateSuccess(true);
         setIsEditing(false);
 
         // Reset password fields
-        setFormData({
-          ...formData,
+        setFormData((prevData) => ({
+          ...prevData,
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
-        });
+        }));
 
         // Hide success message after 3 seconds
         setTimeout(() => {
@@ -141,6 +160,11 @@ const Profile = () => {
       </div>
     );
   }
+
+  // Debug logs para diagnosticar el problema
+  console.log("Rendering Profile with bioDisplay:", bioDisplay);
+  console.log("Current formData.bio:", formData.bio);
+  console.log("Current currentUser?.short_bio:", currentUser?.short_bio);
 
   return (
     <div className="profile-container">
@@ -228,6 +252,11 @@ const Profile = () => {
                 isEditing ? "editable" : ""
               }`}
               rows="4"
+              placeholder={
+                isEditing
+                  ? "Tell us a bit about yourself..."
+                  : "No bio added yet."
+              }
             />
           </div>
 
@@ -326,6 +355,18 @@ const Profile = () => {
             <div className="stat-item">
               <span className="stat-label">Watched Items</span>
               <span className="stat-value">0</span>
+            </div>
+          </div>
+
+          {/* Usamos el estado local bioDisplay para mostrar la biografía */}
+          <div className="stats-card">
+            <h3>About Me</h3>
+            <div className="about-me-content">
+              {bioDisplay ? (
+                <p>{bioDisplay}</p>
+              ) : (
+                <p className="no-bio">No bio added yet.</p>
+              )}
             </div>
           </div>
         </div>

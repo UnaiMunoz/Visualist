@@ -1,7 +1,5 @@
-// In AuthContext.jsx - Let's modify it to include event listeners for cross-component communication
-
 import { createContext, useState, useEffect, useContext } from "react";
-import { checkSession, logout } from "../services/authServices";
+import { checkSession, logout, getCurrentUser } from "../services/authServices";
 
 // Custom event for auth state changes
 export const AUTH_STATE_CHANGE_EVENT = "auth_state_change";
@@ -43,7 +41,19 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for auth state changes from other components
     const handleAuthChange = () => {
-      verifySession();
+      console.log("Auth change event received"); // Debug log
+
+      // Get user from storage first for immediate update
+      const cachedUser = getCurrentUser();
+
+      if (cachedUser) {
+        console.log("User found in cache:", cachedUser); // Debug log
+        setCurrentUser(cachedUser);
+        setIsLoggedIn(true);
+      } else {
+        console.log("No user in cache, verifying session"); // Debug log
+        verifySession(); // Full session verification as backup
+      }
     };
 
     window.addEventListener(AUTH_STATE_CHANGE_EVENT, handleAuthChange);
@@ -55,7 +65,13 @@ export const AuthProvider = ({ children }) => {
 
   // Function to handle login
   const handleLogin = (user) => {
-    setCurrentUser(user);
+    // Ensure we have all expected fields, even if they're null
+    const normalizedUser = {
+      ...user,
+      short_bio: user.short_bio || null, // Ensure field exists
+    };
+
+    setCurrentUser(normalizedUser);
     setIsLoggedIn(true);
     broadcastAuthChange();
   };
@@ -72,6 +88,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Function to update user data after profile changes
+  const updateUserData = (updatedUser) => {
+    // Merge with existing user data
+    const newUserData = {
+      ...currentUser,
+      ...updatedUser,
+    };
+
+    setCurrentUser(newUserData);
+    broadcastAuthChange();
+  };
+
   // Context value
   const value = {
     currentUser,
@@ -79,6 +107,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login: handleLogin,
     logout: handleLogout,
+    updateUserData, // Added new function
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
