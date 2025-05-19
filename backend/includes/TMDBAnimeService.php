@@ -19,13 +19,13 @@ class TMDBAnimeService
       // TMDB doesn't have a direct "anime" category, so we'll use a combination of:
       // 1. Animation genre (ID: 16)
       // 2. From Japanese origin (origin_country=JP)
-      // We'll search for TV shows with these filters
+      // We'll search for TV shows with these filters and order by rating in descending order
 
       $url = TMDB_API_URL . '/discover/tv?api_key=' . TMDB_API_KEY .
         '&with_genres=16' .
         '&with_original_language=ja' .
-        '&sort_by=vote_average.desc' .
-        '&vote_count.gte=100' . // Minimum vote count for reliability
+        '&sort_by=vote_average.desc' . // Ensure ordering by rating in descending order
+        '&vote_count.gte=200' . // Increased minimum vote count for reliability
         '&page=1';
 
       $response = ApiHelper::restRequest($url);
@@ -70,7 +70,8 @@ class TMDBAnimeService
         $url = TMDB_API_URL . '/discover/tv?api_key=' . TMDB_API_KEY .
           '&with_genres=16' .
           '&with_original_language=ja' .
-          '&sort_by=popularity.desc' .
+          '&sort_by=vote_average.desc' . // Order by rating in descending order
+          '&vote_count.gte=50' . // Minimum vote count for reliability
           '&page=' . $tmdbPage;
 
         $response = ApiHelper::restRequest($url);
@@ -137,7 +138,7 @@ class TMDBAnimeService
       for ($i = 0; $i < $numberOfTmdbPages; $i++) {
         $tmdbPage = floor($startTmdbPage) + $i;
 
-        // Search TV shows with animation genre + Japanese language + search term
+        // Search TV shows with the search term
         $url = TMDB_API_URL . '/search/tv?api_key=' . TMDB_API_KEY .
           '&query=' . urlencode($searchTerm) .
           '&page=' . $tmdbPage;
@@ -162,6 +163,11 @@ class TMDBAnimeService
           $numberOfTmdbPages++;
         }
       }
+
+      // Sort results by vote_average in descending order
+      usort($allResults, function ($a, $b) {
+        return $b['vote_average'] <=> $a['vote_average'];
+      });
 
       // Calculate the offset within our aggregated results
       $offset = (($page - 1) * $perPage) % $tmdbItemsPerPage;
@@ -245,7 +251,7 @@ class TMDBAnimeService
         $isJapanese = $item['original_language'] === 'ja';
       }
 
-      return $hasAnimationGenre || $isJapanese;
+      return $hasAnimationGenre && $isJapanese; // Use AND instead of OR for stricter filtering
     });
   }
 
@@ -302,6 +308,11 @@ class TMDBAnimeService
     $formattedResults = [];
 
     foreach ($results as $item) {
+      // Skip items without a poster
+      if (empty($item['poster_path'])) {
+        continue;
+      }
+
       $formattedResults[] = [
         'id' => $item['id'],
         'title' => [

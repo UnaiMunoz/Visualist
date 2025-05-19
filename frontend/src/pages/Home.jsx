@@ -10,9 +10,12 @@ const Home = () => {
   const [movies, setMovies] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const [animeData, moviesData, seriesData] = await Promise.all([
           fetchTopAnime(),
@@ -20,11 +23,31 @@ const Home = () => {
           fetchTopSeries(),
         ]);
 
-        setAnime(animeData);
-        setMovies(moviesData);
-        setSeries(seriesData);
+        // Additional check to validate anime data structure
+        if (!Array.isArray(animeData)) {
+          console.error("Invalid anime data structure:", animeData);
+          setAnime([]);
+        } else {
+          setAnime(animeData);
+        }
+
+        // Validate movie and series data
+        if (!Array.isArray(moviesData)) {
+          console.error("Invalid movies data structure:", moviesData);
+          setMovies([]);
+        } else {
+          setMovies(moviesData);
+        }
+
+        if (!Array.isArray(seriesData)) {
+          console.error("Invalid series data structure:", seriesData);
+          setSeries([]);
+        } else {
+          setSeries(seriesData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
+        setError("Failed to load content. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -51,6 +74,21 @@ const Home = () => {
   return (
     <div>
       <Hero />
+      {error && (
+        <div
+          className="error-message"
+          style={{
+            padding: "1rem",
+            margin: "1rem 0",
+            textAlign: "center",
+            color: "#fff",
+            backgroundColor: "#e74c3c",
+            borderRadius: "4px",
+          }}
+        >
+          {error}
+        </div>
+      )}
       <div className="container">
         <Carousel title="Top Rated Anime" items={anime} type="anime" />
         <Carousel title="Top Rated Movies" items={movies} type="movie" />

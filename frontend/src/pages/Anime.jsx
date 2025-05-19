@@ -5,6 +5,7 @@ import { fetchAllAnime, searchAnime } from "../services/animeServices";
 const Anime = () => {
   const [anime, setAnime] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [pageInfo, setPageInfo] = useState({
     currentPage: 1,
     lastPage: 1,
@@ -18,6 +19,7 @@ const Anime = () => {
 
   const fetchData = async (page = 1) => {
     setLoading(true);
+    setError(null);
     try {
       console.log(
         `Fetching anime page ${page} with ${itemsPerPage} items per page`
@@ -27,6 +29,7 @@ const Anime = () => {
 
       if (!data || !data.anime) {
         console.error("Invalid data structure received:", data);
+        setError("Failed to load anime data. Please try again later.");
         setAnime([]);
         setPageInfo({
           currentPage: page,
@@ -41,6 +44,7 @@ const Anime = () => {
       }
     } catch (error) {
       console.error("Error fetching anime:", error);
+      setError("Failed to load anime data. Please try again later.");
       setAnime([]);
     } finally {
       setLoading(false);
@@ -49,7 +53,7 @@ const Anime = () => {
 
   useEffect(() => {
     fetchData();
-  }, []); // Removed itemsPerPage dependency as it's now a constant
+  }, []); // Fetch data on component mount
 
   const handlePageChange = (newPage) => {
     window.scrollTo(0, 0);
@@ -62,21 +66,15 @@ const Anime = () => {
 
   const handleSearchWithPage = async (term, page = 1) => {
     setLoading(true);
+    setError(null);
     try {
       const data = await searchAnime(term, page, itemsPerPage);
       setAnime(data.anime);
-
-      // If we're on the last page, adjust the total to reflect only the loaded results
-      if (page === data.pageInfo.lastPage) {
-        setPageInfo({
-          ...data.pageInfo,
-          total: (page - 1) * data.pageInfo.perPage + data.anime.length,
-        });
-      } else {
-        setPageInfo(data.pageInfo);
-      }
+      setPageInfo(data.pageInfo);
     } catch (error) {
       console.error("Error searching anime:", error);
+      setError("Error searching for anime. Please try again.");
+      setAnime([]);
     } finally {
       setLoading(false);
     }
@@ -145,6 +143,22 @@ const Anime = () => {
         </form>
       </div>
 
+      {error && (
+        <div
+          className="error-message"
+          style={{
+            padding: "1rem",
+            margin: "1rem 0",
+            textAlign: "center",
+            color: "#fff",
+            backgroundColor: "#e74c3c",
+            borderRadius: "4px",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
       {isSearching && (
         <div className="search-results-info">
           <p>
@@ -170,19 +184,41 @@ const Anime = () => {
               to={`/anime/${item.id}`}
               className="media-grid-card"
             >
-              <img
-                src={item.coverImage.large}
-                alt={item.title.english || item.title.romaji}
-                className="media-grid-img"
-              />
+              {item.coverImage && item.coverImage.large ? (
+                <img
+                  src={item.coverImage.large}
+                  alt={item.title.english || item.title.romaji}
+                  className="media-grid-img"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src =
+                      "https://via.placeholder.com/225x338?text=No+Image";
+                  }}
+                />
+              ) : (
+                <div className="no-poster">
+                  <span>No Image Available</span>
+                </div>
+              )}
               <div className="media-grid-body">
                 <h3 className="media-grid-title">
                   {item.title.english || item.title.romaji}
                 </h3>
                 <div className="media-grid-footer">
-                  <span className="media-card-info">{item.episodes} eps</span>
+                  <span className="media-card-info">
+                    {item.episodes ? `${item.episodes} eps` : "Unknown eps"}
+                  </span>
                   <span className="media-card-score">{item.averageScore}%</span>
                 </div>
+                {item.genres && item.genres.length > 0 && (
+                  <div className="genre-tags">
+                    {item.genres.slice(0, 2).map((genre, idx) => (
+                      <span key={idx} className="genre-tag">
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </Link>
           ))

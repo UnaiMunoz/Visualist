@@ -14,11 +14,21 @@ const AnimeDetail = () => {
     const fetchAnimeData = async () => {
       setLoading(true);
       try {
+        // Validate ID before making the API call
+        if (!id || isNaN(parseInt(id))) {
+          throw new Error("Invalid anime ID");
+        }
+
         const data = await getAnimeDetails(id);
+        if (!data) {
+          throw new Error("No data received from API");
+        }
         setAnime(data);
       } catch (err) {
         console.error("Error fetching anime details:", err);
-        setError("Failed to load anime details. Please try again later.");
+        setError(
+          err.message || "Failed to load anime details. Please try again later."
+        );
       } finally {
         setLoading(false);
       }
@@ -66,13 +76,6 @@ const AnimeDetail = () => {
       .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
       .join(" ");
   };
-
-  // const getTitle = (titleObj) => {
-  //   if (!titleObj) return "Unknown Title";
-  //   return (
-  //     titleObj.english || titleObj.romaji || titleObj.native || "Unknown Title"
-  //   );
-  // };
 
   // Format duration in minutes to hours and minutes
   const formatDuration = (minutes) => {
@@ -163,7 +166,13 @@ const AnimeDetail = () => {
     );
   }
 
-  const title = anime.title.english || anime.title.romaji || anime.title.native;
+  // Ensure the title object exists and extract the appropriate title
+  const title =
+    anime.title &&
+    (anime.title.english ||
+      anime.title.romaji ||
+      anime.title.native ||
+      "Unknown Title");
 
   return (
     <div className="anime-detail-page">
@@ -219,16 +228,23 @@ const AnimeDetail = () => {
             <div className="anime-detail-poster">
               <img
                 src={
-                  anime.coverImage.large ||
+                  anime.coverImage?.large ||
                   "https://via.placeholder.com/500x750?text=No+Image"
                 }
                 alt={title}
                 className="anime-detail-image"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src =
+                    "https://via.placeholder.com/500x750?text=No+Image";
+                }}
               />
 
               <div className="anime-rating">
                 <div className="rating-circle">
-                  <span className="rating-score">{anime.averageScore}%</span>
+                  <span className="rating-score">
+                    {anime.averageScore || "N/A"}%
+                  </span>
                 </div>
               </div>
             </div>
@@ -355,8 +371,8 @@ const AnimeDetail = () => {
                     Genres:
                   </span>
                   <div className="anime-genres">
-                    {anime.genres.map((genre) => (
-                      <span key={genre} className="genre-tag">
+                    {anime.genres.map((genre, index) => (
+                      <span key={index} className="genre-tag">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="12"
@@ -433,7 +449,7 @@ const AnimeDetail = () => {
             <div className="anime-tab-content">
               {activeTab === "overview" && (
                 <div className="tab-pane">
-                  {/* Descripción */}
+                  {/* Description */}
                   {anime.description && (
                     <div className="anime-description">
                       <h3 className="section-title">
@@ -478,7 +494,7 @@ const AnimeDetail = () => {
                     </div>
                   )}
 
-                  {/* Información básica */}
+                  {/* Basic information */}
                   <h3 className="section-title">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -536,7 +552,7 @@ const AnimeDetail = () => {
                     )}
                   </div>
 
-                  {/* Estadísticas */}
+                  {/* Statistics */}
                   <h3 className="section-title">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -600,8 +616,8 @@ const AnimeDetail = () => {
                           Studios
                         </h3>
                         <div className="studios-list">
-                          {anime.studios.nodes.map((studio) => (
-                            <span key={studio.id} className="studio-item">
+                          {anime.studios.nodes.map((studio, index) => (
+                            <span key={index} className="studio-item">
                               {studio.name}
                             </span>
                           ))}
@@ -641,13 +657,14 @@ const AnimeDetail = () => {
                               src={
                                 character.image?.large ||
                                 character.image?.medium ||
-                                "https://via.placeholder.com/500x750?text=No+Image"
+                                "https://via.placeholder.com/225x338?text=No+Image"
                               }
                               alt={character.name?.full || "Character"}
                               className="character-image"
                               onError={(e) => {
+                                e.target.onerror = null;
                                 e.target.src =
-                                  "https://via.placeholder.com/500x750?text=No+Image";
+                                  "https://via.placeholder.com/225x338?text=No+Image";
                               }}
                             />
                             <div className="character-role">Cast</div>

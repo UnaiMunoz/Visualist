@@ -56,6 +56,12 @@ export const fetchAllAnime = async (page = 1, perPage = 24) => {
 
     const data = await response.json();
     console.log("Parsed anime list data:", data);
+
+    // Ensure proper structure before returning
+    if (!data.anime || !data.pageInfo) {
+      throw new Error("Invalid data structure received from API");
+    }
+
     return data;
   } catch (error) {
     console.error("Error fetching all anime:", error);
@@ -88,6 +94,12 @@ export const searchAnime = async (searchTerm, page = 1, perPage = 24) => {
 
     const data = await response.json();
     console.log("Parsed anime search data:", data);
+
+    // Ensure proper structure before returning
+    if (!data.anime || !data.pageInfo) {
+      throw new Error("Invalid data structure received from API");
+    }
+
     return data;
   } catch (error) {
     console.error("Error searching anime:", error);
