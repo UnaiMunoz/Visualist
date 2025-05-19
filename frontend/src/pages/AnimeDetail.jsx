@@ -67,6 +67,13 @@ const AnimeDetail = () => {
       .join(" ");
   };
 
+  // const getTitle = (titleObj) => {
+  //   if (!titleObj) return "Unknown Title";
+  //   return (
+  //     titleObj.english || titleObj.romaji || titleObj.native || "Unknown Title"
+  //   );
+  // };
+
   // Format duration in minutes to hours and minutes
   const formatDuration = (minutes) => {
     if (!minutes) return "Unknown";
@@ -179,7 +186,11 @@ const AnimeDetail = () => {
         >
           <div className="banner-overlay"></div>
         </div>
-      ) : null}
+      ) : (
+        <div className="anime-banner default-banner">
+          <div className="banner-overlay"></div>
+        </div>
+      )}
 
       <div className="container anime-detail-container">
         <div className="anime-detail-header">
@@ -207,7 +218,10 @@ const AnimeDetail = () => {
           <div className="anime-detail-sidebar">
             <div className="anime-detail-poster">
               <img
-                src={anime.coverImage.large}
+                src={
+                  anime.coverImage.large ||
+                  "https://via.placeholder.com/500x750?text=No+Image"
+                }
                 alt={title}
                 className="anime-detail-image"
               />
@@ -564,34 +578,36 @@ const AnimeDetail = () => {
                   </div>
 
                   {/* Studios */}
-                  {anime.studios && anime.studios.length > 0 && (
-                    <>
-                      <h3 className="section-title">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                        </svg>
-                        Studios
-                      </h3>
-                      <div className="studios-list">
-                        {anime.studios.map((studio) => (
-                          <span key={studio.id} className="studio-item">
-                            {studio.name}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  {anime.studios &&
+                    anime.studios.nodes &&
+                    anime.studios.nodes.length > 0 && (
+                      <>
+                        <h3 className="section-title">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                          </svg>
+                          Studios
+                        </h3>
+                        <div className="studios-list">
+                          {anime.studios.nodes.map((studio) => (
+                            <span key={studio.id} className="studio-item">
+                              {studio.name}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
                 </div>
               )}
 
@@ -614,26 +630,33 @@ const AnimeDetail = () => {
                     </svg>
                     Main Characters
                   </h3>
-                  {anime.characters && anime.characters.length > 0 ? (
+                  {anime.characters &&
+                  anime.characters.nodes &&
+                  anime.characters.nodes.length > 0 ? (
                     <div className="characters-grid">
-                      {anime.characters.map((character) => (
+                      {anime.characters.nodes.map((character) => (
                         <div key={character.id} className="character-card">
                           <div className="character-image-container">
                             <img
                               src={
-                                character.image.large || character.image.medium
+                                character.image?.large ||
+                                character.image?.medium ||
+                                "https://via.placeholder.com/500x750?text=No+Image"
                               }
-                              alt={character.name.full}
+                              alt={character.name?.full || "Character"}
                               className="character-image"
+                              onError={(e) => {
+                                e.target.src =
+                                  "https://via.placeholder.com/500x750?text=No+Image";
+                              }}
                             />
-                            {/* Character role could be added here if available in the API */}
-                            <div className="character-role">Main</div>
+                            <div className="character-role">Cast</div>
                           </div>
                           <div className="character-info">
                             <div className="character-name">
-                              {character.name.full}
+                              {character.name?.full || "Unknown"}
                             </div>
-                            {character.name.native && (
+                            {character.name?.native && (
                               <div className="character-native-name">
                                 {character.name.native}
                               </div>

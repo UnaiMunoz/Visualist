@@ -1,3 +1,5 @@
+-- Updated schema.sql with AniList references removed
+
 CREATE DATABASE IF NOT EXISTS Visualist;
 
 USE Visualist;
@@ -17,18 +19,15 @@ CREATE TABLE Users (
     deleted_at TIMESTAMP NULL DEFAULT NULL
 );
 
--- Tabla con referencias mínimas al contenido
+-- Tabla con referencias al contenido (usando solo TMDB)
 CREATE TABLE Content_References (
     reference_id INT AUTO_INCREMENT PRIMARY KEY,
     type ENUM('movie', 'series', 'anime') NOT NULL,
-    tmdb_id INT DEFAULT NULL,
-    anilist_id INT DEFAULT NULL,
+    tmdb_id INT NOT NULL,
     title VARCHAR(255) NOT NULL, -- Guardar título para facilitar búsquedas sin llamar a la API
     year YEAR, -- Año de lanzamiento para facilitar filtros
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT unique_tmdb_id UNIQUE (tmdb_id, type),
-    CONSTRAINT unique_anilist_id UNIQUE (anilist_id),
-    CHECK (tmdb_id IS NOT NULL OR anilist_id IS NOT NULL),
     INDEX (type, title)
 );
 

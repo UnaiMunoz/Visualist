@@ -7,7 +7,7 @@
 
 // Include required files
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../includes/AnimeService.php';
+require_once __DIR__ . '/../../includes/TMDBAnimeService.php';
 
 // Set response content type
 header('Content-Type: application/json');
@@ -17,7 +17,7 @@ try {
     $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
 
     // Get top anime
-    $animeService = new AnimeService();
+    $animeService = new TMDBAnimeService();
     $data = $animeService->getTopAnime($limit);
 
     // Return results

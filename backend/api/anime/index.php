@@ -7,7 +7,7 @@
 
 // Include required files
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../includes/AnimeService.php';
+require_once __DIR__ . '/../../includes/TMDBAnimeService.php';
 
 // Set response content type
 header('Content-Type: application/json');
@@ -18,7 +18,7 @@ try {
     $perPage = isset($_GET['perPage']) ? intval($_GET['perPage']) : 24;
 
     // Get anime list
-    $animeService = new AnimeService();
+    $animeService = new TMDBAnimeService();
     $data = $animeService->getAnimeList($page, $perPage);
 
     // Return results
