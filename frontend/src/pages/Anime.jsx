@@ -206,19 +206,13 @@ const Anime = () => {
                 </h3>
                 <div className="media-grid-footer">
                   <span className="media-card-info">
-                    {item.episodes ? `${item.episodes} eps` : "Unknown eps"}
+                    {item.episodes !== null && item.episodes
+                      ? `${item.episodes} eps`
+                      : "? eps"}
                   </span>
                   <span className="media-card-score">{item.averageScore}%</span>
                 </div>
-                {item.genres && item.genres.length > 0 && (
-                  <div className="genre-tags">
-                    {item.genres.slice(0, 2).map((genre, idx) => (
-                      <span key={idx} className="genre-tag">
-                        {genre}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {/* Genre tags removed as requested */}
               </div>
             </Link>
           ))

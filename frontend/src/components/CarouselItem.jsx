@@ -34,7 +34,9 @@ const CarouselItem = ({ item, type }) => {
   // Extract info text based on content type
   const infoText =
     type === "anime"
-      ? `${item.episodes || "?"} eps`
+      ? item.episodes && item.episodes !== null
+        ? `${item.episodes} eps`
+        : "? eps"
       : item.release_date || item.first_air_date
       ? new Date(item.release_date || item.first_air_date).getFullYear()
       : "N/A";
@@ -55,19 +57,7 @@ const CarouselItem = ({ item, type }) => {
             <span className="media-card-info">{infoText}</span>
             <span className="media-card-score">{score}%</span>
           </div>
-          {item.genres && item.genres.length > 0 && (
-            <div className="genre-tags" style={{ marginTop: "8px" }}>
-              {item.genres.slice(0, 2).map((genre, idx) => (
-                <span
-                  key={idx}
-                  className="genre-tag"
-                  style={{ fontSize: "0.7rem", padding: "1px 6px" }}
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-          )}
+          {/* Genre tags removed as requested */}
         </div>
       </Link>
     );
