@@ -206,9 +206,9 @@ const Anime = () => {
                 </h3>
                 <div className="media-grid-footer">
                   <span className="media-card-info">
-                    {item.episodes !== null && item.episodes
-                      ? `${item.episodes} eps`
-                      : "? eps"}
+                    {item.startDate && item.startDate.year
+                      ? `${item.startDate.year}`
+                      : "N/A"}
                   </span>
                   <span className="media-card-score">{item.averageScore}%</span>
                 </div>

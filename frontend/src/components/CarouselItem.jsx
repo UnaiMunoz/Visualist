@@ -34,9 +34,9 @@ const CarouselItem = ({ item, type }) => {
   // Extract info text based on content type
   const infoText =
     type === "anime"
-      ? item.episodes && item.episodes !== null
-        ? `${item.episodes} eps`
-        : "? eps"
+      ? item.startDate && item.startDate.year
+        ? `${item.startDate.year}`
+        : "N/A"
       : item.release_date || item.first_air_date
       ? new Date(item.release_date || item.first_air_date).getFullYear()
       : "N/A";
