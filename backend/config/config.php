@@ -1,35 +1,82 @@
 <?php
-// Configuration file with updated settings for TMDB
+// Configuration file with proper environment variables handling
 
-// Load environment variables from .env file
+// Define a function to get environment variables with fallbacks (renamed to avoid conflicts)
+function getEnvVar($key, $default = null)
+{
+    // Check in $_ENV first (from .env file)
+    if (isset($_ENV[$key])) {
+        return $_ENV[$key];
+    }
+
+    // Then check in getenv() (from server environment)
+    $value = getenv($key);
+    if ($value !== false) {
+        return $value;
+    }
+
+    // Return default if not found
+    return $default;
+}
+
+// Load environment variables from .env file if it exists
 if (file_exists(__DIR__ . '/../.env')) {
     $env_lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($env_lines as $line) {
-        if (strpos($line, '#') === 0) continue; // Skip comments
-        list($name, $value) = explode('=', $line, 2);
-        $_ENV[trim($name)] = trim($value);
-        putenv(sprintf("%s=%s", trim($name), trim($value)));
+        // Skip comments
+        if (strpos($line, '#') === 0) continue;
+
+        // Check for valid lines with = sign
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+
+            // Remove quotes if present
+            if (preg_match('/^([\'"])(.*)\1$/', $value, $matches)) {
+                $value = $matches[2];
+            }
+
+            $_ENV[$name] = $value;
+            putenv(sprintf("%s=%s", $name, $value));
+        }
     }
 }
 
-// API Keys
-define('TMDB_API_KEY', getenv('TMDB_API_KEY') ?: 'fb424b3e81ac48e070f8fa508b829271');
+// API Keys with meaningful fallbacks for development
+define('TMDB_API_KEY', getEnvVar('TMDB_API_KEY', ''));
 
-// API URLs
+// API URLs - these rarely change so hardcoding is acceptable
 define('TMDB_API_URL', 'https://api.themoviedb.org/3');
 
 // Database Configuration
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'Visualist');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_HOST', getEnvVar('DB_HOST', 'localhost'));
+define('DB_NAME', getEnvVar('DB_NAME', 'Visualist'));
+define('DB_USER', getEnvVar('DB_USER', 'root'));
+define('DB_PASS', getEnvVar('DB_PASS', ''));
 
-// Session Configuration
-define('SESSION_LIFETIME', getenv('SESSION_LIFETIME') ?: 604800); // 7 days in seconds
-define('SESSION_SECRET', getenv('SESSION_SECRET') ?: 'your_default_session_secret');
+// Session Configuration with secure defaults
+define('SESSION_LIFETIME', (int)getEnvVar('SESSION_LIFETIME', 604800)); // 7 days in seconds
+define('SESSION_SECRET', getEnvVar('SESSION_SECRET', bin2hex(random_bytes(32)))); // Generate a random default in dev
 
-// Frontend URL for CORS
-$frontendUrl = getenv('FRONTEND_URL') ?: 'http://localhost:5173';
+// Frontend URL for CORS - critical for security
+$frontendUrl = getEnvVar('FRONTEND_URL', 'http://localhost:5173');
+
+// Debug mode
+define('DEBUG', getEnvVar('DEBUG', 'false') === 'true');
+
+// Application settings
+define('APP_ENV', getEnvVar('APP_ENV', 'development'));
+define('APP_URL', getEnvVar('APP_URL', 'http://localhost'));
+
+// Set error reporting based on environment
+if (APP_ENV === 'production') {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', DEBUG ? 1 : 0);
+}
 
 // Headers
 header('Content-Type: application/json');
@@ -50,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 function sendErrorResponse($message, $statusCode = 500)
 {
     http_response_code($statusCode);
-    echo json_encode(['error' => $message]);
+    echo json_encode(['error' => $message, 'success' => false]);
     exit;
 }
 
@@ -104,6 +151,11 @@ define('GENRE_MAP', [
     // Added Anime as a custom genre
     9999 => 'Anime'
 ]);
+
+// Check for required configuration
+if (empty(TMDB_API_KEY) && APP_ENV === 'production') {
+    sendErrorResponse('TMDB API key is not configured', 500);
+}
 
 // Helper function to detect if a show is likely anime
 function isAnime($show)
