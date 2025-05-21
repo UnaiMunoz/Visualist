@@ -5,6 +5,7 @@
 // Include required files
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../includes/ListManager.php';
+require_once __DIR__ . '/../../includes/Database.php';
 
 // Set response content type
 header('Content-Type: application/json');

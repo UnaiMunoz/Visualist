@@ -1,6 +1,8 @@
 <?php
 // backend/includes/ListManager.php
 
+require_once __DIR__ . '/Database.php';
+
 class ListManager
 {
     private $conn;
