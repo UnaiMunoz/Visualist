@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getAnimeDetails } from "../services/animeServices";
+import ListActionButtons from "../components/ListActionButtons";
 
 const AnimeDetail = () => {
   const { id } = useParams();
@@ -248,6 +249,9 @@ const AnimeDetail = () => {
                 </div>
               </div>
             </div>
+
+            {/* List Action Buttons - Add them right after the poster */}
+            <ListActionButtons contentId={parseInt(id)} contentType="anime" />
 
             <div className="anime-stats">
               <div className="anime-stat-item">

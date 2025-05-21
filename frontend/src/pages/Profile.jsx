@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile } from "../services/userServices";
+import UserList from "../components/UserList";
 
 const Profile = () => {
   const { currentUser, isLoggedIn, loading } = useAuth();
@@ -23,6 +24,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
 
   // Redirect if not logged in
   useEffect(() => {
@@ -161,23 +163,18 @@ const Profile = () => {
     );
   }
 
-  // Debug logs para diagnosticar el problema
-  console.log("Rendering Profile with bioDisplay:", bioDisplay);
-  console.log("Current formData.bio:", formData.bio);
-  console.log("Current currentUser?.short_bio:", currentUser?.short_bio);
-
   return (
     <div className="profile-container">
       <div className="profile-header">
         <h1>User Profile</h1>
-        {!isEditing ? (
+        {activeTab === "profile" && !isEditing ? (
           <button
             className="edit-profile-btn"
             onClick={() => setIsEditing(true)}
           >
             Edit Profile
           </button>
-        ) : (
+        ) : activeTab === "profile" && isEditing ? (
           <button
             className="cancel-edit-btn"
             onClick={() => {
@@ -199,7 +196,7 @@ const Profile = () => {
           >
             Cancel
           </button>
-        )}
+        ) : null}
       </div>
 
       {updateSuccess && (
@@ -208,169 +205,204 @@ const Profile = () => {
 
       {errors.form && <div className="error-message">{errors.form}</div>}
 
-      <div className="profile-content">
-        <form onSubmit={handleSubmit} className="profile-form">
-          <div className="form-group">
-            <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              className={`form-input ${isEditing ? "editable" : ""} ${
-                errors.name ? "input-error" : ""
-              }`}
-            />
-            {errors.name && <span className="error-text">{errors.name}</span>}
-          </div>
+      {/* Profile Tabs */}
+      <div className="profile-tabs">
+        <button
+          className={`profile-tab ${activeTab === "profile" ? "active" : ""}`}
+          onClick={() => setActiveTab("profile")}
+        >
+          Profile
+        </button>
+        <button
+          className={`profile-tab ${activeTab === "watched" ? "active" : ""}`}
+          onClick={() => setActiveTab("watched")}
+        >
+          Watched
+        </button>
+        <button
+          className={`profile-tab ${activeTab === "to_watch" ? "active" : ""}`}
+          onClick={() => setActiveTab("to_watch")}
+        >
+          To Watch
+        </button>
+        <button
+          className={`profile-tab ${activeTab === "favorites" ? "active" : ""}`}
+          onClick={() => setActiveTab("favorites")}
+        >
+          Favorites
+        </button>
+      </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              disabled={true} // Email cannot be changed
-              className="form-input"
-            />
-            {errors.email && <span className="error-text">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="bio">Bio</label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              className={`form-input bio-textarea ${
-                isEditing ? "editable" : ""
-              }`}
-              rows="4"
-              placeholder={
-                isEditing
-                  ? "Tell us a bit about yourself..."
-                  : "No bio added yet."
-              }
-            />
-          </div>
-
-          {isEditing && (
-            <div className="password-section">
-              <h3>Change Password</h3>
-              <p className="password-note">
-                Leave blank to keep current password
-              </p>
-
-              <div className="form-group">
-                <label htmlFor="currentPassword">Current Password</label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  name="currentPassword"
-                  value={formData.currentPassword}
-                  onChange={handleInputChange}
-                  className={`form-input ${
-                    errors.currentPassword ? "input-error" : ""
-                  }`}
-                />
-                {errors.currentPassword && (
-                  <span className="error-text">{errors.currentPassword}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="newPassword">New Password</label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
-                  className={`form-input ${
-                    errors.newPassword ? "input-error" : ""
-                  }`}
-                />
-                {errors.newPassword && (
-                  <span className="error-text">{errors.newPassword}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm New Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`form-input ${
-                    errors.confirmPassword ? "input-error" : ""
-                  }`}
-                />
-                {errors.confirmPassword && (
-                  <span className="error-text">{errors.confirmPassword}</span>
-                )}
-              </div>
+      {activeTab === "profile" ? (
+        <div className="profile-content">
+          <form onSubmit={handleSubmit} className="profile-form">
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className={`form-input ${isEditing ? "editable" : ""} ${
+                  errors.name ? "input-error" : ""
+                }`}
+              />
+              {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
-          )}
 
-          {isEditing && (
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="save-profile-btn"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          )}
-        </form>
-
-        <div className="profile-stats">
-          <div className="stats-card">
-            <h3>Your Stats</h3>
-            <div className="stat-item">
-              <span className="stat-label">Member Since</span>
-              <span className="stat-value">
-                {currentUser?.created_at
-                  ? new Date(currentUser.created_at).toLocaleDateString()
-                  : "N/A"}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Reviews Written</span>
-              <span className="stat-value">0</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Watchlist Items</span>
-              <span className="stat-value">0</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Watched Items</span>
-              <span className="stat-value">0</span>
-            </div>
-          </div>
-
-          {/* Usamos el estado local bioDisplay para mostrar la biografía */}
-          <div className="stats-card">
-            <h3>About Me</h3>
-            <div className="about-me-content">
-              {bioDisplay ? (
-                <p>{bioDisplay}</p>
-              ) : (
-                <p className="no-bio">No bio added yet.</p>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={true} // Email cannot be changed
+                className="form-input"
+              />
+              {errors.email && (
+                <span className="error-text">{errors.email}</span>
               )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bio">Bio</label>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className={`form-input bio-textarea ${
+                  isEditing ? "editable" : ""
+                }`}
+                rows="4"
+                placeholder={
+                  isEditing
+                    ? "Tell us a bit about yourself..."
+                    : "No bio added yet."
+                }
+              />
+            </div>
+
+            {isEditing && (
+              <div className="password-section">
+                <h3>Change Password</h3>
+                <p className="password-note">
+                  Leave blank to keep current password
+                </p>
+
+                <div className="form-group">
+                  <label htmlFor="currentPassword">Current Password</label>
+                  <input
+                    type="password"
+                    id="currentPassword"
+                    name="currentPassword"
+                    value={formData.currentPassword}
+                    onChange={handleInputChange}
+                    className={`form-input ${
+                      errors.currentPassword ? "input-error" : ""
+                    }`}
+                  />
+                  {errors.currentPassword && (
+                    <span className="error-text">{errors.currentPassword}</span>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="newPassword">New Password</label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleInputChange}
+                    className={`form-input ${
+                      errors.newPassword ? "input-error" : ""
+                    }`}
+                  />
+                  {errors.newPassword && (
+                    <span className="error-text">{errors.newPassword}</span>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Confirm New Password</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`form-input ${
+                      errors.confirmPassword ? "input-error" : ""
+                    }`}
+                  />
+                  {errors.confirmPassword && (
+                    <span className="error-text">{errors.confirmPassword}</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {isEditing && (
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="save-profile-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            )}
+          </form>
+
+          <div className="profile-stats">
+            <div className="stats-card">
+              <h3>Your Stats</h3>
+              <div className="stat-item">
+                <span className="stat-label">Member Since</span>
+                <span className="stat-value">
+                  {currentUser?.created_at
+                    ? new Date(currentUser.created_at).toLocaleDateString()
+                    : "N/A"}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Reviews Written</span>
+                <span className="stat-value">0</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Watchlist Items</span>
+                <span className="stat-value">0</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Watched Items</span>
+                <span className="stat-value">0</span>
+              </div>
+            </div>
+
+            {/* Usamos el estado local bioDisplay para mostrar la biografía */}
+            <div className="stats-card">
+              <h3>About Me</h3>
+              <div className="about-me-content">
+                {bioDisplay ? (
+                  <p>{bioDisplay}</p>
+                ) : (
+                  <p className="no-bio">No bio added yet.</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        // Show user list based on active tab
+        <UserList listType={activeTab} contentType="anime" />
+      )}
     </div>
   );
 };

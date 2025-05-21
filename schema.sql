@@ -1,4 +1,4 @@
--- Updated schema.sql with AniList references removed
+-- Updated schema.sql with anime lists functionality
 
 CREATE DATABASE IF NOT EXISTS Visualist;
 
@@ -22,7 +22,7 @@ CREATE TABLE Users (
 -- Tabla con referencias al contenido (usando solo TMDB)
 CREATE TABLE Content_References (
     reference_id INT AUTO_INCREMENT PRIMARY KEY,
-    type ENUM('movie', 'series', 'anime') NOT NULL,
+    type ENUM('anime', 'movie', 'series') NOT NULL,
     tmdb_id INT NOT NULL,
     title VARCHAR(255) NOT NULL, -- Guardar título para facilitar búsquedas sin llamar a la API
     year YEAR, -- Año de lanzamiento para facilitar filtros
@@ -147,3 +147,102 @@ CREATE TABLE User_Preferences (
     email_notifications BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
+
+-- Create stored procedures for list management
+
+-- Create stored procedure to add content to Watched list
+DELIMITER //
+CREATE PROCEDURE add_to_watched(
+    IN p_user_id INT,
+    IN p_reference_id INT
+)
+BEGIN
+    INSERT INTO User_Content_Status (user_id, reference_id, status)
+    VALUES (p_user_id, p_reference_id, 'completed')
+    ON DUPLICATE KEY UPDATE 
+        status = 'completed',
+        updated_at = CURRENT_TIMESTAMP;
+END //
+DELIMITER ;
+
+-- Create stored procedure to add content to To Watch list
+DELIMITER //
+CREATE PROCEDURE add_to_to_watch(
+    IN p_user_id INT,
+    IN p_reference_id INT
+)
+BEGIN
+    INSERT INTO User_Content_Status (user_id, reference_id, status)
+    VALUES (p_user_id, p_reference_id, 'plan_to_watch')
+    ON DUPLICATE KEY UPDATE 
+        status = 'plan_to_watch',
+        updated_at = CURRENT_TIMESTAMP;
+END //
+DELIMITER ;
+
+-- Create stored procedure to add content to Favorites
+DELIMITER //
+CREATE PROCEDURE add_to_favorites(
+    IN p_user_id INT,
+    IN p_reference_id INT
+)
+BEGIN
+    INSERT IGNORE INTO Favorites (user_id, reference_id)
+    VALUES (p_user_id, p_reference_id);
+END //
+DELIMITER ;
+
+-- Create stored procedure to remove content from Watched/To Watch lists
+DELIMITER //
+CREATE PROCEDURE remove_from_status_list(
+    IN p_user_id INT,
+    IN p_reference_id INT,
+    IN p_status VARCHAR(20)
+)
+BEGIN
+    DELETE FROM User_Content_Status 
+    WHERE user_id = p_user_id 
+    AND reference_id = p_reference_id
+    AND status = p_status;
+END //
+DELIMITER ;
+
+-- Create stored procedure to remove content from Favorites
+DELIMITER //
+CREATE PROCEDURE remove_from_favorites(
+    IN p_user_id INT,
+    IN p_reference_id INT
+)
+BEGIN
+    DELETE FROM Favorites 
+    WHERE user_id = p_user_id 
+    AND reference_id = p_reference_id;
+END //
+DELIMITER ;
+
+-- Create stored procedure to check a user's list status for content
+DELIMITER //
+CREATE PROCEDURE check_list_status(
+    IN p_user_id INT,
+    IN p_reference_id INT
+)
+BEGIN
+    SELECT 
+        (SELECT 1 FROM User_Content_Status WHERE user_id = p_user_id AND reference_id = p_reference_id AND status = 'completed') IS NOT NULL AS watched,
+        (SELECT 1 FROM User_Content_Status WHERE user_id = p_user_id AND reference_id = p_reference_id AND status = 'plan_to_watch') IS NOT NULL AS to_watch,
+        (SELECT 1 FROM Favorites WHERE user_id = p_user_id AND reference_id = p_reference_id) IS NOT NULL AS favorites;
+END //
+DELIMITER ;
+
+-- Create stored procedure to get total counts for each list type
+DELIMITER //
+CREATE PROCEDURE get_user_list_counts(
+    IN p_user_id INT
+)
+BEGIN
+    SELECT 
+        (SELECT COUNT(*) FROM User_Content_Status WHERE user_id = p_user_id AND status = 'completed') AS watched_count,
+        (SELECT COUNT(*) FROM User_Content_Status WHERE user_id = p_user_id AND status = 'plan_to_watch') AS to_watch_count,
+        (SELECT COUNT(*) FROM Favorites WHERE user_id = p_user_id) AS favorites_count;
+END //
+DELIMITER ;

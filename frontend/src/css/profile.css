@@ -64,6 +64,37 @@
   text-align: center;
 }
 
+/* Profile tabs */
+.profile-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.profile-tab {
+  padding: 10px 20px;
+  background-color: #1f2937;
+  color: #a8b2c1;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #374151;
+  white-space: nowrap;
+}
+
+.profile-tab:hover {
+  background-color: #2d3748;
+  color: #e5e5e5;
+}
+
+.profile-tab.active {
+  background-color: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
 .profile-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -207,6 +238,42 @@
   line-height: 1.6;
 }
 
+/* User List Styles */
+.user-list-container {
+  background-color: #1f2937;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.list-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #e5e5e5;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 12px;
+}
+
+.empty-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.empty-list p {
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.list-error {
+  margin-bottom: 20px;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .profile-content {
@@ -215,6 +282,16 @@
 
   .profile-stats {
     order: -1;
+  }
+
+  .profile-tabs {
+    padding-bottom: 4px;
+    gap: 4px;
+  }
+
+  .profile-tab {
+    padding: 8px 16px;
+    font-size: 0.9rem;
   }
 }
 
@@ -227,5 +304,19 @@
 
   .profile-header h1 {
     font-size: 1.5rem;
+  }
+
+  .profile-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  .profile-tab {
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    font-size: 0.85rem;
   }
 }

@@ -1,0 +1,96 @@
+/* frontend/src/css/list-buttons.css */
+
+/* List action buttons container */
+.list-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+/* Base button style */
+.list-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #1f2937;
+  color: #e5e5e5;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border: 1px solid #374151;
+  flex: 1;
+  min-width: 140px;
+}
+
+.list-btn:hover:not(:disabled) {
+  background-color: #2d3748;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.list-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Active states for each button type */
+.list-btn.active {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+/* Watched button specific colors */
+.list-btn.active:nth-child(1) {
+  background-color: #059669; /* Green for watched */
+  border-color: #059669;
+}
+
+/* Watch List button specific colors */
+.list-btn.active:nth-child(2) {
+  background-color: #2563eb; /* Blue for watch list */
+  border-color: #2563eb;
+}
+
+/* Favorites button specific colors */
+.list-btn.active:nth-child(3) {
+  background-color: #dc2626; /* Red for favorites */
+  border-color: #dc2626;
+}
+
+/* Loading state */
+.list-btn.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.list-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .list-action-buttons {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .list-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-action-buttons {
+    flex-direction: column;
+  }
+
+  .list-btn {
+    width: 100%;
+  }
+}
