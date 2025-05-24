@@ -71,7 +71,7 @@ class TMDBAnimeService
           '&with_genres=16' .
           '&with_original_language=ja' .
           '&sort_by=vote_average.desc' . // Order by rating in descending order
-          '&vote_count.gte=50' . // Minimum vote count for reliability
+          '&vote_count.gte=150' . // Minimum vote count for reliability
           '&page=' . $tmdbPage;
 
         $response = ApiHelper::restRequest($url);
