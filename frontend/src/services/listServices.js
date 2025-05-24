@@ -157,3 +157,70 @@ export const getUserList = async (
     };
   }
 };
+
+/**
+ * Update additional content data (score, progress, notes)
+ * @param {number} contentId - The TMDB ID of the content
+ * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {object} data - Object containing score, progress, and notes
+ * @returns {Promise} - A promise that resolves to the API response
+ */
+export const updateContentData = async (contentId, contentType, data) => {
+  try {
+    const response = await fetch(`${API_URL}/lists/update-data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentId,
+        contentType,
+        ...data,
+      }),
+      credentials: "include", // Important for cookies
+    });
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating content data:", error);
+    return {
+      success: false,
+      message: "Network error. Please try again later.",
+    };
+  }
+};
+
+/**
+ * Get additional content data (score, progress, notes)
+ * @param {number} contentId - The TMDB ID of the content
+ * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @returns {Promise} - A promise that resolves to the content data
+ */
+export const getContentData = async (contentId, contentType) => {
+  try {
+    const response = await fetch(
+      `${API_URL}/lists/get-data?contentId=${contentId}&contentType=${contentType}`,
+      {
+        method: "GET",
+        credentials: "include", // Important for cookies
+      }
+    );
+
+    const data = await response.json();
+
+    return data.success
+      ? data.data
+      : {
+          score: 0,
+          progress: 0,
+          notes: "",
+        };
+  } catch (error) {
+    console.error("Error getting content data:", error);
+    return {
+      score: 0,
+      progress: 0,
+      notes: "",
+    };
+  }
+};

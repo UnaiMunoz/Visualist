@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getAnimeDetails } from "../services/animeServices";
-import ListActionButtons from "../components/ListActionButtons";
+import AnimeStatusButton from "../components/AnimeStatusButton"; // Cambio aquí
 
 const AnimeDetail = () => {
   const { id } = useParams();
@@ -250,8 +250,12 @@ const AnimeDetail = () => {
               </div>
             </div>
 
-            {/* List Action Buttons - Add them right after the poster */}
-            <ListActionButtons contentId={parseInt(id)} contentType="anime" />
+            {/* Nuevo botón de estado - Reemplaza ListActionButtons */}
+            <AnimeStatusButton
+              contentId={parseInt(id)}
+              contentType="anime"
+              animeTitle={title}
+            />
 
             <div className="anime-stats">
               <div className="anime-stat-item">

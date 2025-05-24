@@ -221,6 +221,101 @@ class ListManager
     }
 
     /**
+     * Update additional data (score, progress, notes) for content in user's list
+     */
+    public function updateContentData($userId, $contentId, $contentType, $data)
+    {
+        // Get the reference ID for this content
+        $referenceId = $this->getContentReferenceId($contentId, $contentType);
+
+        if (!$referenceId) {
+            // If content doesn't exist in references, we need to create it first
+            $referenceId = $this->ensureContentReference($contentId, $contentType);
+        }
+
+        try {
+            // Check if a record already exists in User_Content_Status
+            $checkQuery = "SELECT * FROM User_Content_Status 
+                          WHERE user_id = :user_id AND reference_id = :reference_id";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->bindParam(':user_id', $userId);
+            $checkStmt->bindParam(':reference_id', $referenceId);
+            $checkStmt->execute();
+
+            if ($checkStmt->fetch(PDO::FETCH_ASSOC)) {
+                // Update existing record
+                $query = "UPDATE User_Content_Status 
+                         SET score = :score, 
+                             progress = :progress, 
+                             notes = :notes,
+                             updated_at = CURRENT_TIMESTAMP
+                         WHERE user_id = :user_id AND reference_id = :reference_id";
+            } else {
+                // Insert new record with default status (this shouldn't happen in normal flow)
+                $query = "INSERT INTO User_Content_Status 
+                         (user_id, reference_id, status, score, progress, notes) 
+                         VALUES (:user_id, :reference_id, 'plan_to_watch', :score, :progress, :notes)";
+            }
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':score', $data['score']);
+            $stmt->bindParam(':progress', $data['progress']);
+            $stmt->bindParam(':notes', $data['notes']);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':reference_id', $referenceId);
+
+            if ($stmt->execute()) {
+                return [
+                    'reference_id' => $referenceId,
+                    'updated' => true,
+                    'data' => $data
+                ];
+            } else {
+                throw new Exception("Failed to update content data");
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Get additional content data for a user
+     */
+    public function getContentData($userId, $contentId, $contentType)
+    {
+        $referenceId = $this->getContentReferenceId($contentId, $contentType);
+
+        if (!$referenceId) {
+            return [
+                'score' => 0,
+                'progress' => 0,
+                'notes' => ''
+            ];
+        }
+
+        $query = "SELECT score, progress, notes FROM User_Content_Status 
+                  WHERE user_id = :user_id AND reference_id = :reference_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':reference_id', $referenceId);
+        $stmt->execute();
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            return [
+                'score' => $row['score'] ? (float)$row['score'] : 0,
+                'progress' => $row['progress'] ? (int)$row['progress'] : 0,
+                'notes' => $row['notes'] ?: ''
+            ];
+        }
+
+        return [
+            'score' => 0,
+            'progress' => 0,
+            'notes' => ''
+        ];
+    }
+
+    /**
      * Add to favorites list
      */
     private function addToFavorites($userId, $referenceId)
