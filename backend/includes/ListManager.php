@@ -30,8 +30,9 @@ class ListManager
             case 'favorites':
                 return $this->addToFavorites($userId, $referenceId);
             case 'watched':
+                return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
             case 'to_watch':
-                return $this->addToUserContentStatus($userId, $referenceId, $listType);
+                return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
             default:
                 throw new Exception("Invalid list type: $listType");
         }
@@ -270,55 +271,84 @@ class ListManager
     }
 
     /**
-     * Add to user content status (watched or to_watch lists)
+     * Add to user content status (watched or to_watch lists) with mutual exclusivity
      */
-    private function addToUserContentStatus($userId, $referenceId, $listType)
+    private function addToUserContentStatus($userId, $referenceId, $listType, $handleExclusivity = false)
     {
         // Map list type to status
         $status = ($listType === 'watched') ? 'completed' : 'plan_to_watch';
 
-        // Check if already has a status
-        $checkQuery = "SELECT status FROM User_Content_Status 
-                      WHERE user_id = :user_id AND reference_id = :reference_id";
-        $checkStmt = $this->conn->prepare($checkQuery);
-        $checkStmt->bindParam(':user_id', $userId);
-        $checkStmt->bindParam(':reference_id', $referenceId);
-        $checkStmt->execute();
+        // Start transaction for mutual exclusivity handling
+        $this->conn->beginTransaction();
 
-        if ($row = $checkStmt->fetch(PDO::FETCH_ASSOC)) {
-            // Update existing status
-            $query = "UPDATE User_Content_Status 
-                     SET status = :status, updated_at = CURRENT_TIMESTAMP
-                     WHERE user_id = :user_id AND reference_id = :reference_id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':status', $status);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->bindParam(':reference_id', $referenceId);
-
-            if ($stmt->execute()) {
-                return [
-                    'reference_id' => $referenceId,
-                    'updated' => true,
-                    'previous_status' => $row['status'],
-                    'new_status' => $status
-                ];
-            } else {
-                throw new Exception("Failed to update status");
+        try {
+            // If handling exclusivity and adding to watched, remove from to_watch first
+            if ($handleExclusivity && $listType === 'watched') {
+                $removeQuery = "DELETE FROM User_Content_Status 
+                               WHERE user_id = :user_id AND reference_id = :reference_id AND status = 'plan_to_watch'";
+                $removeStmt = $this->conn->prepare($removeQuery);
+                $removeStmt->bindParam(':user_id', $userId);
+                $removeStmt->bindParam(':reference_id', $referenceId);
+                $removeStmt->execute();
             }
-        } else {
-            // Insert new status
-            $query = "INSERT INTO User_Content_Status (user_id, reference_id, status) 
-                     VALUES (:user_id, :reference_id, :status)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->bindParam(':reference_id', $referenceId);
-            $stmt->bindParam(':status', $status);
-
-            if ($stmt->execute()) {
-                return ['reference_id' => $referenceId, 'added' => true, 'status' => $status];
-            } else {
-                throw new Exception("Failed to add status");
+            // If handling exclusivity and adding to to_watch, remove from watched first
+            else if ($handleExclusivity && $listType === 'to_watch') {
+                $removeQuery = "DELETE FROM User_Content_Status 
+                               WHERE user_id = :user_id AND reference_id = :reference_id AND status = 'completed'";
+                $removeStmt = $this->conn->prepare($removeQuery);
+                $removeStmt->bindParam(':user_id', $userId);
+                $removeStmt->bindParam(':reference_id', $referenceId);
+                $removeStmt->execute();
             }
+
+            // Check if already has this status
+            $checkQuery = "SELECT status FROM User_Content_Status 
+                          WHERE user_id = :user_id AND reference_id = :reference_id";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->bindParam(':user_id', $userId);
+            $checkStmt->bindParam(':reference_id', $referenceId);
+            $checkStmt->execute();
+
+            if ($row = $checkStmt->fetch(PDO::FETCH_ASSOC)) {
+                // Update existing status
+                $query = "UPDATE User_Content_Status 
+                         SET status = :status, updated_at = CURRENT_TIMESTAMP
+                         WHERE user_id = :user_id AND reference_id = :reference_id";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':status', $status);
+                $stmt->bindParam(':user_id', $userId);
+                $stmt->bindParam(':reference_id', $referenceId);
+
+                if ($stmt->execute()) {
+                    $this->conn->commit();
+                    return [
+                        'reference_id' => $referenceId,
+                        'updated' => true,
+                        'previous_status' => $row['status'],
+                        'new_status' => $status
+                    ];
+                } else {
+                    throw new Exception("Failed to update status");
+                }
+            } else {
+                // Insert new status
+                $query = "INSERT INTO User_Content_Status (user_id, reference_id, status) 
+                         VALUES (:user_id, :reference_id, :status)";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':user_id', $userId);
+                $stmt->bindParam(':reference_id', $referenceId);
+                $stmt->bindParam(':status', $status);
+
+                if ($stmt->execute()) {
+                    $this->conn->commit();
+                    return ['reference_id' => $referenceId, 'added' => true, 'status' => $status];
+                } else {
+                    throw new Exception("Failed to add status");
+                }
+            }
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            throw $e;
         }
     }
 

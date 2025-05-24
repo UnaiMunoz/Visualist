@@ -3,12 +3,23 @@
 /* List action buttons container */
 .list-action-buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
   margin: 20px 0;
 }
 
-/* Base button style */
+/* Top row for watched and to_watch buttons */
+.list-action-buttons .button-row-top {
+  display: flex;
+  gap: 12px;
+}
+
+/* Bottom row for favorites button */
+.list-action-buttons .button-row-bottom {
+  display: flex;
+}
+
+/* Base button style with fixed dimensions */
 .list-btn {
   display: flex;
   align-items: center;
@@ -23,7 +34,12 @@
   transition: all 0.2s ease;
   border: 1px solid #374151;
   flex: 1;
-  min-width: 140px;
+  min-width: 140px; /* Minimum width for consistency */
+  height: 44px; /* Fixed height */
+  text-align: center;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow content */
+  position: relative;
 }
 
 .list-btn:hover:not(:disabled) {
@@ -61,10 +77,34 @@
   border-color: #dc2626;
 }
 
-/* Loading state */
+/* Loading state with spinner */
 .list-btn.loading {
-  opacity: 0.7;
+  opacity: 0.8;
   cursor: not-allowed;
+  position: relative;
+}
+
+.list-btn.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-50%) rotate(360deg);
+  }
 }
 
 .list-btn:disabled {
@@ -72,25 +112,58 @@
   cursor: not-allowed;
 }
 
+/* Button text container to control text overflow */
+.list-btn-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-grow: 1;
+  text-align: center;
+}
+
+/* Icon styling */
+.list-btn svg {
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  width: 16px;
+  height: 16px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .list-action-buttons {
-    flex-direction: row;
+  .list-action-buttons .button-row-top {
+    flex-direction: column;
     gap: 8px;
   }
 
   .list-btn {
     padding: 8px 12px;
     font-size: 0.8rem;
+    min-width: 120px;
+    height: 40px;
+  }
+
+  .list-btn svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
-@media (max-width: 480px) {
-  .list-action-buttons {
+@media (max-width: 600px) {
+  .list-action-buttons .button-row-top {
     flex-direction: column;
   }
 
   .list-btn {
     width: 100%;
+    min-width: auto;
   }
+}
+
+/* Hover effects for better UX */
+.list-btn:hover:not(:disabled):not(.loading) {
+  background-color: #2d3748;
+}
+
+.list-btn.active:hover:not(:disabled):not(.loading) {
+  filter: brightness(1.1);
 }

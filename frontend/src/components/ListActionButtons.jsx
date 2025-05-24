@@ -42,94 +42,133 @@ const ListActionButtons = ({ contentId, contentType }) => {
 
     setLoading(true);
     try {
+      let newStatus = { ...inLists };
+
       if (inLists[listType]) {
         // Remove from list
         await removeFromList(contentId, contentType, listType);
-        setInLists({ ...inLists, [listType]: false });
+        newStatus[listType] = false;
       } else {
         // Add to list
         await addToList(contentId, contentType, listType);
-        setInLists({ ...inLists, [listType]: true });
+        newStatus[listType] = true;
+
+        // Handle mutual exclusivity between watched and to_watch
+        if (listType === "watched" && inLists.to_watch) {
+          // If adding to watched and item is in to_watch, remove from to_watch
+          await removeFromList(contentId, contentType, "to_watch");
+          newStatus.to_watch = false;
+        } else if (listType === "to_watch" && inLists.watched) {
+          // If adding to to_watch and item is watched, remove from watched
+          await removeFromList(contentId, contentType, "watched");
+          newStatus.watched = false;
+        }
       }
+
+      // Update the state with the new status
+      setInLists(newStatus);
     } catch (error) {
       console.error(`Error updating ${listType} list:`, error);
+      // Optionally, show an error message to the user
     } finally {
       setLoading(false);
     }
   };
 
+  // Button configuration to maintain consistent text lengths
+  const getButtonConfig = (listType) => {
+    const configs = {
+      watched: {
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        ),
+        activeText: "Watched",
+        inactiveText: "Add to Watched",
+      },
+      to_watch: {
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        ),
+        activeText: "In Watch List",
+        inactiveText: "Add to Watch List",
+      },
+      favorites: {
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill={inLists.favorites ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        ),
+        activeText: "Favorited",
+        inactiveText: "Add to Favorites",
+      },
+    };
+
+    return configs[listType];
+  };
+
+  const renderButton = (listType) => {
+    const config = getButtonConfig(listType);
+    const isActive = inLists[listType];
+    const isCurrentlyLoading = loading;
+
+    return (
+      <button
+        key={listType}
+        className={`list-btn ${isActive ? "active" : ""} ${
+          isCurrentlyLoading ? "loading" : ""
+        }`}
+        onClick={() => handleButtonClick(listType)}
+        disabled={isCurrentlyLoading}
+      >
+        {config.icon}
+        <span className="list-btn-text">
+          {isActive ? config.activeText : config.inactiveText}
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div className="list-action-buttons">
-      <button
-        className={`list-btn ${inLists.watched ? "active" : ""} ${
-          loading ? "loading" : ""
-        }`}
-        onClick={() => handleButtonClick("watched")}
-        disabled={loading}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        {inLists.watched ? "Watched" : "Mark as Watched"}
-      </button>
-
-      <button
-        className={`list-btn ${inLists.to_watch ? "active" : ""} ${
-          loading ? "loading" : ""
-        }`}
-        onClick={() => handleButtonClick("to_watch")}
-        disabled={loading}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="12 6 12 12 16 14"></polyline>
-        </svg>
-        {inLists.to_watch ? "On Watch List" : "Add to Watch List"}
-      </button>
-
-      <button
-        className={`list-btn ${inLists.favorites ? "active" : ""} ${
-          loading ? "loading" : ""
-        }`}
-        onClick={() => handleButtonClick("favorites")}
-        disabled={loading}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill={inLists.favorites ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-        {inLists.favorites ? "Favorited" : "Add to Favorites"}
-      </button>
+      {renderButton("watched")}
+      {renderButton("to_watch")}
+      {renderButton("favorites")}
     </div>
   );
 };
