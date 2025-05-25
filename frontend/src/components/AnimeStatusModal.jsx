@@ -71,12 +71,6 @@ const AnimeStatusModal = ({
         watched: statusType === "watched" ? !prev.watched : false,
         to_watch: statusType === "to_watch" ? !prev.to_watch : false,
       }));
-    } else {
-      // Handle favorites
-      setStatus((prev) => ({
-        ...prev,
-        [statusType]: !prev[statusType],
-      }));
     }
   };
 
@@ -100,13 +94,6 @@ const AnimeStatusModal = ({
         await addToList(contentId, contentType, "to_watch");
       } else {
         await removeFromList(contentId, contentType, "to_watch");
-      }
-
-      // Handle favorites
-      if (status.favorites) {
-        await addToList(contentId, contentType, "favorites");
-      } else {
-        await removeFromList(contentId, contentType, "favorites");
       }
 
       // Update additional data (score, progress, notes)
@@ -139,7 +126,10 @@ const AnimeStatusModal = ({
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content compact-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2 className="modal-title">Update Status</h2>
           <button className="modal-close-btn" onClick={handleClose}>
@@ -160,7 +150,7 @@ const AnimeStatusModal = ({
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body compact-body">
           {loading ? (
             <div className="modal-loading">
               <div className="loading-spinner"></div>
@@ -172,162 +162,150 @@ const AnimeStatusModal = ({
                 <h3 className="anime-title">{animeTitle}</h3>
               </div>
 
-              <div className="status-section">
-                <h4 className="section-title">Watch Status</h4>
-                <div className="status-options">
-                  <label className="status-option">
-                    <input
-                      type="radio"
-                      name="watchStatus"
-                      checked={status.watched}
-                      onChange={() => handleStatusChange("watched")}
-                    />
-                    <span className="status-label">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                      </svg>
-                      Watched
-                    </span>
-                  </label>
+              <div className="compact-grid">
+                {/* Left Column - Status */}
+                <div className="status-column">
+                  <h4 className="section-title">Watch Status</h4>
+                  <div className="status-options compact-options">
+                    <label className="status-option compact-option">
+                      <input
+                        type="radio"
+                        name="watchStatus"
+                        checked={status.watched}
+                        onChange={() => handleStatusChange("watched")}
+                      />
+                      <span className="status-label">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Watched
+                      </span>
+                    </label>
 
-                  <label className="status-option">
-                    <input
-                      type="radio"
-                      name="watchStatus"
-                      checked={status.to_watch}
-                      onChange={() => handleStatusChange("to_watch")}
-                    />
-                    <span className="status-label">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      Plan to Watch
-                    </span>
-                  </label>
+                    <label className="status-option compact-option">
+                      <input
+                        type="radio"
+                        name="watchStatus"
+                        checked={status.to_watch}
+                        onChange={() => handleStatusChange("to_watch")}
+                      />
+                      <span className="status-label">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Plan to Watch
+                      </span>
+                    </label>
 
-                  <label className="status-option">
-                    <input
-                      type="radio"
-                      name="watchStatus"
-                      checked={!status.watched && !status.to_watch}
-                      onChange={() => {
-                        setStatus((prev) => ({
-                          ...prev,
-                          watched: false,
-                          to_watch: false,
-                        }));
-                      }}
-                    />
-                    <span className="status-label">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                      </svg>
-                      Not in List
-                    </span>
-                  </label>
+                    <label className="status-option compact-option">
+                      <input
+                        type="radio"
+                        name="watchStatus"
+                        checked={!status.watched && !status.to_watch}
+                        onChange={() => {
+                          setStatus((prev) => ({
+                            ...prev,
+                            watched: false,
+                            to_watch: false,
+                          }));
+                        }}
+                      />
+                      <span className="status-label">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line
+                            x1="4.93"
+                            y1="4.93"
+                            x2="19.07"
+                            y2="19.07"
+                          ></line>
+                        </svg>
+                        Not in List
+                      </span>
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              <div className="favorites-section">
-                <label className="favorites-option">
-                  <input
-                    type="checkbox"
-                    checked={status.favorites}
-                    onChange={() => handleStatusChange("favorites")}
-                  />
-                  <span className="favorites-label">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill={status.favorites ? "currentColor" : "none"}
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                    </svg>
-                    Add to Favorites
-                  </span>
-                </label>
-              </div>
+                {/* Right Column - Score & Progress */}
+                <div className="data-column">
+                  <div className="score-section compact-section">
+                    <h4 className="section-title">Score</h4>
+                    <div className="score-input-container">
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        step="0.5"
+                        value={score}
+                        onChange={(e) => setScore(parseFloat(e.target.value))}
+                        className="score-slider"
+                      />
+                      <div className="score-display">
+                        {score === 0 ? "Not Rated" : `${score}/10`}
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="score-section">
-                <h4 className="section-title">Score</h4>
-                <div className="score-input-container">
-                  <input
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="0.5"
-                    value={score}
-                    onChange={(e) => setScore(parseFloat(e.target.value))}
-                    className="score-slider"
-                  />
-                  <div className="score-display">
-                    {score === 0 ? "Not Rated" : `${score}/10`}
+                  <div className="progress-section compact-section">
+                    <h4 className="section-title">Progress</h4>
+                    <div className="progress-input-container">
+                      <input
+                        type="number"
+                        min="0"
+                        value={progress}
+                        onChange={(e) =>
+                          setProgress(parseInt(e.target.value) || 0)
+                        }
+                        className="progress-input"
+                        placeholder="Episodes"
+                      />
+                      <span className="progress-label">eps</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="progress-section">
-                <h4 className="section-title">Progress</h4>
-                <div className="progress-input-container">
-                  <input
-                    type="number"
-                    min="0"
-                    value={progress}
-                    onChange={(e) => setProgress(parseInt(e.target.value) || 0)}
-                    className="progress-input"
-                    placeholder="Episodes watched"
-                  />
-                  <span className="progress-label">episodes</span>
-                </div>
-              </div>
-
-              <div className="notes-section">
+              {/* Notes Section - Full Width */}
+              <div className="notes-section compact-section">
                 <h4 className="section-title">Notes</h4>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="notes-textarea"
+                  className="notes-textarea compact-textarea"
                   placeholder="Add your personal notes..."
-                  rows="3"
+                  rows="2"
                 />
               </div>
             </>
