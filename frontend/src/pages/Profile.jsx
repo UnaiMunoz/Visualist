@@ -5,7 +5,7 @@ import { updateProfile } from "../services/userServices";
 import UserList from "../components/UserList";
 
 const Profile = () => {
-  const { currentUser, isLoggedIn, loading } = useAuth();
+  const { currentUser, isLoggedIn, loading, logout } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -148,6 +148,15 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading">
@@ -167,36 +176,43 @@ const Profile = () => {
     <div className="profile-container">
       <div className="profile-header">
         <h1>User Profile</h1>
-        {activeTab === "profile" && !isEditing ? (
-          <button
-            className="edit-profile-btn"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit Profile
+        <div className="profile-header-actions">
+          {activeTab === "profile" && !isEditing ? (
+            <button
+              className="edit-profile-btn"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Profile
+            </button>
+          ) : activeTab === "profile" && isEditing ? (
+            <button
+              className="cancel-edit-btn"
+              onClick={() => {
+                setIsEditing(false);
+                setErrors({});
+                // Reset form to current user data
+                if (currentUser) {
+                  setFormData({
+                    ...formData,
+                    name: currentUser.name || "",
+                    email: currentUser.email || "",
+                    bio: currentUser.short_bio || "",
+                    currentPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  });
+                }
+              }}
+            >
+              Cancel
+            </button>
+          ) : null}
+
+          {/* Logout button - always visible */}
+          <button className="logout-btn" onClick={handleLogout} title="Logout">
+            Logout
           </button>
-        ) : activeTab === "profile" && isEditing ? (
-          <button
-            className="cancel-edit-btn"
-            onClick={() => {
-              setIsEditing(false);
-              setErrors({});
-              // Reset form to current user data
-              if (currentUser) {
-                setFormData({
-                  ...formData,
-                  name: currentUser.name || "",
-                  email: currentUser.email || "",
-                  bio: currentUser.short_bio || "",
-                  currentPassword: "",
-                  newPassword: "",
-                  confirmPassword: "",
-                });
-              }
-            }}
-          >
-            Cancel
-          </button>
-        ) : null}
+        </div>
       </div>
 
       {updateSuccess && (

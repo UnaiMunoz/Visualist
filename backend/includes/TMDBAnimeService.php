@@ -13,35 +13,29 @@ class TMDBAnimeService
    * @param int $limit Number of results to return
    * @return array Top rated anime
    */
-  public function getTopAnime($limit = 10)
-  {
+public function getTopAnime($limit = 10)
+{
     try {
-      // TMDB doesn't have a direct "anime" category, so we'll use a combination of:
-      // 1. Animation genre (ID: 16)
-      // 2. From Japanese origin (origin_country=JP)
-      // We'll search for TV shows with these filters and order by rating in descending order
-
-      $url = TMDB_API_URL . '/discover/tv?api_key=' . TMDB_API_KEY .
-        '&with_genres=16' .
-        '&with_original_language=ja' .
-        '&sort_by=vote_average.desc' . // Ensure ordering by rating in descending order
-        '&vote_count.gte=200' . // Increased minimum vote count for reliability
-        '&page=1';
-
-      $response = ApiHelper::restRequest($url);
-
-      if (!isset($response['results'])) {
-        throw new Exception('Invalid TMDb API response');
-      }
-
-      // Format the results to match the expected structure
-      $animeList = $this->formatAnimeResults(array_slice($response['results'], 0, $limit));
-
-      return $animeList;
+        if (empty(TMDB_API_KEY)) {
+            throw new Exception('TMDB API key not configured');
+        }
+        
+        $url = TMDB_API_URL . '/discover/tv?api_key=' . TMDB_API_KEY . 
+               '&with_genres=16&with_original_language=ja' .
+               '&sort_by=vote_average.desc&vote_count.gte=200&page=1';
+               
+        $response = ApiHelper::restRequest($url);
+        
+        if (!isset($response['results']) || empty($response['results'])) {
+            throw new Exception('No anime data received from TMDB');
+        }
+        
+        return $this->formatAnimeResults(array_slice($response['results'], 0, $limit));
     } catch (Exception $e) {
-      throw new Exception('Error fetching top anime: ' . $e->getMessage());
+        error_log("Error in getTopAnime: " . $e->getMessage());
+        throw new Exception('Error fetching top anime: ' . $e->getMessage());
     }
-  }
+}
 
   /**
    * Get paginated anime list

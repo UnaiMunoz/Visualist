@@ -33,69 +33,6 @@ ul {
   padding: 0 16px;
 }
 
-/* Navbar styles */
-.navbar {
-  background-color: #161b22;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.navbar-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  width: 200px; /* Fixed width to match the buttons section */
-}
-
-.navbar-nav {
-  display: flex;
-  gap: 24px;
-  flex: 1;
-  justify-content: center;
-}
-
-.nav-link {
-  color: #a8b2c1;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: #58a6ff;
-}
-
-.navbar-buttons {
-  display: flex;
-  gap: 16px;
-  width: 200px; /* Fixed width to match the logo section */
-  justify-content: flex-end;
-}
-
-.navbar-btn {
-  background-color: #2563eb;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.navbar-btn:hover {
-  background-color: #1d4ed8;
-}
-
-/* Botones paginador */
-.navbar-btn:disabled {
-  background-color: #003572; /* Color de fondo gris cuando está deshabilitado */
-  cursor: not-allowed; /* Cambia el cursor a uno deshabilitado */
-  opacity: 0.8; /* Reduce la opacidad para que parezca deshabilitado */
-}
 
 /* Hero styles */
 .hero {
@@ -766,11 +703,6 @@ ul {
 }
 
 @media (max-width: 480px) {
-  .navbar {
-    flex-direction: column;
-    gap: 16px;
-  }
-
   .hero {
     height: 320px;
   }

@@ -87,6 +87,13 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
 
+if (empty(TMDB_API_KEY)) {
+    error_log("WARNING: TMDB_API_KEY no está configurada");
+    if (APP_ENV === 'production') {
+        sendErrorResponse('API key not configured', 500);
+    }
+}
+
 // Handle OPTIONS requests for CORS preflight
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     header("HTTP/1.1 200 OK");
