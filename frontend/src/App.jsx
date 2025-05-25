@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Anime from "./pages/Anime";
 import AnimeDetail from "./pages/AnimeDetail";
 import Movies from "./pages/Movies";
+import MovieDetail from "./pages/MovieDetail";
 import Series from "./pages/Series";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -71,6 +72,7 @@ const AppRoutes = () => {
         <Route path="/anime" element={<Anime />} />
         <Route path="/anime/:id" element={<AnimeDetail />} />
         <Route path="/movies" element={<Movies />} />
+        <Route path="/movies/:id" element={<MovieDetail />} />
         <Route path="/series" element={<Series />} />
         <Route
           path="/register"

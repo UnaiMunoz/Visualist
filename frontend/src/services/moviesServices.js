@@ -129,3 +129,44 @@ export const searchMovies = async (searchTerm, page = 1, perPage = 24) => {
     };
   }
 };
+
+// NEW: Get movie details by ID
+export const getMovieDetails = async (id) => {
+  try {
+    // Check for cached data first
+    const cachedMovie = localStorage.getItem(`movie_${id}`);
+    const cachedTime = localStorage.getItem(`movie_${id}_timestamp`);
+    const CACHE_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+    // If cached data exists and isn't expired
+    if (cachedMovie && cachedTime) {
+      const now = Date.now();
+      if (now - parseInt(cachedTime) < CACHE_TIME) {
+        console.log(`Using cached data for movie ID ${id}`);
+        return JSON.parse(cachedMovie);
+      }
+    }
+
+    // Fetch from API
+    const url = `${API_URL}/movies/detail?id=${id}`;
+    console.log("Making API call to:", url);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Parsed movie detail data:", data);
+
+    // Save data to cache
+    localStorage.setItem(`movie_${id}`, JSON.stringify(data));
+    localStorage.setItem(`movie_${id}_timestamp`, Date.now().toString());
+
+    return data;
+  } catch (error) {
+    console.error(`Error getting movie details for ID ${id}:`, error);
+    throw error;
+  }
+};

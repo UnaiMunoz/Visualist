@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { fetchAllMovies, searchMovies } from "../services/moviesServices";
 
 const Movies = () => {
@@ -155,12 +156,21 @@ const Movies = () => {
           </div>
         ) : (
           movies.map((movie) => (
-            <div key={movie.id} className="media-grid-card">
+            <Link
+              key={movie.id}
+              to={`/movies/${movie.id}`}
+              className="media-grid-card"
+            >
               {movie.poster_path ? (
                 <img
                   src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                   alt={movie.title}
                   className="media-grid-img"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src =
+                      "https://via.placeholder.com/225x338?text=No+Image";
+                  }}
                 />
               ) : (
                 <div className="no-poster">
@@ -180,7 +190,7 @@ const Movies = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         )}
       </div>

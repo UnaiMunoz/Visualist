@@ -41,10 +41,20 @@ const CarouselItem = ({ item, type }) => {
       ? new Date(item.release_date || item.first_air_date).getFullYear()
       : "N/A";
 
-  // Add a link wrapper if it's an anime item
-  if (type === "anime") {
+  // Determine the link path based on content type
+  const linkPath =
+    type === "anime"
+      ? `/anime/${item.id}`
+      : type === "movie"
+      ? `/movies/${item.id}`
+      : type === "series"
+      ? `/series/${item.id}`
+      : "#"; // fallback
+
+  // Add a link wrapper for anime and movies
+  if (type === "anime" || type === "movie") {
     return (
-      <Link to={`/anime/${item.id}`} className="media-card">
+      <Link to={linkPath} className="media-card">
         <img
           src={image}
           alt={title}
@@ -57,13 +67,12 @@ const CarouselItem = ({ item, type }) => {
             <span className="media-card-info">{infoText}</span>
             <span className="media-card-score">{score}%</span>
           </div>
-          {/* Genre tags removed as requested */}
         </div>
       </Link>
     );
   }
 
-  // Default rendering for non-anime items
+  // Default rendering for series (no link yet)
   return (
     <div className="media-card">
       <img

@@ -143,6 +143,29 @@ class TMDBService
     }
 
     /**
+     * Get movie details by ID
+     * 
+     * @param int $id TMDb movie ID
+     * @return array Movie details including cast and crew
+     */
+    public function getMovieDetails($id)
+    {
+        try {
+            // Fetch movie details with credits
+            $url = TMDB_API_URL . '/movie/' . $id . '?api_key=' . TMDB_API_KEY . '&append_to_response=credits&language=en-US';
+            $response = ApiHelper::restRequest($url);
+
+            if (!isset($response['id'])) {
+                throw new Exception('Invalid TMDb API response');
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            throw new Exception('Error fetching movie details: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Get top rated TV series 
      * 
      * @param int $limit Number of results to return
