@@ -12,22 +12,55 @@ const UserList = ({ listType, contentType = "anime" }) => {
     lastPage: 1,
     hasNextPage: false,
     total: 0,
-    perPage: 24,
+    perPage: 8,
   });
 
+  // Reset state when listType or contentType changes
   useEffect(() => {
+    const fetchList = async (page) => {
+      setLoading(true);
+      try {
+        const result = await getUserList(listType, contentType, page, 8);
+        setItems(result.items);
+        setPageInfo(result.pageInfo);
+        setError(null);
+      } catch (error) {
+        console.error(`Error fetching ${listType} list:`, error);
+        setError("Failed to load list. Please try again later.");
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Reset all state when dependencies change
+    setItems([]);
+    setLoading(true);
+    setError(null);
+    setPageInfo({
+      currentPage: 1,
+      lastPage: 1,
+      hasNextPage: false,
+      total: 0,
+      perPage: 8,
+    });
+
+    // Fetch new data
     fetchList(1);
   }, [listType, contentType]);
 
-  const fetchList = async (page) => {
+  // Separate fetchList function for pagination
+  const fetchListForPage = async (page) => {
     setLoading(true);
     try {
-      const result = await getUserList(listType, contentType, page);
+      const result = await getUserList(listType, contentType, page, 8);
       setItems(result.items);
       setPageInfo(result.pageInfo);
+      setError(null);
     } catch (error) {
       console.error(`Error fetching ${listType} list:`, error);
       setError("Failed to load list. Please try again later.");
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -35,7 +68,7 @@ const UserList = ({ listType, contentType = "anime" }) => {
 
   const handlePageChange = (newPage) => {
     window.scrollTo(0, 0);
-    fetchList(newPage);
+    fetchListForPage(newPage);
   };
 
   // Format the list type for display
@@ -59,16 +92,20 @@ const UserList = ({ listType, contentType = "anime" }) => {
     return `${formattedType} ${formatListType()}`;
   };
 
-  if (loading && items.length === 0) {
+  // Show loading spinner while data is being fetched
+  if (loading) {
     return (
-      <div className="loading">
-        <div className="wrapper">
-          <div className="circle"></div>
-          <div className="circle"></div>
-          <div className="circle"></div>
-          <div className="shadow"></div>
-          <div className="shadow"></div>
-          <div className="shadow"></div>
+      <div className="user-list-container">
+        <h2 className="list-title">{renderTitle()}</h2>
+        <div className="loading">
+          <div className="wrapper">
+            <div className="circle"></div>
+            <div className="circle"></div>
+            <div className="circle"></div>
+            <div className="shadow"></div>
+            <div className="shadow"></div>
+            <div className="shadow"></div>
+          </div>
         </div>
       </div>
     );
