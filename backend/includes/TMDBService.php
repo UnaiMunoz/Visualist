@@ -303,4 +303,26 @@ class TMDBService
             throw new Exception('Error searching series: ' . $e->getMessage());
         }
     }
+    /**
+     * Get TV series details by ID
+     * 
+     * @param int $id TMDb series ID
+     * @return array Series details including cast and crew
+     */
+    public function getSeriesDetails($id)
+    {
+        try {
+            // Fetch series details with credits
+            $url = TMDB_API_URL . '/tv/' . $id . '?api_key=' . TMDB_API_KEY . '&append_to_response=credits&language=en-US';
+            $response = ApiHelper::restRequest($url);
+
+            if (!isset($response['id'])) {
+                throw new Exception('Invalid TMDb API response');
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            throw new Exception('Error fetching series details: ' . $e->getMessage());
+        }
+    }
 }

@@ -1,0 +1,42 @@
+/* Additional styles for Series Detail page */
+
+/* Season overview styling */
+.season-overview {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+/* Better character details spacing for seasons */
+.character-details .season-overview {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #374151;
+}
+
+/* Improved character card for seasons */
+.character-card .character-info {
+  min-height: 120px; /* Ensure consistent height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Season-specific character role styling */
+.seasons .character-role {
+  background-color: rgba(16, 185, 129, 0.85); /* Green for episodes count */
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Responsive adjustments for seasons grid */
+@media (max-width: 768px) {
+  .characters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .season-overview {
+    font-size: 0.75rem;
+  }
+}

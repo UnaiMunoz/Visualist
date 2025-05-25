@@ -48,11 +48,11 @@ const CarouselItem = ({ item, type }) => {
       : type === "movie"
       ? `/movies/${item.id}`
       : type === "series"
-      ? `/series/${item.id}`
+      ? `/series/${item.id}` // Ahora las series también tienen enlace
       : "#"; // fallback
 
-  // Add a link wrapper for anime and movies
-  if (type === "anime" || type === "movie") {
+  // Add a link wrapper for all content types
+  if (type === "anime" || type === "movie" || type === "series") {
     return (
       <Link to={linkPath} className="media-card">
         <img
@@ -72,7 +72,7 @@ const CarouselItem = ({ item, type }) => {
     );
   }
 
-  // Default rendering for series (no link yet)
+  // Default rendering (shouldn't be reached now)
   return (
     <div className="media-card">
       <img

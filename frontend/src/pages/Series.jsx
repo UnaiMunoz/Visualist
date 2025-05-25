@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // Agregar importación de Link
 import { fetchAllSeries, searchSeries } from "../services/seriesServices";
 
 const Series = () => {
@@ -164,12 +165,28 @@ const Series = () => {
           </div>
         ) : (
           series.map((show) => (
-            <div key={show.id} className="media-grid-card">
-              <img
-                src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
-                alt={show.name}
-                className="media-grid-img"
-              />
+            // Cambiar de div a Link para hacer clickeable
+            <Link
+              key={show.id}
+              to={`/series/${show.id}`}
+              className="media-grid-card"
+            >
+              {show.poster_path ? (
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                  alt={show.name}
+                  className="media-grid-img"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src =
+                      "https://via.placeholder.com/225x338?text=No+Image";
+                  }}
+                />
+              ) : (
+                <div className="no-poster">
+                  <span>No Poster Available</span>
+                </div>
+              )}
               <div className="media-grid-body">
                 <h3 className="media-grid-title">{show.name}</h3>
                 <div className="media-grid-footer">
@@ -183,7 +200,7 @@ const Series = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         )}
       </div>

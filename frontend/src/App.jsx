@@ -12,6 +12,7 @@ import AnimeDetail from "./pages/AnimeDetail";
 import Movies from "./pages/Movies";
 import MovieDetail from "./pages/MovieDetail";
 import Series from "./pages/Series";
+import SeriesDetail from "./pages/SeriesDetail";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -74,6 +75,7 @@ const AppRoutes = () => {
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<MovieDetail />} />
         <Route path="/series" element={<Series />} />
+        <Route path="/series/:id" element={<SeriesDetail />} /> 
         <Route
           path="/register"
           element={
