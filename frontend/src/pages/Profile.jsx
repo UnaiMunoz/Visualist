@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile } from "../services/userServices";
+import { getUserList } from "../services/listServices";
 import UserList from "../components/UserList";
 
 const Profile = () => {
@@ -25,6 +26,15 @@ const Profile = () => {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const [contentType, setContentType] = useState("anime"); // New state for content type
+
+  // State for stats
+  const [stats, setStats] = useState({
+    watchedCount: 0,
+    toWatchCount: 0,
+    favoritesCount: 0,
+    loadingStats: true,
+  });
 
   // Redirect if not logged in
   useEffect(() => {
@@ -48,6 +58,52 @@ const Profile = () => {
       // Actualiza el estado de visualización de la biografía
       setBioDisplay(currentUser.short_bio || "");
     }
+  }, [currentUser]);
+
+  // Fetch stats when component mounts or user changes
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!currentUser) return;
+
+      try {
+        setStats((prev) => ({ ...prev, loadingStats: true }));
+
+        // Fetch counts for all content types
+        const contentTypes = ["anime", "movie", "series"];
+        let totalWatched = 0;
+        let totalToWatch = 0;
+        let totalFavorites = 0;
+
+        for (const type of contentTypes) {
+          const [watched, toWatch, favorites] = await Promise.all([
+            getUserList("watched", type, 1, 1),
+            getUserList("to_watch", type, 1, 1),
+            getUserList("favorites", type, 1, 1),
+          ]);
+
+          totalWatched += watched.pageInfo.total || 0;
+          totalToWatch += toWatch.pageInfo.total || 0;
+          totalFavorites += favorites.pageInfo.total || 0;
+        }
+
+        setStats({
+          watchedCount: totalWatched,
+          toWatchCount: totalToWatch,
+          favoritesCount: totalFavorites,
+          loadingStats: false,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+        setStats({
+          watchedCount: 0,
+          toWatchCount: 0,
+          favoritesCount: 0,
+          loadingStats: false,
+        });
+      }
+    };
+
+    fetchStats();
   }, [currentUser]);
 
   const handleInputChange = (e) => {
@@ -154,6 +210,26 @@ const Profile = () => {
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
+    }
+  };
+
+  // Function to format member since date
+  const formatMemberSince = () => {
+    if (!currentUser?.created_at) return "N/A";
+
+    const date = new Date(currentUser.created_at);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 30) {
+      return `${diffDays} days ago`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} month${months > 1 ? "s" : ""} ago`;
+    } else {
+      const years = Math.floor(diffDays / 365);
+      return `${years} year${years > 1 ? "s" : ""} ago`;
     }
   };
 
@@ -382,23 +458,25 @@ const Profile = () => {
               <h3>Your Stats</h3>
               <div className="stat-item">
                 <span className="stat-label">Member Since</span>
-                <span className="stat-value">
-                  {currentUser?.created_at
-                    ? new Date(currentUser.created_at).toLocaleDateString()
-                    : "N/A"}
-                </span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Reviews Written</span>
-                <span className="stat-value">0</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Watchlist Items</span>
-                <span className="stat-value">0</span>
+                <span className="stat-value">{formatMemberSince()}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Watched Items</span>
-                <span className="stat-value">0</span>
+                <span className="stat-value">
+                  {stats.loadingStats ? "..." : stats.watchedCount}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Watchlist Items</span>
+                <span className="stat-value">
+                  {stats.loadingStats ? "..." : stats.toWatchCount}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Favorites</span>
+                <span className="stat-value">
+                  {stats.loadingStats ? "..." : stats.favoritesCount}
+                </span>
               </div>
             </div>
 
@@ -416,8 +494,38 @@ const Profile = () => {
           </div>
         </div>
       ) : (
-        // Show user list based on active tab
-        <UserList listType={activeTab} contentType="anime" />
+        <>
+          {/* Content type selector for lists */}
+          <div className="content-type-selector">
+            <button
+              className={`content-type-btn ${
+                contentType === "anime" ? "active" : ""
+              }`}
+              onClick={() => setContentType("anime")}
+            >
+              Anime
+            </button>
+            <button
+              className={`content-type-btn ${
+                contentType === "movie" ? "active" : ""
+              }`}
+              onClick={() => setContentType("movie")}
+            >
+              Movies
+            </button>
+            <button
+              className={`content-type-btn ${
+                contentType === "series" ? "active" : ""
+              }`}
+              onClick={() => setContentType("series")}
+            >
+              Series
+            </button>
+          </div>
+
+          {/* Show user list based on active tab and content type */}
+          <UserList listType={activeTab} contentType={contentType} />
+        </>
       )}
     </div>
   );
