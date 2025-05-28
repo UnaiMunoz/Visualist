@@ -7,6 +7,7 @@ const UserList = ({ listType, contentType = "anime" }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // New state
   const [pageInfo, setPageInfo] = useState({
     currentPage: 1,
     lastPage: 1,
@@ -19,17 +20,30 @@ const UserList = ({ listType, contentType = "anime" }) => {
   useEffect(() => {
     const fetchList = async (page) => {
       setLoading(true);
+      setIsInitialLoad(true); // Set initial load flag
       try {
         const result = await getUserList(listType, contentType, page, 8);
-        setItems(result.items);
-        setPageInfo(result.pageInfo);
-        setError(null);
+        console.log(`=== Debug: ${contentType} ${listType} list ===`);
+        console.log("Full result:", result);
+        console.log("Items array:", result.items);
+        if (result.items && result.items.length > 0) {
+          console.log("First item structure:", result.items[0]);
+          console.log("First item title:", result.items[0].title);
+        }
+
+        // Only update state if we have valid data or empty array
+        if (result.items !== undefined) {
+          setItems(result.items);
+          setPageInfo(result.pageInfo);
+          setError(null);
+        }
       } catch (error) {
         console.error(`Error fetching ${listType} list:`, error);
         setError("Failed to load list. Please try again later.");
         setItems([]);
       } finally {
         setLoading(false);
+        setIsInitialLoad(false); // Clear initial load flag
       }
     };
 
@@ -37,6 +51,7 @@ const UserList = ({ listType, contentType = "anime" }) => {
     setItems([]);
     setLoading(true);
     setError(null);
+    setIsInitialLoad(true);
     setPageInfo({
       currentPage: 1,
       lastPage: 1,
@@ -54,6 +69,8 @@ const UserList = ({ listType, contentType = "anime" }) => {
     setLoading(true);
     try {
       const result = await getUserList(listType, contentType, page, 8);
+      console.log(`=== Debug Pagination: ${contentType} ${listType} list ===`);
+      console.log("Pagination result:", result);
       setItems(result.items);
       setPageInfo(result.pageInfo);
       setError(null);
@@ -92,8 +109,106 @@ const UserList = ({ listType, contentType = "anime" }) => {
     return `${formattedType} ${formatListType()}`;
   };
 
-  // Show loading spinner while data is being fetched
-  if (loading) {
+  // Helper function to get the appropriate image URL
+  const getImageUrl = (item) => {
+    if (contentType === "anime") {
+      return (
+        item.coverImage?.large ||
+        "https://via.placeholder.com/225x338?text=No+Image"
+      );
+    } else {
+      // For movies and series
+      return item.poster_path
+        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+        : "https://via.placeholder.com/225x338?text=No+Image";
+    }
+  };
+
+  // Helper function to get the appropriate title
+  const getTitle = (item) => {
+    try {
+      if (!item) return "Unknown Title";
+
+      if (contentType === "anime") {
+        // Ensure we're returning a string, not an object
+        if (item.title && typeof item.title === "object") {
+          const title =
+            item.title.english || item.title.romaji || item.title.native;
+          return title && typeof title === "string"
+            ? title.trim()
+            : "Unknown Title";
+        }
+        return typeof item.title === "string" && item.title.trim()
+          ? item.title.trim()
+          : "Unknown Title";
+      } else if (contentType === "movie") {
+        return typeof item.title === "string" && item.title.trim()
+          ? item.title.trim()
+          : "Unknown Title";
+      } else {
+        // For series
+        const title = item.name || item.title;
+        return typeof title === "string" && title.trim()
+          ? title.trim()
+          : "Unknown Title";
+      }
+    } catch (error) {
+      console.error("Error getting title:", error, item);
+      return "Unknown Title";
+    }
+  };
+
+  // Helper function to get the appropriate year
+  const getYear = (item) => {
+    try {
+      if (contentType === "anime") {
+        if (
+          item.startDate &&
+          typeof item.startDate === "object" &&
+          item.startDate.year
+        ) {
+          return String(item.startDate.year);
+        }
+        return "N/A";
+      } else if (contentType === "movie") {
+        if (item.release_date) {
+          const year = new Date(item.release_date).getFullYear();
+          return isNaN(year) ? "N/A" : String(year);
+        }
+        return "N/A";
+      } else {
+        // For series
+        if (item.first_air_date) {
+          const year = new Date(item.first_air_date).getFullYear();
+          return isNaN(year) ? "N/A" : String(year);
+        }
+        return "N/A";
+      }
+    } catch (error) {
+      console.error("Error getting year:", error, item);
+      return "N/A";
+    }
+  };
+
+  // Helper function to get the appropriate score
+  const getScore = (item) => {
+    try {
+      if (contentType === "anime") {
+        const score = item.averageScore;
+        return score ? String(score) + "%" : "N/A";
+      } else {
+        // For movies and series
+        const score = item.vote_average;
+        return score ? String(Math.round(score * 10)) + "%" : "N/A";
+      }
+    } catch (error) {
+      console.error("Error getting score:", error, item);
+      return "N/A";
+    }
+  };
+
+  // Show loading spinner while data is being fetched or during initial load
+  if (loading || isInitialLoad) {
     return (
       <div className="user-list-container">
         <h2 className="list-title">{renderTitle()}</h2>
@@ -117,77 +232,67 @@ const UserList = ({ listType, contentType = "anime" }) => {
 
       {error && <div className="error-message list-error">{error}</div>}
 
-      {items.length === 0 ? (
+      {!loading && !isInitialLoad && items.length === 0 ? (
         <div className="empty-list">
           <p>No items in your {formatListType().toLowerCase()} list yet.</p>
           <Link to={`/${contentType}`} className="navbar-btn">
             Browse {contentType}
           </Link>
         </div>
-      ) : (
+      ) : !loading && !isInitialLoad && items.length > 0 ? (
         <>
           <div className="media-grid">
-            {items.map((item) => (
-              <Link
-                key={item.id}
-                to={`/${contentType}/${item.id}`}
-                className="media-grid-card"
-              >
-                {contentType === "anime" ? (
-                  <img
-                    src={
-                      item.coverImage?.large ||
-                      "https://via.placeholder.com/225x338?text=No+Image"
-                    }
-                    alt={item.title.english || item.title.romaji}
-                    className="media-grid-img"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src =
-                        "https://via.placeholder.com/225x338?text=No+Image";
-                    }}
-                  />
-                ) : (
-                  <img
-                    src={
-                      item.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-                        : "https://via.placeholder.com/225x338?text=No+Image"
-                    }
-                    alt={item.title || item.name}
-                    className="media-grid-img"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src =
-                        "https://via.placeholder.com/225x338?text=No+Image";
-                    }}
-                  />
-                )}
-                <div className="media-grid-body">
-                  <h3 className="media-grid-title">
-                    {contentType === "anime"
-                      ? item.title.english || item.title.romaji
-                      : item.title || item.name}
-                  </h3>
-                  <div className="media-grid-footer">
-                    <span className="media-card-info">
-                      {contentType === "anime"
-                        ? item.startDate && item.startDate.year
-                          ? item.startDate.year
-                          : "N/A"
-                        : item.release_date
-                        ? new Date(item.release_date).getFullYear()
-                        : "N/A"}
-                    </span>
-                    <span className="media-card-score">
-                      {contentType === "anime"
-                        ? (item.averageScore || "N/A") + "%"
-                        : Math.round((item.vote_average || 0) * 10) + "%"}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+            {items
+              .map((item) => {
+                // Validate item before rendering
+                if (!item || !item.id) {
+                  console.warn("Invalid item found:", item);
+                  return null;
+                }
+
+                const imageUrl = getImageUrl(item);
+                const title = getTitle(item);
+                const year = getYear(item);
+                const score = getScore(item);
+
+                // Don't render if we don't have basic data
+                if (
+                  title === "Unknown Title" &&
+                  year === "N/A" &&
+                  score === "N/A"
+                ) {
+                  console.warn("Item with insufficient data:", item);
+                  return null;
+                }
+
+                return (
+                  <Link
+                    key={item.id}
+                    to={`/${contentType}/${item.id}`}
+                    className="media-grid-card"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={title}
+                      className="media-grid-img"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://via.placeholder.com/225x338?text=No+Image";
+                      }}
+                    />
+                    <div className="media-grid-body">
+                      <h3 className="media-grid-title">{title}</h3>
+                      <div className="media-grid-footer">
+                        <span className="media-card-info">{year}</span>
+                        <span className="media-card-score">{score}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+              .filter(Boolean)}{" "}
+            {/* Filter out null values */}
           </div>
 
           {pageInfo.lastPage > 1 && (
@@ -214,7 +319,7 @@ const UserList = ({ listType, contentType = "anime" }) => {
             </div>
           )}
         </>
-      )}
+      ) : null}
     </div>
   );
 };

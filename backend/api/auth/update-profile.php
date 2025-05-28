@@ -86,7 +86,8 @@ if ($user->updateProfile($passwordUpdate)) {
             'id' => $user->user_id,
             'name' => $user->name,
             'email' => $user->email,
-            'short_bio' => $user->short_bio
+            'short_bio' => $user->short_bio,
+            "created_at" => $user->created_at
         ]
     ]);
 } else {

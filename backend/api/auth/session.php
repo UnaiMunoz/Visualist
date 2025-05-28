@@ -51,7 +51,8 @@ if (
             'id' => $_SESSION['user_id'],
             'name' => $_SESSION['user_name'],
             'email' => $_SESSION['user_email'],
-            'short_bio' => $user->short_bio // Incluir short_bio en la respuesta
+            'short_bio' => $user->short_bio,
+            "created_at" => $user->created_at 
         ]
     ]);
 } else {
