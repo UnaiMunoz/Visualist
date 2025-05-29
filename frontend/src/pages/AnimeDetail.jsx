@@ -645,7 +645,7 @@ const AnimeDetail = () => {
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    Main Characters
+                    Voice Actors & Characters
                   </h3>
                   {anime.characters &&
                   anime.characters.nodes &&
@@ -668,37 +668,22 @@ const AnimeDetail = () => {
                                   "https://via.placeholder.com/225x338?text=No+Image";
                               }}
                             />
-                            <div className="character-role">Cast</div>
+                            <div className="character-role">Voice Actor</div>
                           </div>
                           <div className="character-info">
                             <div className="character-name">
                               {character.name?.full || "Unknown"}
                             </div>
-                            {character.name?.native && (
+                            {/* Aquí añadimos el nombre del personaje interpretado */}
+                            {character.character && (
                               <div className="character-native-name">
-                                {character.name.native}
+                                as {character.character}
                               </div>
                             )}
-                            {(character.age || character.gender) && (
-                              <div className="character-details">
-                                {character.gender && (
-                                  <div className="character-detail-item">
-                                    <span className="detail-label">
-                                      Gender:
-                                    </span>
-                                    <span className="detail-value">
-                                      {character.gender}
-                                    </span>
-                                  </div>
-                                )}
-                                {character.age && (
-                                  <div className="character-detail-item">
-                                    <span className="detail-label">Age:</span>
-                                    <span className="detail-value">
-                                      {character.age}
-                                    </span>
-                                  </div>
-                                )}
+                            {/* Si no existe character pero existe native name, lo mostramos */}
+                            {!character.character && character.name?.native && (
+                              <div className="character-native-name">
+                                {character.name.native}
                               </div>
                             )}
                           </div>

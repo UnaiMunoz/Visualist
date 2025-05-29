@@ -13,29 +13,29 @@ class TMDBAnimeService
    * @param int $limit Number of results to return
    * @return array Top rated anime
    */
-public function getTopAnime($limit = 10)
-{
+  public function getTopAnime($limit = 10)
+  {
     try {
-        if (empty(TMDB_API_KEY)) {
-            throw new Exception('TMDB API key not configured');
-        }
-        
-        $url = TMDB_API_URL . '/discover/tv?api_key=' . TMDB_API_KEY . 
-               '&with_genres=16&with_original_language=ja' .
-               '&sort_by=vote_average.desc&vote_count.gte=200&page=1';
-               
-        $response = ApiHelper::restRequest($url);
-        
-        if (!isset($response['results']) || empty($response['results'])) {
-            throw new Exception('No anime data received from TMDB');
-        }
-        
-        return $this->formatAnimeResults(array_slice($response['results'], 0, $limit));
+      if (empty(TMDB_API_KEY)) {
+        throw new Exception('TMDB API key not configured');
+      }
+
+      $url = TMDB_API_URL . '/discover/tv?api_key=' . TMDB_API_KEY .
+        '&with_genres=16&with_original_language=ja' .
+        '&sort_by=vote_average.desc&vote_count.gte=200&page=1';
+
+      $response = ApiHelper::restRequest($url);
+
+      if (!isset($response['results']) || empty($response['results'])) {
+        throw new Exception('No anime data received from TMDB');
+      }
+
+      return $this->formatAnimeResults(array_slice($response['results'], 0, $limit));
     } catch (Exception $e) {
-        error_log("Error in getTopAnime: " . $e->getMessage());
-        throw new Exception('Error fetching top anime: ' . $e->getMessage());
+      error_log("Error in getTopAnime: " . $e->getMessage());
+      throw new Exception('Error fetching top anime: ' . $e->getMessage());
     }
-}
+  }
 
   /**
    * Get paginated anime list
@@ -350,8 +350,7 @@ public function getTopAnime($limit = 10)
             'medium' => $castMember['profile_path'] ? 'https://image.tmdb.org/t/p/w200' . $castMember['profile_path'] : null,
             'large' => $castMember['profile_path'] ? 'https://image.tmdb.org/t/p/w500' . $castMember['profile_path'] : null
           ],
-          'gender' => $this->mapGender($castMember['gender'] ?? null),
-          'age' => null // TMDB doesn't provide character age
+          'character' => $castMember['character'] ?? null // Añadimos el nombre del personaje
         ];
       }
     }
@@ -490,23 +489,6 @@ public function getTopAnime($limit = 10)
     return $names;
   }
 
-  /**
-   * Map TMDB gender codes to text
-   * 
-   * @param int|null $genderCode TMDB gender code
-   * @return string|null Gender as string
-   */
-  private function mapGender($genderCode)
-  {
-    switch ($genderCode) {
-      case 1:
-        return 'Female';
-      case 2:
-        return 'Male';
-      default:
-        return null;
-    }
-  }
 
   /**
    * Format date from string to structured format
