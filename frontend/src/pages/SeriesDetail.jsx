@@ -68,27 +68,6 @@ const SeriesDetail = () => {
     return <span className={badgeClass}>{status || "Unknown"}</span>;
   };
 
-  // Format duration in minutes to hours and minutes
-  const formatDuration = (minutes) => {
-    if (!minutes || minutes.length === 0) return "Unknown";
-
-    // If it's an array, take the first value
-    const duration = Array.isArray(minutes) ? minutes[0] : minutes;
-
-    if (duration < 60) {
-      return `${duration} min`;
-    }
-
-    const hours = Math.floor(duration / 60);
-    const remainingMinutes = duration % 60;
-
-    if (remainingMinutes === 0) {
-      return `${hours} hr`;
-    }
-
-    return `${hours} hr ${remainingMinutes} min`;
-  };
-
   // Format creator information
   const formatCreators = (creators) => {
     if (!creators || creators.length === 0) return "Unknown";
@@ -359,29 +338,6 @@ const SeriesDetail = () => {
                 </span>
               </div>
 
-              <div className="anime-stat-item">
-                <span className="stat-label">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                  Episode Runtime:
-                </span>
-                <span className="stat-value">
-                  {formatDuration(series.episode_run_time)}
-                </span>
-              </div>
-
               {series.genres && series.genres.length > 0 && (
                 <div className="anime-stat-item anime-stat-genres">
                   <span className="stat-label">
@@ -586,15 +542,6 @@ const SeriesDetail = () => {
                       </div>
                     )}
 
-                    {series.episode_run_time && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Episode Runtime</div>
-                        <div className="anime-info-value">
-                          {formatDuration(series.episode_run_time)}
-                        </div>
-                      </div>
-                    )}
-
                     {series.original_language && (
                       <div className="anime-info-card">
                         <div className="anime-info-title">
@@ -615,14 +562,6 @@ const SeriesDetail = () => {
                       </div>
                     )}
 
-                    {series.networks && series.networks.length > 0 && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Network</div>
-                        <div className="anime-info-value">
-                          {series.networks[0].name}
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   {/* Statistics */}

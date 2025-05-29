@@ -592,13 +592,6 @@ const AnimeDetail = () => {
                       </div>
                       <div className="stat-card-label">Popularity</div>
                     </div>
-
-                    <div className="stat-card">
-                      <div className="stat-card-value">
-                        {anime.favourites?.toLocaleString() || "-"}
-                      </div>
-                      <div className="stat-card-label">Favorites</div>
-                    </div>
                   </div>
 
                   {/* Studios */}
