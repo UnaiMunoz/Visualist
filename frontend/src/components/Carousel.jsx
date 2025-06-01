@@ -51,13 +51,8 @@ const Carousel = ({ title, items, type }) => {
         </div>
       </div>
       <div ref={carouselRef} className="carousel-container">
-        {items.map((item, index) => (
-          <CarouselItem 
-            key={item.id} 
-            item={item} 
-            type={type} 
-            index={index} 
-          />
+        {items.map((item) => (
+          <CarouselItem key={item.id} item={item} type={type} />
         ))}
       </div>
     </div>

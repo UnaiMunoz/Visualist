@@ -146,10 +146,9 @@ ul {
   margin: 0 8px;
   background-color: #1f2937;
   border-radius: 8px;
-  overflow: visible; /* Cambia de hidden a visible para los badges */
+  overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
-  position: relative; /* Añade esto para el positioning de los badges */
 }
 
 .media-card:hover {

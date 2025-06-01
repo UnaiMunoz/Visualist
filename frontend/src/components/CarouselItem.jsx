@@ -1,16 +1,29 @@
 import { Link } from "react-router-dom";
 
-const CarouselItem = ({ item, type, index }) => {
+const CarouselItem = ({ item, type }) => {
   // Safely extract title from different formats
-  const title = item.title || item.name || "Unknown Title";
+  const title =
+    type === "anime"
+      ? item.title?.english ||
+        item.title?.romaji ||
+        item.title?.native ||
+        "Unknown Title"
+      : item.title || item.name || "Unknown Title";
 
   // Safely extract image URLs
-  const image = item.poster_path
-    ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-    : "https://via.placeholder.com/225x338?text=No+Image";
+  const image =
+    type === "anime"
+      ? item.coverImage?.large ||
+        "https://via.placeholder.com/225x338?text=No+Image"
+      : item.poster_path
+      ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+      : "https://via.placeholder.com/225x338?text=No+Image";
 
   // Calculate and format the score appropriately
-  const score = Math.round((item.vote_average || 0) * 10);
+  const score =
+    type === "anime"
+      ? item.averageScore || 0
+      : Math.round((item.vote_average || 0) * 10);
 
   // Handle image loading errors
   const handleImageError = (e) => {
@@ -20,36 +33,28 @@ const CarouselItem = ({ item, type, index }) => {
 
   // Extract info text based on content type
   const infoText =
-    item.release_date || item.first_air_date
+    type === "anime"
+      ? item.startDate && item.startDate.year
+        ? `${item.startDate.year}`
+        : "N/A"
+      : item.release_date || item.first_air_date
       ? new Date(item.release_date || item.first_air_date).getFullYear()
       : "N/A";
 
   // Determine the link path based on content type
   const linkPath =
-    type === "movie"
+    type === "anime"
+      ? `/anime/${item.id}`
+      : type === "movie"
       ? `/movies/${item.id}`
       : type === "series"
-      ? `/series/${item.id}`
+      ? `/series/${item.id}` // Ahora las series también tienen enlace
       : "#"; // fallback
 
-  // Determine ranking class based on position
-  const getRankingClass = (position) => {
-    if (position === 1) return "ranking-gold";
-    if (position === 2) return "ranking-silver";
-    if (position === 3) return "ranking-bronze";
-    return "ranking-default";
-  };
-
   // Add a link wrapper for all content types
-  if (type === "movie" || type === "series") {
+  if (type === "anime" || type === "movie" || type === "series") {
     return (
       <Link to={linkPath} className="media-card">
-        {/* Ranking badge - only show if index is provided */}
-        {index !== undefined && (
-          <div className={`ranking-badge ${getRankingClass(index + 1)}`}>
-            {index + 1}
-          </div>
-        )}
         <img
           src={image}
           alt={title}
@@ -70,12 +75,6 @@ const CarouselItem = ({ item, type, index }) => {
   // Default rendering (shouldn't be reached now)
   return (
     <div className="media-card">
-      {/* Ranking badge for default case */}
-      {index !== undefined && (
-        <div className={`ranking-badge ${getRankingClass(index + 1)}`}>
-          {index + 1}
-        </div>
-      )}
       <img
         src={image}
         alt={title}
