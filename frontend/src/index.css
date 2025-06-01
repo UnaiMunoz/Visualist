@@ -33,7 +33,6 @@ ul {
   padding: 0 16px;
 }
 
-
 /* Hero styles */
 .hero {
   position: relative;
@@ -147,9 +146,10 @@ ul {
   margin: 0 8px;
   background-color: #1f2937;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible; /* Cambia de hidden a visible para los badges */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; /* Añade esto para el positioning de los badges */
 }
 
 .media-card:hover {
