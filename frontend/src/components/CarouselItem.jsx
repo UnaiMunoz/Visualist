@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const CarouselItem = ({ item, type }) => {
+const CarouselItem = ({ item, type, index }) => {
   // Safely extract title from different formats
   const title = item.title || item.name || "Unknown Title";
 
@@ -32,10 +32,24 @@ const CarouselItem = ({ item, type }) => {
       ? `/series/${item.id}`
       : "#"; // fallback
 
+  // Determine ranking class based on position
+  const getRankingClass = (position) => {
+    if (position === 1) return "ranking-gold";
+    if (position === 2) return "ranking-silver";
+    if (position === 3) return "ranking-bronze";
+    return "ranking-default";
+  };
+
   // Add a link wrapper for all content types
   if (type === "movie" || type === "series") {
     return (
       <Link to={linkPath} className="media-card">
+        {/* Ranking badge - only show if index is provided */}
+        {index !== undefined && (
+          <div className={`ranking-badge ${getRankingClass(index + 1)}`}>
+            {index + 1}
+          </div>
+        )}
         <img
           src={image}
           alt={title}
@@ -56,6 +70,12 @@ const CarouselItem = ({ item, type }) => {
   // Default rendering (shouldn't be reached now)
   return (
     <div className="media-card">
+      {/* Ranking badge for default case */}
+      {index !== undefined && (
+        <div className={`ranking-badge ${getRankingClass(index + 1)}`}>
+          {index + 1}
+        </div>
+      )}
       <img
         src={image}
         alt={title}

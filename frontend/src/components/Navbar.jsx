@@ -20,6 +20,9 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-nav">
+        <Link to="/" className="nav-link">
+          Home
+        </Link>
         <Link to="/movies" className="nav-link">
           Movies
         </Link>
