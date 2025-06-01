@@ -7,8 +7,6 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
-import Anime from "./pages/Anime";
-import AnimeDetail from "./pages/AnimeDetail";
 import Movies from "./pages/Movies";
 import MovieDetail from "./pages/MovieDetail";
 import Series from "./pages/Series";
@@ -70,8 +68,6 @@ const AppRoutes = () => {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/anime" element={<Anime />} />
-        <Route path="/anime/:id" element={<AnimeDetail />} />
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<MovieDetail />} />
         <Route path="/series" element={<Series />} />

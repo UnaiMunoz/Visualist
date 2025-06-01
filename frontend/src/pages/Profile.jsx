@@ -26,7 +26,7 @@ const Profile = () => {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
-  const [contentType, setContentType] = useState("anime"); // New state for content type
+  const [contentType, setContentType] = useState("movie");
 
   // State for stats
   const [stats, setStats] = useState({
@@ -68,8 +68,8 @@ const Profile = () => {
       try {
         setStats((prev) => ({ ...prev, loadingStats: true }));
 
-        // Fetch counts for all content types
-        const contentTypes = ["anime", "movie", "series"];
+        // Fetch counts for content types
+        const contentTypes = ["movie", "series"];
         let totalWatched = 0;
         let totalToWatch = 0;
         let totalFavorites = 0;
@@ -495,16 +495,8 @@ const Profile = () => {
         </div>
       ) : (
         <>
-          {/* Content type selector for lists */}
+          {/* Content type selector for lists*/}
           <div className="content-type-selector">
-            <button
-              className={`content-type-btn ${
-                contentType === "anime" ? "active" : ""
-              }`}
-              onClick={() => setContentType("anime")}
-            >
-              Anime
-            </button>
             <button
               className={`content-type-btn ${
                 contentType === "movie" ? "active" : ""

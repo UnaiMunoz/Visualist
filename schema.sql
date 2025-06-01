@@ -1,5 +1,3 @@
--- Updated schema.sql with anime lists functionality
-
 CREATE DATABASE IF NOT EXISTS Visualist;
 
 USE Visualist;
@@ -19,10 +17,10 @@ CREATE TABLE Users (
     deleted_at TIMESTAMP NULL DEFAULT NULL
 );
 
--- Tabla con referencias al contenido (usando solo TMDB)
+-- Tabla con referencias al contenido (usando solo TMDB para movies y series)
 CREATE TABLE Content_References (
     reference_id INT AUTO_INCREMENT PRIMARY KEY,
-    type ENUM('anime', 'movie', 'series') NOT NULL,
+    type ENUM('movie', 'series') NOT NULL,
     tmdb_id INT NOT NULL,
     title VARCHAR(255) NOT NULL, -- Guardar título para facilitar búsquedas sin llamar a la API
     year YEAR, -- Año de lanzamiento para facilitar filtros

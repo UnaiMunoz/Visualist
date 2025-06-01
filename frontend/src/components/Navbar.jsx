@@ -20,9 +20,6 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-nav">
-        <Link to="/anime" className="nav-link">
-          Anime
-        </Link>
         <Link to="/movies" className="nav-link">
           Movies
         </Link>

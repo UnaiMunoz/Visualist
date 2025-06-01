@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getUserList } from "../services/listServices";
 
-const UserList = ({ listType, contentType = "anime" }) => {
+const UserList = ({ listType, contentType = "movie" }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,17 +111,10 @@ const UserList = ({ listType, contentType = "anime" }) => {
 
   // Helper function to get the appropriate image URL
   const getImageUrl = (item) => {
-    if (contentType === "anime") {
-      return (
-        item.coverImage?.large ||
-        "https://via.placeholder.com/225x338?text=No+Image"
-      );
-    } else {
-      // For movies and series
-      return item.poster_path
-        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-        : "https://via.placeholder.com/225x338?text=No+Image";
-    }
+    // For movies and series (both use TMDB structure)
+    return item.poster_path
+      ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+      : "https://via.placeholder.com/225x338?text=No+Image";
   };
 
   // Helper function to get the appropriate title
@@ -129,19 +122,7 @@ const UserList = ({ listType, contentType = "anime" }) => {
     try {
       if (!item) return "Unknown Title";
 
-      if (contentType === "anime") {
-        // Ensure we're returning a string, not an object
-        if (item.title && typeof item.title === "object") {
-          const title =
-            item.title.english || item.title.romaji || item.title.native;
-          return title && typeof title === "string"
-            ? title.trim()
-            : "Unknown Title";
-        }
-        return typeof item.title === "string" && item.title.trim()
-          ? item.title.trim()
-          : "Unknown Title";
-      } else if (contentType === "movie") {
+      if (contentType === "movie") {
         return typeof item.title === "string" && item.title.trim()
           ? item.title.trim()
           : "Unknown Title";
@@ -161,16 +142,7 @@ const UserList = ({ listType, contentType = "anime" }) => {
   // Helper function to get the appropriate year
   const getYear = (item) => {
     try {
-      if (contentType === "anime") {
-        if (
-          item.startDate &&
-          typeof item.startDate === "object" &&
-          item.startDate.year
-        ) {
-          return String(item.startDate.year);
-        }
-        return "N/A";
-      } else if (contentType === "movie") {
+      if (contentType === "movie") {
         if (item.release_date) {
           const year = new Date(item.release_date).getFullYear();
           return isNaN(year) ? "N/A" : String(year);
@@ -193,14 +165,9 @@ const UserList = ({ listType, contentType = "anime" }) => {
   // Helper function to get the appropriate score
   const getScore = (item) => {
     try {
-      if (contentType === "anime") {
-        const score = item.averageScore;
-        return score ? String(score) + "%" : "N/A";
-      } else {
-        // For movies and series
-        const score = item.vote_average;
-        return score ? String(Math.round(score * 10)) + "%" : "N/A";
-      }
+      // For movies and series (both use TMDB structure)
+      const score = item.vote_average;
+      return score ? String(Math.round(score * 10)) + "%" : "N/A";
     } catch (error) {
       console.error("Error getting score:", error, item);
       return "N/A";
@@ -235,8 +202,11 @@ const UserList = ({ listType, contentType = "anime" }) => {
       {!loading && !isInitialLoad && items.length === 0 ? (
         <div className="empty-list">
           <p>No items in your {formatListType().toLowerCase()} list yet.</p>
-          <Link to={`/${contentType}`} className="navbar-btn">
-            Browse {contentType}
+          <Link
+            to={`/${contentType === "movie" ? "movies" : contentType}`}
+            className="navbar-btn"
+          >
+            Browse {contentType === "movie" ? "movies" : contentType}
           </Link>
         </div>
       ) : !loading && !isInitialLoad && items.length > 0 ? (
@@ -268,7 +238,9 @@ const UserList = ({ listType, contentType = "anime" }) => {
                 return (
                   <Link
                     key={item.id}
-                    to={`/${contentType}/${item.id}`}
+                    to={`/${contentType === "movie" ? "movies" : contentType}/${
+                      item.id
+                    }`}
                     className="media-grid-card"
                   >
                     <img

@@ -4,7 +4,7 @@ const API_URL = "/api";
 /**
  * Add content to a user's list (watched, to_watch, favorites)
  * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {string} contentType - The type of content ('movie', 'series')
  * @param {string} listType - The type of list ('watched', 'to_watch', 'favorites')
  * @returns {Promise} - A promise that resolves to the API response
  */
@@ -36,7 +36,7 @@ export const addToList = async (contentId, contentType, listType) => {
 /**
  * Remove content from a user's list
  * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {string} contentType - The type of content ('movie', 'series')
  * @param {string} listType - The type of list ('watched', 'to_watch', 'favorites')
  * @returns {Promise} - A promise that resolves to the API response
  */
@@ -68,7 +68,7 @@ export const removeFromList = async (contentId, contentType, listType) => {
 /**
  * Check if content is in user's lists
  * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {string} contentType - The type of content ('movie', 'series')
  * @returns {Promise} - A promise that resolves to the list status
  */
 export const checkListStatus = async (contentId, contentType) => {
@@ -103,14 +103,14 @@ export const checkListStatus = async (contentId, contentType) => {
 /**
  * Get user's list content
  * @param {string} listType - The type of list ('watched', 'to_watch', 'favorites')
- * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {string} contentType - The type of content ('movie', 'series')
  * @param {number} page - The page number for pagination
  * @param {number} perPage - Items per page
  * @returns {Promise} - A promise that resolves to the list content
  */
 export const getUserList = async (
   listType,
-  contentType = "anime",
+  contentType = "movie",
   page = 1,
   perPage = 24
 ) => {
@@ -161,7 +161,7 @@ export const getUserList = async (
 /**
  * Update additional content data (score, progress, notes)
  * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {string} contentType - The type of content ('movie', 'series')
  * @param {object} data - Object containing score, progress, and notes
  * @returns {Promise} - A promise that resolves to the API response
  */
@@ -193,7 +193,7 @@ export const updateContentData = async (contentId, contentType, data) => {
 /**
  * Get additional content data (score, progress, notes)
  * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('anime', 'movie', 'series')
+ * @param {string} contentType - The type of content ('movie', 'series')
  * @returns {Promise} - A promise that resolves to the content data
  */
 export const getContentData = async (contentId, contentType) => {

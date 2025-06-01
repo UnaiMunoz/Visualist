@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import Hero from "../components/Hero";
 import Carousel from "../components/Carousel";
-import { fetchTopAnime } from "../services/animeServices";
 import { fetchTopMovies } from "../services/moviesServices";
 import { fetchTopSeries } from "../services/seriesServices";
 
 const Home = () => {
-  const [anime, setAnime] = useState([]);
   const [movies, setMovies] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,19 +15,10 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        const [animeData, moviesData, seriesData] = await Promise.all([
-          fetchTopAnime(),
+        const [moviesData, seriesData] = await Promise.all([
           fetchTopMovies(),
           fetchTopSeries(),
         ]);
-
-        // Additional check to validate anime data structure
-        if (!Array.isArray(animeData)) {
-          console.error("Invalid anime data structure:", animeData);
-          setAnime([]);
-        } else {
-          setAnime(animeData);
-        }
 
         // Validate movie and series data
         if (!Array.isArray(moviesData)) {
@@ -90,7 +79,6 @@ const Home = () => {
         </div>
       )}
       <div className="container">
-        <Carousel title="Top Rated Anime" items={anime} type="anime" />
         <Carousel title="Top Rated Movies" items={movies} type="movie" />
         <Carousel title="Top Rated TV Series" items={series} type="series" />
       </div>

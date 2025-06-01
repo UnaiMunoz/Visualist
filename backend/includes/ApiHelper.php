@@ -57,16 +57,4 @@ class ApiHelper
         return json_decode($response, true);
     }
 
-    /**
-     * Filter out Hentai content from anime results
-     * 
-     * @param array $animeList List of anime to filter
-     * @return array Filtered anime list
-     */
-    public static function filterHentaiContent($animeList)
-    {
-        return array_filter($animeList, function ($anime) {
-            return !in_array('Hentai', $anime['genres']);
-        });
-    }
 }

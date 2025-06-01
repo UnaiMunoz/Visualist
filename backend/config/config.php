@@ -155,8 +155,6 @@ define('GENRE_MAP', [
     10767 => 'Talk',
     10768 => 'War & Politics',
 
-    // Added Anime as a custom genre
-    9999 => 'Anime'
 ]);
 
 // Check for required configuration
@@ -164,26 +162,4 @@ if (empty(TMDB_API_KEY) && APP_ENV === 'production') {
     sendErrorResponse('TMDB API key is not configured', 500);
 }
 
-// Helper function to detect if a show is likely anime
-function isAnime($show)
-{
-    // Check for Animation genre (ID: 16)
-    $hasAnimationGenre = false;
-    foreach ($show['genres'] ?? [] as $genre) {
-        if ($genre['id'] == 16) {
-            $hasAnimationGenre = true;
-            break;
-        }
-    }
 
-    // Check if it's from Japan
-    $isJapanese = in_array('JP', $show['origin_country'] ?? []);
-
-    // If origin country is empty, check original language
-    if (empty($show['origin_country']) && isset($show['original_language'])) {
-        $isJapanese = $show['original_language'] === 'ja';
-    }
-
-    // Consider it anime if it has animation genre and is Japanese
-    return $hasAnimationGenre && $isJapanese;
-}
