@@ -150,9 +150,9 @@ const MovieStatusButton = ({ contentId, contentType, movieTitle }) => {
 
   return (
     <>
-      <div className="anime-status-buttons-container">
+      <div className="media-status-buttons-container">
         <button
-          className={`anime-status-btn ${buttonConfig.className} ${
+          className={`media-status-btn ${buttonConfig.className} ${
             loading ? "loading" : ""
           }`}
           onClick={handleButtonClick}

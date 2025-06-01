@@ -154,8 +154,8 @@ const MovieStatusModal = ({
             </div>
           ) : (
             <>
-              <div className="anime-info">
-                <h3 className="anime-title">{movieTitle}</h3>
+              <div className="media-info">
+                <h3 className="media-title">{movieTitle}</h3>
               </div>
 
               <div className="compact-grid">

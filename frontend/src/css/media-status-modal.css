@@ -1,4 +1,4 @@
-/* frontend/src/css/anime-status-modal.css - UPDATED */
+/* frontend/src/css/media-status-modal.css - UPDATED */
 
 /* Modal Overlay */
 .modal-overlay {
@@ -116,12 +116,12 @@
   }
 }
 
-/* Anime Info */
-.anime-info {
+/* Media Info */
+.media-info {
   margin-bottom: 20px;
 }
 
-.anime-title {
+.media-title {
   font-size: 1.1rem;
   font-weight: 600;
   color: #ffffff;
@@ -385,13 +385,13 @@
 }
 
 /* Status Button Styles - UPDATED */
-.anime-status-buttons-container {
+.media-status-buttons-container {
   display: flex;
   gap: 8px;
   margin: 20px 0;
 }
 
-.anime-status-btn {
+.media-status-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -410,54 +410,54 @@
   min-height: 48px;
 }
 
-.anime-status-btn svg {
+.media-status-btn svg {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
-.anime-status-btn:hover:not(:disabled) {
+.media-status-btn:hover:not(:disabled) {
   background-color: #2d3748;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.anime-status-btn:active:not(:disabled) {
+.media-status-btn:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.anime-status-btn.loading {
+.media-status-btn.loading {
   opacity: 0.8;
   cursor: not-allowed;
 }
 
 /* Status-specific colors */
-.anime-status-btn.status-watched {
+.media-status-btn.status-watched {
   background-color: #059669;
   border-color: #059669;
   color: white;
 }
 
-.anime-status-btn.status-watched:hover:not(:disabled) {
+.media-status-btn.status-watched:hover:not(:disabled) {
   background-color: #047857;
 }
 
-.anime-status-btn.status-to-watch {
+.media-status-btn.status-to-watch {
   background-color: #2563eb;
   border-color: #2563eb;
   color: white;
 }
 
-.anime-status-btn.status-to-watch:hover:not(:disabled) {
+.media-status-btn.status-to-watch:hover:not(:disabled) {
   background-color: #1d4ed8;
 }
 
-.anime-status-btn.status-none {
+.media-status-btn.status-none {
   background-color: #1f2937;
   border-color: #374151;
 }
 
-.anime-status-btn.status-none:hover:not(:disabled) {
+.media-status-btn.status-none:hover:not(:disabled) {
   background-color: #2d3748;
   border-color: #4b5563;
 }
@@ -612,18 +612,18 @@
     padding: 10px;
   }
 
-  .anime-status-buttons-container {
+  .media-status-buttons-container {
     gap: 6px;
   }
 
-  .anime-status-btn {
+  .media-status-btn {
     padding: 10px 14px;
     font-size: 0.9rem;
     height: 44px;
     min-height: 44px;
   }
 
-  .anime-status-btn svg {
+  .media-status-btn svg {
     width: 14px;
     height: 14px;
   }
@@ -662,14 +662,14 @@
     gap: 12px;
   }
 
-  .anime-status-btn {
+  .media-status-btn {
     padding: 8px 12px;
     font-size: 0.85rem;
     height: 40px;
     min-height: 40px;
   }
 
-  .anime-status-btn svg {
+  .media-status-btn svg {
     width: 14px;
     height: 14px;
   }

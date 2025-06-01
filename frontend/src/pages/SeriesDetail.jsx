@@ -148,11 +148,11 @@ const SeriesDetail = () => {
   const title = series.name || series.original_name || "Unknown Title";
 
   return (
-    <div className="anime-detail-page">
+    <div className="media-detail-page">
       {/* Banner Image Background */}
       {series.backdrop_path ? (
         <div
-          className="anime-banner"
+          className="media-banner"
           style={{
             backgroundImage: `url(https://image.tmdb.org/t/p/original${series.backdrop_path})`,
           }}
@@ -161,7 +161,7 @@ const SeriesDetail = () => {
         </div>
       ) : series.poster_path ? (
         <div
-          className="anime-banner"
+          className="media-banner"
           style={{
             backgroundImage: `url(https://image.tmdb.org/t/p/w500${series.poster_path})`,
             backgroundPosition: "center 20%",
@@ -171,13 +171,13 @@ const SeriesDetail = () => {
           <div className="banner-overlay"></div>
         </div>
       ) : (
-        <div className="anime-banner default-banner">
+        <div className="media-banner default-banner">
           <div className="banner-overlay"></div>
         </div>
       )}
 
-      <div className="container anime-detail-container">
-        <div className="anime-detail-header">
+      <div className="container media-detail-container">
+        <div className="media-detail-header">
           <Link to="/series" className="navbar-btn back-button">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -195,12 +195,12 @@ const SeriesDetail = () => {
             </svg>
             Back
           </Link>
-          <h1 className="anime-detail-title">{title}</h1>
+          <h1 className="media-detail-title">{title}</h1>
         </div>
 
-        <div className="anime-detail-content">
-          <div className="anime-detail-sidebar">
-            <div className="anime-detail-poster">
+        <div className="media-detail-content">
+          <div className="media-detail-sidebar">
+            <div className="media-detail-poster">
               <img
                 src={
                   series.poster_path
@@ -208,7 +208,7 @@ const SeriesDetail = () => {
                     : "https://via.placeholder.com/500x750?text=No+Image"
                 }
                 alt={title}
-                className="anime-detail-image"
+                className="media-detail-image"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src =
@@ -216,7 +216,7 @@ const SeriesDetail = () => {
                 }}
               />
 
-              <div className="anime-rating">
+              <div className="media-rating">
                 <div className="rating-circle">
                   <span className="rating-score">
                     {series.vote_average
@@ -235,8 +235,8 @@ const SeriesDetail = () => {
               seriesTitle={title}
             />
 
-            <div className="anime-stats">
-              <div className="anime-stat-item">
+            <div className="media-stats">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -259,7 +259,7 @@ const SeriesDetail = () => {
                 </span>
               </div>
 
-              <div className="anime-stat-item">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -293,7 +293,7 @@ const SeriesDetail = () => {
                 </span>
               </div>
 
-              <div className="anime-stat-item">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -315,7 +315,7 @@ const SeriesDetail = () => {
                 </span>
               </div>
 
-              <div className="anime-stat-item">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -339,7 +339,7 @@ const SeriesDetail = () => {
               </div>
 
               {series.genres && series.genres.length > 0 && (
-                <div className="anime-stat-item anime-stat-genres">
+                <div className="media-stat-item media-stat-genres">
                   <span className="stat-label">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -358,7 +358,7 @@ const SeriesDetail = () => {
                     </svg>
                     Genres:
                   </span>
-                  <div className="anime-genres">
+                  <div className="media-genres">
                     {series.genres.map((genre, index) => (
                       <span key={index} className="genre-tag">
                         <svg
@@ -384,8 +384,8 @@ const SeriesDetail = () => {
             </div>
           </div>
 
-          <div className="anime-detail-main">
-            <div className="anime-tabs">
+          <div className="media-detail-main">
+            <div className="media-tabs">
               <button
                 className={`tab-button ${
                   activeTab === "overview" ? "active" : ""
@@ -457,12 +457,12 @@ const SeriesDetail = () => {
               </button>
             </div>
 
-            <div className="anime-tab-content">
+            <div className="media-tab-content">
               {activeTab === "overview" && (
                 <div className="tab-pane">
                   {/* Description */}
                   {series.overview && (
-                    <div className="anime-description">
+                    <div className="media-description">
                       <h3 className="section-title">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -523,40 +523,40 @@ const SeriesDetail = () => {
                     Details
                   </h3>
 
-                  <div className="anime-info-grid">
+                  <div className="media-info-grid">
                     {series.number_of_seasons && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Seasons</div>
-                        <div className="anime-info-value">
+                      <div className="media-info-card">
+                        <div className="media-info-title">Seasons</div>
+                        <div className="media-info-value">
                           {series.number_of_seasons}
                         </div>
                       </div>
                     )}
 
                     {series.number_of_episodes && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Total Episodes</div>
-                        <div className="anime-info-value">
+                      <div className="media-info-card">
+                        <div className="media-info-title">Total Episodes</div>
+                        <div className="media-info-value">
                           {series.number_of_episodes}
                         </div>
                       </div>
                     )}
 
                     {series.original_language && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">
+                      <div className="media-info-card">
+                        <div className="media-info-title">
                           Original Language
                         </div>
-                        <div className="anime-info-value">
+                        <div className="media-info-value">
                           {series.original_language.toUpperCase()}
                         </div>
                       </div>
                     )}
 
                     {series.created_by && series.created_by.length > 0 && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Created By</div>
-                        <div className="anime-info-value">
+                      <div className="media-info-card">
+                        <div className="media-info-title">Created By</div>
+                        <div className="media-info-value">
                           {formatCreators(series.created_by)}
                         </div>
                       </div>
@@ -582,7 +582,7 @@ const SeriesDetail = () => {
                     Statistics
                   </h3>
 
-                  <div className="anime-stats-grid">
+                  <div className="media-stats-grid">
                     <div className="stat-card">
                       <div className="stat-card-value">
                         {series.vote_average

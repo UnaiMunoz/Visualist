@@ -1,12 +1,12 @@
-/* Anime detail page styles - Importing in index.css */
-.anime-detail-page {
+/* Media detail page styles - Generic styles for movies and series */
+.media-detail-page {
   position: relative;
   background-color: #0d1117;
   min-height: calc(100vh - 64px);
   padding-bottom: 40px;
 }
 
-.anime-banner {
+.media-banner {
   position: absolute;
   top: 0;
   left: 0;
@@ -30,7 +30,7 @@
   );
 }
 
-.anime-detail-container {
+.media-detail-container {
   position: relative;
   z-index: 1;
   padding: 32px 16px;
@@ -38,7 +38,7 @@
   margin: 0 auto;
 }
 
-.anime-detail-header {
+.media-detail-header {
   display: flex;
   align-items: center;
   margin-bottom: 32px;
@@ -62,7 +62,7 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-.anime-detail-title {
+.media-detail-title {
   font-size: 2.5rem;
   font-weight: 800;
   color: white;
@@ -70,28 +70,28 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.anime-detail-content {
+.media-detail-content {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 32px;
 }
 
-.anime-detail-sidebar {
+.media-detail-sidebar {
   position: relative;
 }
 
-.anime-detail-poster {
+.media-detail-poster {
   position: relative;
   margin-bottom: 20px;
 }
 
-.anime-detail-image {
+.media-detail-image {
   width: 100%;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
-.anime-rating {
+.media-rating {
   position: absolute;
   bottom: -10px;
   right: -10px;
@@ -115,14 +115,14 @@
   font-size: 1.2rem;
 }
 
-.anime-stats {
+.media-stats {
   background-color: #1f2937;
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.anime-stat-item {
+.media-stat-item {
   display: flex;
   flex-direction: column;
   margin-bottom: 16px;
@@ -130,7 +130,7 @@
   border-bottom: 1px solid #374151;
 }
 
-.anime-stat-item:last-child {
+.media-stat-item:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
   border-bottom: none;
@@ -196,11 +196,11 @@
   color: white;
 }
 
-.anime-stat-genres {
+.media-stat-genres {
   flex-direction: column;
 }
 
-.anime-genres {
+.media-genres {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -253,14 +253,14 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.anime-detail-main {
+.media-detail-main {
   background-color: #1f2937;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.anime-tabs {
+.media-tabs {
   display: flex;
   background-color: #111827;
   border-bottom: 1px solid #374151;
@@ -295,7 +295,7 @@
   background-color: rgba(75, 85, 99, 0.1);
 }
 
-.anime-tab-content {
+.media-tab-content {
   padding: 24px;
 }
 
@@ -339,7 +339,7 @@
   border-radius: 3px;
 }
 
-.anime-description {
+.media-description {
   margin-bottom: 32px;
 }
 
@@ -360,34 +360,34 @@
   color: #93c5fd;
 }
 
-.anime-info-grid {
+.media-info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin-bottom: 32px;
 }
 
-.anime-info-card {
+.media-info-card {
   background-color: #2d3748;
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.anime-info-title {
+.media-info-title {
   font-size: 0.9rem;
   color: #9ca3af;
   margin-bottom: 8px;
   font-weight: 600;
 }
 
-.anime-info-value {
+.media-info-value {
   font-size: 1.1rem;
   color: #e5e5e5;
   font-weight: 500;
 }
 
-.anime-stats-grid {
+.media-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
@@ -571,7 +571,7 @@
 }
 
 .description-content.collapsed {
-  max-height: 50px; /* Altura fija para la descripción colapsada */
+  max-height: 50px;
   overflow: hidden;
   position: relative;
 }
@@ -599,51 +599,50 @@
   text-decoration: underline;
 }
 
-/* Para asegurar que toda la pestaña tenga una altura mínima consistente */
-.anime-tab-content {
-  min-height: 500px;  /* Ajusta este valor según la altura que deseas como mínimo */
+.media-tab-content {
+  min-height: 500px;
 }
 
-/* Asegúrate que todos los componentes dentro de la pestaña usen un espacio vertical consistente */
-.anime-info-grid, .anime-stats-grid, .studios-list {
+.media-info-grid,
+.media-stats-grid,
+.studios-list {
   margin-bottom: 32px;
 }
 
-/* Último elemento en la pestaña debe tener un margen inferior para mantener consistencia */
 .tab-pane > *:last-child {
   margin-bottom: 32px;
 }
 
 /* Responsive design */
 @media (max-width: 1024px) {
-  .anime-detail-content {
+  .media-detail-content {
     grid-template-columns: 250px 1fr;
     gap: 24px;
   }
 
-  .anime-info-grid {
+  .media-info-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 900px) {
-  .anime-detail-content {
+  .media-detail-content {
     grid-template-columns: 1fr;
   }
 
-  .anime-detail-sidebar {
+  .media-detail-sidebar {
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: 24px;
     margin-bottom: 32px;
   }
 
-  .anime-rating {
+  .media-rating {
     bottom: 10px;
     right: 10px;
   }
 
-  .anime-detail-title {
+  .media-detail-title {
     font-size: 2rem;
   }
 
@@ -653,21 +652,21 @@
 }
 
 @media (max-width: 600px) {
-  .anime-detail-sidebar {
+  .media-detail-sidebar {
     grid-template-columns: 1fr;
   }
 
-  .anime-detail-image {
+  .media-detail-image {
     max-width: 250px;
     margin: 0 auto;
   }
 
-  .anime-detail-poster {
+  .media-detail-poster {
     text-align: center;
     margin-bottom: 32px;
   }
 
-  .anime-rating {
+  .media-rating {
     position: absolute;
     bottom: -20px;
     right: 50%;
@@ -687,7 +686,7 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  .anime-stats-grid {
+  .media-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }

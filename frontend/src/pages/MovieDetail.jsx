@@ -169,11 +169,11 @@ const MovieDetail = () => {
   const title = movie.title || "Unknown Title";
 
   return (
-    <div className="anime-detail-page">
+    <div className="media-detail-page">
       {/* Banner Image Background */}
       {movie.backdrop_path ? (
         <div
-          className="anime-banner"
+          className="media-banner"
           style={{
             backgroundImage: `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`,
           }}
@@ -182,7 +182,7 @@ const MovieDetail = () => {
         </div>
       ) : movie.poster_path ? (
         <div
-          className="anime-banner"
+          className="media-banner"
           style={{
             backgroundImage: `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`,
             backgroundPosition: "center 20%",
@@ -192,13 +192,13 @@ const MovieDetail = () => {
           <div className="banner-overlay"></div>
         </div>
       ) : (
-        <div className="anime-banner default-banner">
+        <div className="media-banner default-banner">
           <div className="banner-overlay"></div>
         </div>
       )}
 
-      <div className="container anime-detail-container">
-        <div className="anime-detail-header">
+      <div className="container media-detail-container">
+        <div className="media-detail-header">
           <Link to="/movies" className="navbar-btn back-button">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -216,12 +216,12 @@ const MovieDetail = () => {
             </svg>
             Back
           </Link>
-          <h1 className="anime-detail-title">{title}</h1>
+          <h1 className="media-detail-title">{title}</h1>
         </div>
 
-        <div className="anime-detail-content">
-          <div className="anime-detail-sidebar">
-            <div className="anime-detail-poster">
+        <div className="media-detail-content">
+          <div className="media-detail-sidebar">
+            <div className="media-detail-poster">
               <img
                 src={
                   movie.poster_path
@@ -229,7 +229,7 @@ const MovieDetail = () => {
                     : "https://via.placeholder.com/500x750?text=No+Image"
                 }
                 alt={title}
-                className="anime-detail-image"
+                className="media-detail-image"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src =
@@ -237,7 +237,7 @@ const MovieDetail = () => {
                 }}
               />
 
-              <div className="anime-rating">
+              <div className="media-rating">
                 <div className="rating-circle">
                   <span className="rating-score">
                     {movie.vote_average
@@ -256,8 +256,8 @@ const MovieDetail = () => {
               movieTitle={title}
             />
 
-            <div className="anime-stats">
-              <div className="anime-stat-item">
+            <div className="media-stats">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -280,7 +280,7 @@ const MovieDetail = () => {
                 </span>
               </div>
 
-              <div className="anime-stat-item">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -314,7 +314,7 @@ const MovieDetail = () => {
                 </span>
               </div>
 
-              <div className="anime-stat-item">
+              <div className="media-stat-item">
                 <span className="stat-label">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -338,7 +338,7 @@ const MovieDetail = () => {
               </div>
 
               {movie.genres && movie.genres.length > 0 && (
-                <div className="anime-stat-item anime-stat-genres">
+                <div className="media-stat-item media-stat-genres">
                   <span className="stat-label">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -357,7 +357,7 @@ const MovieDetail = () => {
                     </svg>
                     Genres:
                   </span>
-                  <div className="anime-genres">
+                  <div className="media-genres">
                     {movie.genres.map((genre, index) => (
                       <span key={index} className="genre-tag">
                         <svg
@@ -383,8 +383,8 @@ const MovieDetail = () => {
             </div>
           </div>
 
-          <div className="anime-detail-main">
-            <div className="anime-tabs">
+          <div className="media-detail-main">
+            <div className="media-tabs">
               <button
                 className={`tab-button ${
                   activeTab === "overview" ? "active" : ""
@@ -431,12 +431,12 @@ const MovieDetail = () => {
               </button>
             </div>
 
-            <div className="anime-tab-content">
+            <div className="media-tab-content">
               {activeTab === "overview" && (
                 <div className="tab-pane">
                   {/* Description */}
                   {movie.overview && (
-                    <div className="anime-description">
+                    <div className="media-description">
                       <h3 className="section-title">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -497,40 +497,40 @@ const MovieDetail = () => {
                     Details
                   </h3>
 
-                  <div className="anime-info-grid">
+                  <div className="media-info-grid">
                     {movie.runtime && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Duration</div>
-                        <div className="anime-info-value">
+                      <div className="media-info-card">
+                        <div className="media-info-title">Duration</div>
+                        <div className="media-info-value">
                           {formatDuration(movie.runtime)}
                         </div>
                       </div>
                     )}
 
                     {movie.budget && movie.budget > 0 && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Budget</div>
-                        <div className="anime-info-value">
+                      <div className="media-info-card">
+                        <div className="media-info-title">Budget</div>
+                        <div className="media-info-value">
                           {formatCurrency(movie.budget)}
                         </div>
                       </div>
                     )}
 
                     {movie.revenue && movie.revenue > 0 && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">Revenue</div>
-                        <div className="anime-info-value">
+                      <div className="media-info-card">
+                        <div className="media-info-title">Revenue</div>
+                        <div className="media-info-value">
                           {formatCurrency(movie.revenue)}
                         </div>
                       </div>
                     )}
 
                     {movie.original_language && (
-                      <div className="anime-info-card">
-                        <div className="anime-info-title">
+                      <div className="media-info-card">
+                        <div className="media-info-title">
                           Original Language
                         </div>
-                        <div className="anime-info-value">
+                        <div className="media-info-value">
                           {movie.original_language.toUpperCase()}
                         </div>
                       </div>
@@ -555,7 +555,7 @@ const MovieDetail = () => {
                     Statistics
                   </h3>
 
-                  <div className="anime-stats-grid">
+                  <div className="media-stats-grid">
                     <div className="stat-card">
                       <div className="stat-card-value">
                         {movie.vote_average

@@ -158,8 +158,8 @@ const SeriesStatusModal = ({
             </div>
           ) : (
             <>
-              <div className="anime-info">
-                <h3 className="anime-title">{seriesTitle}</h3>
+              <div className="media-info">
+                <h3 className="media-title">{seriesTitle}</h3>
               </div>
 
               <div className="compact-grid">
