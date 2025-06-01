@@ -31,8 +31,8 @@ try {
 
     // Get content ID from query parameters
     $contentId = isset($_GET['contentId']) ? intval($_GET['contentId']) : 0;
-    $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'anime';
-
+    $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'movie';
+    
     if (!$contentId) {
         http_response_code(400);
         echo json_encode([

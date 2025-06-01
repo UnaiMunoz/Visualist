@@ -1,6 +1,6 @@
 <?php
 // backend/api/lists/check.php
-// This endpoint checks if an anime is in a user's lists
+// This endpoint checks if content is in a user's lists
 
 // Set content type to JSON first
 header('Content-Type: application/json');
@@ -31,8 +31,8 @@ try {
 
     // Get content ID from query parameters
     $contentId = isset($_GET['contentId']) ? intval($_GET['contentId']) : 0;
-    $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'anime';
-
+    $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'movie';
+    
     if (!$contentId) {
         http_response_code(400);
         echo json_encode([

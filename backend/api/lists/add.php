@@ -1,6 +1,6 @@
 <?php
 // backend/api/lists/add.php
-// This endpoint adds an anime to a user's list (watched, to_watch, or favorites)
+// This endpoint adds content to a user's list (watched, to_watch, or favorites)
 
 // Include required files
 require_once __DIR__ . '/../../config/config.php';
@@ -39,7 +39,7 @@ if (!isset($data['contentId']) || !isset($data['contentType']) || !isset($data['
 // Get user ID from session
 $userId = $_SESSION['user_id'];
 $contentId = intval($data['contentId']);
-$contentType = $data['contentType']; // Should be 'anime', 'movie', or 'series'
+$contentType = $data['contentType']; // Should be 'movie', or 'series'
 $listType = $data['listType']; // Should be 'watched', 'to_watch', or 'favorites'
 
 // Create ListManager instance

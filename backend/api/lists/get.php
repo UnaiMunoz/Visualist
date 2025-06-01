@@ -24,7 +24,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Get list type from query parameters
 $listType = isset($_GET['listType']) ? $_GET['listType'] : 'watched';
-$contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'anime';
+$contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'movie';
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $perPage = isset($_GET['perPage']) ? intval($_GET['perPage']) : 24;
 

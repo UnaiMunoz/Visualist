@@ -27,22 +27,6 @@ This is a PHP-based backend API for the Visualist application that securely hand
 
 ## API Endpoints
 
-### Anime
-- `GET /api/anime/top` - Get top-rated anime
-  - Query parameters:
-    - `limit` (default: 10) - Number of results to return
-  
-- `GET /api/anime` - Get paginated anime list
-  - Query parameters:
-    - `page` (default: 1) - Page number
-    - `perPage` (default: 24) - Items per page
-  
-- `GET /api/anime/search` - Search for anime
-  - Query parameters:
-    - `searchTerm` (required) - Search query
-    - `page` (default: 1) - Page number
-    - `perPage` (default: 24) - Items per page
-
 ### Movies
 - `GET /api/movies/top` - Get top-rated movies
   - Query parameters:

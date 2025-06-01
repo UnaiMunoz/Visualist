@@ -516,14 +516,11 @@ class ListManager
         }
 
         // Extract title and release year
-        $title = $contentType === 'anime'
-            ? ($contentDetails['title']['english'] ?? $contentDetails['title']['romaji'] ?? 'Unknown Anime')
-            : ($contentDetails['title'] ?? $contentDetails['name'] ?? 'Unknown Title');
+        $title = ($contentDetails['title'] ?? $contentDetails['name'] ?? 'Unknown Title');
+
 
         $year = null;
-        if ($contentType === 'anime' && isset($contentDetails['startDate']) && isset($contentDetails['startDate']['year'])) {
-            $year = $contentDetails['startDate']['year'];
-        } else if (isset($contentDetails['release_date'])) {
+        if (isset($contentDetails['release_date'])) {
             $year = substr($contentDetails['release_date'], 0, 4);
         } else if (isset($contentDetails['first_air_date'])) {
             $year = substr($contentDetails['first_air_date'], 0, 4);
@@ -571,8 +568,6 @@ class ListManager
     {
         // Based on content type, use the appropriate service
         switch ($contentType) {
-            case 'anime':
-                return $this->getAnimeDetails($contentId);
             case 'movie':
                 return $this->getMovieDetails($contentId);
             case 'series':
@@ -580,25 +575,6 @@ class ListManager
             default:
                 throw new Exception("Invalid content type: $contentType");
         }
-    }
-
-    /**
-     * Get anime details from TMDB API (through our backend)
-     */
-    private function getAnimeDetails($animeId)
-    {
-        // Use our own backend API endpoint for anime details
-        $baseUrl = APP_URL ?? 'http://localhost'; // Fallback to localhost if APP_URL not defined
-        $url = $baseUrl . "/Visualist/backend/api/anime/detail?id=$animeId";
-
-        // Use file_get_contents with error suppression
-        $response = @file_get_contents($url);
-
-        if ($response === false) {
-            return null;
-        }
-
-        return json_decode($response, true);
     }
 
     /**

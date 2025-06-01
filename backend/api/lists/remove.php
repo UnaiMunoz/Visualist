@@ -1,6 +1,6 @@
 <?php
 // backend/api/lists/remove.php
-// This endpoint removes an anime from a user's list
+// This endpoint removes a content from a user's list
 
 // Include required files
 require_once __DIR__ . '/../../config/config.php';
@@ -38,7 +38,7 @@ if (!isset($data['contentId']) || !isset($data['contentType']) || !isset($data['
 // Get user ID from session
 $userId = $_SESSION['user_id'];
 $contentId = intval($data['contentId']);
-$contentType = $data['contentType']; // Should be 'anime', 'movie', or 'series'
+$contentType = $data['contentType']; // Should be 'movie', or 'series'
 $listType = $data['listType']; // Should be 'watched', 'to_watch', or 'favorites'
 
 // Create ListManager instance
