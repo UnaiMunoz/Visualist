@@ -11,6 +11,10 @@ const MovieDetail = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedDescription, setExpandedDescription] = useState(false);
 
+  // Nuevos estados para paginación de personajes
+  const [currentCastPage, setCurrentCastPage] = useState(1);
+  const CAST_PER_PAGE = 9;
+
   useEffect(() => {
     const fetchMovieData = async () => {
       setLoading(true);
@@ -39,6 +43,13 @@ const MovieDetail = () => {
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, [id]);
+
+  // Reset cast page when switching to cast tab
+  useEffect(() => {
+    if (activeTab === "cast") {
+      setCurrentCastPage(1);
+    }
+  }, [activeTab]);
 
   const renderStatusBadge = (status) => {
     let badgeClass = "status-badge";
@@ -94,6 +105,38 @@ const MovieDetail = () => {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  // Función para obtener personajes paginados
+  const getPaginatedCast = () => {
+    if (!movie?.credits?.cast) return [];
+
+    const cast = movie.credits.cast;
+    const startIndex = (currentCastPage - 1) * CAST_PER_PAGE;
+    const endIndex = startIndex + CAST_PER_PAGE;
+
+    return cast.slice(startIndex, endIndex);
+  };
+
+  // Calcular información de paginación
+  const getCastPaginationInfo = () => {
+    if (!movie?.credits?.cast)
+      return { totalPages: 0, hasNext: false, hasPrev: false };
+
+    const totalCast = movie.credits.cast.length;
+    const totalPages = Math.ceil(totalCast / CAST_PER_PAGE);
+
+    return {
+      totalPages,
+      totalCast,
+      hasNext: currentCastPage < totalPages,
+      hasPrev: currentCastPage > 1,
+      currentPage: currentCastPage,
+      startIndex: (currentCastPage - 1) * CAST_PER_PAGE + 1,
+      endIndex: Math.min(currentCastPage * CAST_PER_PAGE, totalCast),
+    };
+  };
+
+  const castPagination = getCastPaginationInfo();
 
   if (loading) {
     return (
@@ -428,6 +471,11 @@ const MovieDetail = () => {
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
                 Cast & Crew
+                {movie?.credits?.cast && movie.credits.cast.length > 0 && (
+                  <span className="tab-count">
+                    ({movie.credits.cast.length})
+                  </span>
+                )}
               </button>
             </div>
 
@@ -616,59 +664,139 @@ const MovieDetail = () => {
 
               {activeTab === "cast" && (
                 <div className="tab-pane">
-                  <h3 className="section-title">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    Cast & Crew
-                  </h3>
+                  <div className="cast-header">
+                    <h3 className="section-title">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                      Cast & Crew
+                    </h3>
+
+                    {/* Información de paginación */}
+                    {castPagination.totalCast > 0 && (
+                      <div className="cast-pagination-info">
+                        <span className="pagination-text">
+                          Showing {castPagination.startIndex}-
+                          {castPagination.endIndex} of{" "}
+                          {castPagination.totalCast} cast members
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                   {movie.credits &&
                   movie.credits.cast &&
                   movie.credits.cast.length > 0 ? (
-                    <div className="characters-grid">
-                      {movie.credits.cast.slice(0, 12).map((person) => (
-                        <div key={person.id} className="character-card">
-                          <div className="character-image-container">
-                            <img
-                              src={
-                                person.profile_path
-                                  ? `https://image.tmdb.org/t/p/w185${person.profile_path}`
-                                  : "https://via.placeholder.com/185x278?text=No+Image"
-                              }
-                              alt={person.name || "Cast Member"}
-                              className="character-image"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src =
-                                  "https://via.placeholder.com/185x278?text=No+Image";
-                              }}
-                            />
-                            <div className="character-role">Cast</div>
-                          </div>
-                          <div className="character-info">
-                            <div className="character-name">
-                              {person.name || "Unknown"}
+                    <>
+                      <div className="characters-grid">
+                        {getPaginatedCast().map((person) => (
+                          <div key={person.id} className="character-card">
+                            <div className="character-image-container">
+                              <img
+                                src={
+                                  person.profile_path
+                                    ? `https://image.tmdb.org/t/p/w300${person.profile_path}`
+                                    : "https://via.placeholder.com/300x450?text=No+Image"
+                                }
+                                alt={person.name || "Cast Member"}
+                                className="character-image"
+                                loading="lazy"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src =
+                                    "https://via.placeholder.com/300x450?text=No+Image";
+                                }}
+                              />
+                              <div className="character-role">Cast</div>
                             </div>
-                            {person.character && (
-                              <div className="character-native-name">
-                                as {person.character}
+                            <div className="character-info">
+                              <div className="character-name">
+                                {person.name || "Unknown"}
                               </div>
-                            )}
+                              {person.character && (
+                                <div className="character-native-name">
+                                  as {person.character}
+                                </div>
+                              )}
+                            </div>
                           </div>
+                        ))}
+                      </div>
+
+                      {/* Paginación */}
+                      {castPagination.totalPages > 1 && (
+                        <div className="cast-pagination">
+                          <button
+                            className="pagination-btn"
+                            onClick={() =>
+                              setCurrentCastPage((prev) => prev - 1)
+                            }
+                            disabled={!castPagination.hasPrev}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M19 12H5"></path>
+                              <path d="M12 19l-7-7 7-7"></path>
+                            </svg>
+                            Previous
+                          </button>
+
+                          <div className="pagination-info">
+                            <span className="current-page">
+                              {castPagination.currentPage}
+                            </span>
+                            <span className="page-separator">of</span>
+                            <span className="total-pages">
+                              {castPagination.totalPages}
+                            </span>
+                          </div>
+
+                          <button
+                            className="pagination-btn"
+                            onClick={() =>
+                              setCurrentCastPage((prev) => prev + 1)
+                            }
+                            disabled={!castPagination.hasNext}
+                          >
+                            Next
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M5 12h14"></path>
+                              <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                          </button>
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    </>
                   ) : (
                     <p className="no-characters">
                       No cast information available for this movie.
