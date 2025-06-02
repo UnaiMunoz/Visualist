@@ -815,63 +815,30 @@ const SeriesDetail = () => {
 
                       {/* Paginación */}
                       {castPagination.totalPages > 1 && (
-                        <div className="cast-pagination">
+                        <div className="pagination">
                           <button
-                            className="pagination-btn"
+                            className="navbar-btn"
                             onClick={() =>
                               setCurrentCastPage((prev) => prev - 1)
                             }
                             disabled={!castPagination.hasPrev}
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M19 12H5"></path>
-                              <path d="M12 19l-7-7 7-7"></path>
-                            </svg>
                             Previous
                           </button>
 
-                          <div className="pagination-info">
-                            <span className="current-page">
-                              {castPagination.currentPage}
-                            </span>
-                            <span className="page-separator">of</span>
-                            <span className="total-pages">
-                              {castPagination.totalPages}
-                            </span>
-                          </div>
+                          <span className="page-info">
+                            Page {castPagination.currentPage} of{" "}
+                            {castPagination.totalPages}
+                          </span>
 
                           <button
-                            className="pagination-btn"
+                            className="navbar-btn"
                             onClick={() =>
                               setCurrentCastPage((prev) => prev + 1)
                             }
                             disabled={!castPagination.hasNext}
                           >
                             Next
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M5 12h14"></path>
-                              <path d="M12 5l7 7-7 7"></path>
-                            </svg>
                           </button>
                         </div>
                       )}

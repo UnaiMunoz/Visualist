@@ -1,4 +1,12 @@
+import { useNavigate } from "react-router-dom";
+
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleExploreClick = () => {
+    navigate("/login");
+  };
+
   return (
     <div className="hero">
       <div className="hero-bg"></div>
@@ -7,7 +15,9 @@ const Hero = () => {
         <p className="hero-subtitle">
           Discover and track your favorite anime, movies, and TV series
         </p>
-        <button className="hero-btn">Start Exploring</button>
+        <button className="hero-btn" onClick={handleExploreClick}>
+          Start Tracking
+        </button>
       </div>
     </div>
   );
