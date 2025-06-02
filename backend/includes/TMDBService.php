@@ -303,21 +303,118 @@ class TMDBService
             throw new Exception('Error searching series: ' . $e->getMessage());
         }
     }
+
     /**
      * Get TV series details by ID
      * 
      * @param int $id TMDb series ID
-     * @return array Series details including cast and crew
+     * @return array Series details including cast and crew from ALL seasons
      */
     public function getSeriesDetails($id)
     {
         try {
-            // Fetch series details with credits
-            $url = TMDB_API_URL . '/tv/' . $id . '?api_key=' . TMDB_API_KEY . '&append_to_response=credits&language=en-US';
+            // First, fetch series details with basic info
+            $url = TMDB_API_URL . '/tv/' . $id . '?api_key=' . TMDB_API_KEY . '&language=en-US';
             $response = ApiHelper::restRequest($url);
 
             if (!isset($response['id'])) {
                 throw new Exception('Invalid TMDb API response');
+            }
+
+            // Now fetch the AGGREGATE credits (all seasons) separately
+            $creditsUrl = TMDB_API_URL . '/tv/' . $id . '/aggregate_credits?api_key=' . TMDB_API_KEY . '&language=en-US';
+            $creditsResponse = ApiHelper::restRequest($creditsUrl);
+
+            // Process and normalize the credits data
+            if (isset($creditsResponse['cast']) || isset($creditsResponse['crew'])) {
+                $normalizedCast = [];
+                $normalizedCrew = [];
+
+                // Process cast - handle the roles structure in aggregate_credits
+                if (isset($creditsResponse['cast']) && is_array($creditsResponse['cast'])) {
+                    foreach ($creditsResponse['cast'] as $castMember) {
+                        $normalizedMember = [
+                            'adult' => $castMember['adult'] ?? false,
+                            'gender' => $castMember['gender'] ?? null,
+                            'id' => $castMember['id'] ?? 0,
+                            'known_for_department' => $castMember['known_for_department'] ?? 'Acting',
+                            'name' => $castMember['name'] ?? 'Unknown',
+                            'original_name' => $castMember['original_name'] ?? $castMember['name'] ?? 'Unknown',
+                            'popularity' => $castMember['popularity'] ?? 0,
+                            'profile_path' => $castMember['profile_path'] ?? null,
+                            'cast_id' => $castMember['id'] ?? 0,
+                            'credit_id' => $castMember['credit_id'] ?? '',
+                            'order' => $castMember['order'] ?? 999
+                        ];
+
+                        // Handle character field - aggregate_credits uses 'roles' array
+                        if (isset($castMember['roles']) && is_array($castMember['roles']) && !empty($castMember['roles'])) {
+                            // Get the first character from roles array
+                            $firstRole = $castMember['roles'][0];
+                            $normalizedMember['character'] = $firstRole['character'] ?? 'Unknown Role';
+                        } elseif (isset($castMember['character'])) {
+                            // Fallback to direct character field if available
+                            $normalizedMember['character'] = $castMember['character'];
+                        } else {
+                            $normalizedMember['character'] = 'Unknown Role';
+                        }
+
+                        $normalizedCast[] = $normalizedMember;
+                    }
+                }
+
+                // Process crew - handle the jobs structure in aggregate_credits
+                if (isset($creditsResponse['crew']) && is_array($creditsResponse['crew'])) {
+                    foreach ($creditsResponse['crew'] as $crewMember) {
+                        $normalizedMember = [
+                            'adult' => $crewMember['adult'] ?? false,
+                            'gender' => $crewMember['gender'] ?? null,
+                            'id' => $crewMember['id'] ?? 0,
+                            'known_for_department' => $crewMember['known_for_department'] ?? 'Production',
+                            'name' => $crewMember['name'] ?? 'Unknown',
+                            'original_name' => $crewMember['original_name'] ?? $crewMember['name'] ?? 'Unknown',
+                            'popularity' => $crewMember['popularity'] ?? 0,
+                            'profile_path' => $crewMember['profile_path'] ?? null,
+                            'credit_id' => $crewMember['credit_id'] ?? ''
+                        ];
+
+                        // Handle job field - aggregate_credits uses 'jobs' array
+                        if (isset($crewMember['jobs']) && is_array($crewMember['jobs']) && !empty($crewMember['jobs'])) {
+                            // Get the first job from jobs array
+                            $firstJob = $crewMember['jobs'][0];
+                            $normalizedMember['job'] = $firstJob['job'] ?? 'Unknown Job';
+                            $normalizedMember['department'] = $firstJob['department'] ?? 'Unknown Department';
+                        } elseif (isset($crewMember['job'])) {
+                            // Fallback to direct job field if available
+                            $normalizedMember['job'] = $crewMember['job'];
+                            $normalizedMember['department'] = $crewMember['department'] ?? 'Unknown Department';
+                        } else {
+                            $normalizedMember['job'] = 'Unknown Job';
+                            $normalizedMember['department'] = 'Unknown Department';
+                        }
+
+                        $normalizedCrew[] = $normalizedMember;
+                    }
+                }
+
+                $response['credits'] = [
+                    'cast' => $normalizedCast,
+                    'crew' => $normalizedCrew
+                ];
+
+                // Log the number of cast members found for debugging
+                error_log("Series ID {$id}: Found " . count($normalizedCast) . " cast members using aggregate_credits");
+            } else {
+                // Fallback to regular credits if aggregate_credits fails
+                $fallbackUrl = TMDB_API_URL . '/tv/' . $id . '/credits?api_key=' . TMDB_API_KEY . '&language=en-US';
+                $fallbackCredits = ApiHelper::restRequest($fallbackUrl);
+
+                $response['credits'] = [
+                    'cast' => $fallbackCredits['cast'] ?? [],
+                    'crew' => $fallbackCredits['crew'] ?? []
+                ];
+
+                error_log("Series ID {$id}: Fallback to regular credits - Found " . count($fallbackCredits['cast'] ?? []) . " cast members");
             }
 
             return $response;
