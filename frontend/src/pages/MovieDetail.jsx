@@ -51,6 +51,19 @@ const MovieDetail = () => {
     }
   }, [activeTab]);
 
+  // Scroll to cast section when cast page changes
+  useEffect(() => {
+    if (activeTab === "cast" && currentCastPage > 1) {
+      const castSection = document.querySelector(".cast-header");
+      if (castSection) {
+        castSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [currentCastPage, activeTab]);
+
   const renderStatusBadge = (status) => {
     let badgeClass = "status-badge";
 
@@ -97,7 +110,7 @@ const MovieDetail = () => {
 
   // Format budget and revenue
   const formatCurrency = (amount) => {
-    if (!amount || amount === 0) return "N/A";
+    if (!amount || amount === 0) return "Unknown";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -483,49 +496,47 @@ const MovieDetail = () => {
               {activeTab === "overview" && (
                 <div className="tab-pane">
                   {/* Description */}
-                  {movie.overview && (
-                    <div className="media-description">
-                      <h3 className="section-title">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                          <line x1="16" y1="13" x2="8" y2="13"></line>
-                          <line x1="16" y1="17" x2="8" y2="17"></line>
-                          <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Synopsis
-                      </h3>
-                      <div
-                        className={`description-content ${
-                          expandedDescription ? "expanded" : "collapsed"
-                        }`}
+                  <div className="media-description">
+                    <h3 className="section-title">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        {movie.overview || "No description available."}
-                      </div>
-                      {movie.overview && movie.overview.length > 300 && (
-                        <button
-                          onClick={() =>
-                            setExpandedDescription(!expandedDescription)
-                          }
-                          className="expand-btn"
-                        >
-                          {expandedDescription ? "Show Less" : "Read More"}
-                        </button>
-                      )}
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                      Synopsis
+                    </h3>
+                    <div
+                      className={`description-content ${
+                        expandedDescription ? "expanded" : "collapsed"
+                      }`}
+                    >
+                      {movie.overview || "No description available."}
                     </div>
-                  )}
+                    {movie.overview && movie.overview.length > 300 && (
+                      <button
+                        onClick={() =>
+                          setExpandedDescription(!expandedDescription)
+                        }
+                        className="expand-btn"
+                      >
+                        {expandedDescription ? "Show Less" : "Read More"}
+                      </button>
+                    )}
+                  </div>
 
-                  {/* Basic information */}
+                  {/* Basic information - Always show all fields */}
                   <h3 className="section-title">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -546,43 +557,35 @@ const MovieDetail = () => {
                   </h3>
 
                   <div className="media-info-grid">
-                    {movie.runtime && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">Duration</div>
-                        <div className="media-info-value">
-                          {formatDuration(movie.runtime)}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Duration</div>
+                      <div className="media-info-value">
+                        {formatDuration(movie.runtime)}
                       </div>
-                    )}
+                    </div>
 
-                    {movie.budget && movie.budget > 0 && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">Budget</div>
-                        <div className="media-info-value">
-                          {formatCurrency(movie.budget)}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Budget</div>
+                      <div className="media-info-value">
+                        {formatCurrency(movie.budget)}
                       </div>
-                    )}
+                    </div>
 
-                    {movie.revenue && movie.revenue > 0 && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">Revenue</div>
-                        <div className="media-info-value">
-                          {formatCurrency(movie.revenue)}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Revenue</div>
+                      <div className="media-info-value">
+                        {formatCurrency(movie.revenue)}
                       </div>
-                    )}
+                    </div>
 
-                    {movie.original_language && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">
-                          Original Language
-                        </div>
-                        <div className="media-info-value">
-                          {movie.original_language.toUpperCase()}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Original Language</div>
+                      <div className="media-info-value">
+                        {movie.original_language
+                          ? movie.original_language.toUpperCase()
+                          : "Unknown"}
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   {/* Statistics */}
@@ -616,13 +619,6 @@ const MovieDetail = () => {
 
                     <div className="stat-card">
                       <div className="stat-card-value">
-                        {movie.popularity?.toFixed(0) || "-"}
-                      </div>
-                      <div className="stat-card-label">Popularity</div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-card-value">
                         {movie.vote_count?.toLocaleString() || "-"}
                       </div>
                       <div className="stat-card-label">Vote Count</div>
@@ -630,35 +626,43 @@ const MovieDetail = () => {
                   </div>
 
                   {/* Production Companies */}
-                  {movie.production_companies &&
-                    movie.production_companies.length > 0 && (
-                      <>
-                        <h3 className="section-title">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                          </svg>
-                          Production Companies
-                        </h3>
-                        <div className="studios-list">
-                          {movie.production_companies.map((company, index) => (
-                            <span key={index} className="studio-item">
-                              {company.name}
-                            </span>
-                          ))}
-                        </div>
-                      </>
+                  <h3 className="section-title">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Production Companies
+                  </h3>
+                  <div className="studios-list">
+                    {movie.production_companies &&
+                    movie.production_companies.length > 0 ? (
+                      movie.production_companies.map((company, index) => (
+                        <span key={index} className="studio-item">
+                          {company.name}
+                        </span>
+                      ))
+                    ) : (
+                      <span
+                        className="studio-item"
+                        style={{
+                          backgroundColor: "#6b7280",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Unknown
+                      </span>
                     )}
+                  </div>
                 </div>
               )}
 
@@ -703,32 +707,81 @@ const MovieDetail = () => {
                         {getPaginatedCast().map((person) => (
                           <div key={person.id} className="character-card">
                             <div className="character-image-container">
-                              <img
-                                src={
-                                  person.profile_path
-                                    ? `https://image.tmdb.org/t/p/w300${person.profile_path}`
-                                    : "https://via.placeholder.com/300x450?text=No+Image"
-                                }
-                                alt={person.name || "Cast Member"}
-                                className="character-image"
-                                loading="lazy"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src =
-                                    "https://via.placeholder.com/300x450?text=No+Image";
+                              {person.profile_path ? (
+                                <img
+                                  src={`https://image.tmdb.org/t/p/w300${person.profile_path}`}
+                                  alt={person.name || "Cast Member"}
+                                  className="character-image"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
+                                    e.target.nextSibling.style.display = "flex";
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="image-placeholder"
+                                style={{
+                                  display: person.profile_path
+                                    ? "none"
+                                    : "flex",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "#374151",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexDirection: "column",
+                                  color: "#9ca3af",
+                                  fontSize: "0.9rem",
+                                  textAlign: "center",
+                                  padding: "20px",
                                 }}
-                              />
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="48"
+                                  height="48"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  style={{ marginBottom: "8px", opacity: 0.5 }}
+                                >
+                                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                  <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span
+                                  style={{
+                                    fontSize: "0.8rem",
+                                    lineHeight: "1.2",
+                                  }}
+                                >
+                                  Image Not Available
+                                </span>
+                              </div>
                               <div className="character-role">Cast</div>
                             </div>
                             <div className="character-info">
                               <div className="character-name">
                                 {person.name || "Unknown"}
                               </div>
-                              {person.character && (
-                                <div className="character-native-name">
-                                  as {person.character}
-                                </div>
-                              )}
+                              <div className="character-native-name">
+                                {person.character ? (
+                                  `as ${person.character}`
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "#9ca3af",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    Role Unknown
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}

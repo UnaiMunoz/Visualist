@@ -890,9 +890,414 @@
   z-index: 2;
 }
 
+/* Image placeholder styles for character cards */
+.image-placeholder {
+  position: relative;
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  border: 2px dashed #6b7280;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.image-placeholder:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+  border-color: #9ca3af;
+}
+
+.image-placeholder svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Improved character image container */
+.character-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background-color: #2d3748;
+}
+
+/* Loading state for images */
+.character-image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.character-image-loading::after {
+  content: "";
+  width: 32px;
+  height: 32px;
+  border: 3px solid #4b5563;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Unknown data styling */
+.unknown-data {
+  color: #9ca3af !important;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.studio-item.unknown,
+.media-info-value.unknown {
+  background-color: #6b7280 !important;
+  color: #e5e5e5 !important;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Improved error states */
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+  background-color: #1f2937;
+  border-radius: 8px;
+  border: 2px dashed #374151;
+}
+
+.no-data-message svg {
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-data-message p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Image placeholder styles for character cards */
+.image-placeholder {
+  position: relative;
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  border: 2px dashed #6b7280;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.image-placeholder:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+  border-color: #9ca3af;
+}
+
+.image-placeholder svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Improved character image container */
+.character-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background-color: #2d3748;
+}
+
+/* Loading state for images */
+.character-image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.character-image-loading::after {
+  content: "";
+  width: 32px;
+  height: 32px;
+  border: 3px solid #4b5563;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Character role styling */
+.character-native-name {
+  color: #9ca3af;
+  text-align: center;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  min-height: 20px; /* Ensures consistent spacing even when role is unknown */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Unknown role styling */
+.character-role-unknown {
+  color: #6b7280 !important;
+  font-style: italic;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.character-role-unknown::before {
+  content: "?";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: #4b5563;
+  color: #e5e5e5;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-style: normal;
+  text-align: center;
+  line-height: 14px;
+  flex-shrink: 0;
+}
+
+/* Unknown data styling */
+.unknown-data {
+  color: #9ca3af !important;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.studio-item.unknown,
+.media-info-value.unknown {
+  background-color: #6b7280 !important;
+  color: #e5e5e5 !important;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Improved error states */
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+  background-color: #1f2937;
+  border-radius: 8px;
+  border: 2px dashed #374151;
+}
+
+.no-data-message svg {
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-data-message p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Smooth scroll behavior for cast section */
+.cast-header {
+  scroll-margin-top: 80px; /* Offset for fixed navbar */
+}
+
+/* Enhanced pagination buttons with better visual feedback */
+.pagination-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.pagination-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.pagination-btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+/* Responsive adjustments for placeholders */
+@media (max-width: 768px) {
+  .image-placeholder {
+    padding: 15px;
+  }
+  
+  .image-placeholder svg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .image-placeholder span {
+    font-size: 0.75rem;
+  }
+
+  .character-role-unknown {
+    font-size: 0.75rem;
+  }
+
+  .character-role-unknown::before {
+    width: 12px;
+    height: 12px;
+    font-size: 0.6rem;
+    line-height: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-placeholder {
+    padding: 10px;
+  }
+  
+  .image-placeholder svg {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .image-placeholder span {
+    font-size: 0.7rem;
+  }
+
+  .character-role-unknown {
+    font-size: 0.7rem;
+  }
+
+  .cast-header {
+    scroll-margin-top: 60px; /* Smaller offset for mobile */
+  }
+}
+
+/* Animation for placeholder appearance */
+@keyframes placeholderFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.image-placeholder {
+  animation: placeholderFadeIn 0.3s ease-out;
+}
+
+/* Better visual hierarchy for unknown values */
+.media-info-value.unknown-value,
+.stat-value.unknown-value {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: italic;
+  position: relative;
+}
+
+.media-info-value.unknown-value::after,
+.stat-value.unknown-value::after {
+  content: "?";
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-style: normal;
+  color: #6b7280;
+  font-size: 0.8em;
+}
+
+/* Responsive adjustments for placeholders */
+@media (max-width: 768px) {
+  .image-placeholder {
+    padding: 15px;
+  }
+
+  .image-placeholder svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .image-placeholder span {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-placeholder {
+    padding: 10px;
+  }
+
+  .image-placeholder svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .image-placeholder span {
+    font-size: 0.7rem;
+  }
+}
+
+/* Animation for placeholder appearance */
+@keyframes placeholderFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.image-placeholder {
+  animation: placeholderFadeIn 0.3s ease-out;
+}
+
+/* Better visual hierarchy for unknown values */
+.media-info-value.unknown-value,
+.stat-value.unknown-value {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: italic;
+  position: relative;
+}
+
+.media-info-value.unknown-value::after,
+.stat-value.unknown-value::after {
+  content: "?";
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-style: normal;
+  color: #6b7280;
+  font-size: 0.8em;
+}
+
 @keyframes spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 /* Responsive design */

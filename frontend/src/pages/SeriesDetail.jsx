@@ -52,6 +52,19 @@ const SeriesDetail = () => {
     }
   }, [activeTab]);
 
+  // Scroll to cast section when cast page changes
+  useEffect(() => {
+    if (activeTab === "cast" && currentCastPage > 1) {
+      const castSection = document.querySelector(".cast-header");
+      if (castSection) {
+        castSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [currentCastPage, activeTab]);
+
   const renderStatusBadge = (status) => {
     let badgeClass = "status-badge";
 
@@ -509,49 +522,47 @@ const SeriesDetail = () => {
               {activeTab === "overview" && (
                 <div className="tab-pane">
                   {/* Description */}
-                  {series.overview && (
-                    <div className="media-description">
-                      <h3 className="section-title">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                          <line x1="16" y1="13" x2="8" y2="13"></line>
-                          <line x1="16" y1="17" x2="8" y2="17"></line>
-                          <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Synopsis
-                      </h3>
-                      <div
-                        className={`description-content ${
-                          expandedDescription ? "expanded" : "collapsed"
-                        }`}
+                  <div className="media-description">
+                    <h3 className="section-title">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        {series.overview || "No description available."}
-                      </div>
-                      {series.overview && series.overview.length > 300 && (
-                        <button
-                          onClick={() =>
-                            setExpandedDescription(!expandedDescription)
-                          }
-                          className="expand-btn"
-                        >
-                          {expandedDescription ? "Show Less" : "Read More"}
-                        </button>
-                      )}
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                      Synopsis
+                    </h3>
+                    <div
+                      className={`description-content ${
+                        expandedDescription ? "expanded" : "collapsed"
+                      }`}
+                    >
+                      {series.overview || "No description available."}
                     </div>
-                  )}
+                    {series.overview && series.overview.length > 300 && (
+                      <button
+                        onClick={() =>
+                          setExpandedDescription(!expandedDescription)
+                        }
+                        className="expand-btn"
+                      >
+                        {expandedDescription ? "Show Less" : "Read More"}
+                      </button>
+                    )}
+                  </div>
 
-                  {/* Basic information */}
+                  {/* Basic information - Always show all fields */}
                   <h3 className="section-title">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -572,43 +583,35 @@ const SeriesDetail = () => {
                   </h3>
 
                   <div className="media-info-grid">
-                    {series.number_of_seasons && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">Seasons</div>
-                        <div className="media-info-value">
-                          {series.number_of_seasons}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Seasons</div>
+                      <div className="media-info-value">
+                        {series.number_of_seasons || "Unknown"}
                       </div>
-                    )}
+                    </div>
 
-                    {series.number_of_episodes && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">Total Episodes</div>
-                        <div className="media-info-value">
-                          {series.number_of_episodes}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Total Episodes</div>
+                      <div className="media-info-value">
+                        {series.number_of_episodes || "Unknown"}
                       </div>
-                    )}
+                    </div>
 
-                    {series.original_language && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">
-                          Original Language
-                        </div>
-                        <div className="media-info-value">
-                          {series.original_language.toUpperCase()}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Original Language</div>
+                      <div className="media-info-value">
+                        {series.original_language
+                          ? series.original_language.toUpperCase()
+                          : "Unknown"}
                       </div>
-                    )}
+                    </div>
 
-                    {series.created_by && series.created_by.length > 0 && (
-                      <div className="media-info-card">
-                        <div className="media-info-title">Created By</div>
-                        <div className="media-info-value">
-                          {formatCreators(series.created_by)}
-                        </div>
+                    <div className="media-info-card">
+                      <div className="media-info-title">Created By</div>
+                      <div className="media-info-value">
+                        {formatCreators(series.created_by)}
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   {/* Statistics */}
@@ -642,13 +645,6 @@ const SeriesDetail = () => {
 
                     <div className="stat-card">
                       <div className="stat-card-value">
-                        {series.popularity?.toFixed(0) || "-"}
-                      </div>
-                      <div className="stat-card-label">Popularity</div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-card-value">
                         {series.vote_count?.toLocaleString() || "-"}
                       </div>
                       <div className="stat-card-label">Vote Count</div>
@@ -656,35 +652,43 @@ const SeriesDetail = () => {
                   </div>
 
                   {/* Production Companies */}
-                  {series.production_companies &&
-                    series.production_companies.length > 0 && (
-                      <>
-                        <h3 className="section-title">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                          </svg>
-                          Production Companies
-                        </h3>
-                        <div className="studios-list">
-                          {series.production_companies.map((company, index) => (
-                            <span key={index} className="studio-item">
-                              {company.name}
-                            </span>
-                          ))}
-                        </div>
-                      </>
+                  <h3 className="section-title">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Production Companies
+                  </h3>
+                  <div className="studios-list">
+                    {series.production_companies &&
+                    series.production_companies.length > 0 ? (
+                      series.production_companies.map((company, index) => (
+                        <span key={index} className="studio-item">
+                          {company.name}
+                        </span>
+                      ))
+                    ) : (
+                      <span
+                        className="studio-item"
+                        style={{
+                          backgroundColor: "#6b7280",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Unknown
+                      </span>
                     )}
+                  </div>
                 </div>
               )}
 
@@ -729,32 +733,81 @@ const SeriesDetail = () => {
                         {getPaginatedCast().map((person) => (
                           <div key={person.id} className="character-card">
                             <div className="character-image-container">
-                              <img
-                                src={
-                                  person.profile_path
-                                    ? `https://image.tmdb.org/t/p/w300${person.profile_path}`
-                                    : "https://via.placeholder.com/300x450?text=No+Image"
-                                }
-                                alt={person.name || "Cast Member"}
-                                className="character-image"
-                                loading="lazy"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src =
-                                    "https://via.placeholder.com/300x450?text=No+Image";
+                              {person.profile_path ? (
+                                <img
+                                  src={`https://image.tmdb.org/t/p/w300${person.profile_path}`}
+                                  alt={person.name || "Cast Member"}
+                                  className="character-image"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
+                                    e.target.nextSibling.style.display = "flex";
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="image-placeholder"
+                                style={{
+                                  display: person.profile_path
+                                    ? "none"
+                                    : "flex",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "#374151",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexDirection: "column",
+                                  color: "#9ca3af",
+                                  fontSize: "0.9rem",
+                                  textAlign: "center",
+                                  padding: "20px",
                                 }}
-                              />
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="48"
+                                  height="48"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  style={{ marginBottom: "8px", opacity: 0.5 }}
+                                >
+                                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                  <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span
+                                  style={{
+                                    fontSize: "0.8rem",
+                                    lineHeight: "1.2",
+                                  }}
+                                >
+                                  Image Not Available
+                                </span>
+                              </div>
                               <div className="character-role">Cast</div>
                             </div>
                             <div className="character-info">
                               <div className="character-name">
                                 {person.name || "Unknown"}
                               </div>
-                              {person.character && (
-                                <div className="character-native-name">
-                                  as {person.character}
-                                </div>
-                              )}
+                              <div className="character-native-name">
+                                {person.character ? (
+                                  `as ${person.character}`
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "#9ca3af",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    Role Unknown
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -866,28 +919,80 @@ const SeriesDetail = () => {
                         .map((season) => (
                           <div key={season.id} className="character-card">
                             <div className="character-image-container">
-                              <img
-                                src={
-                                  season.poster_path
-                                    ? `https://image.tmdb.org/t/p/w300${season.poster_path}`
-                                    : series.poster_path
-                                    ? `https://image.tmdb.org/t/p/w300${series.poster_path}`
-                                    : "https://via.placeholder.com/300x450?text=No+Image"
-                                }
-                                alt={
-                                  season.name ||
-                                  `Season ${season.season_number}`
-                                }
-                                className="character-image"
-                                loading="lazy"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src =
-                                    "https://via.placeholder.com/300x450?text=No+Image";
+                              {season.poster_path || series.poster_path ? (
+                                <img
+                                  src={
+                                    season.poster_path
+                                      ? `https://image.tmdb.org/t/p/w300${season.poster_path}`
+                                      : `https://image.tmdb.org/t/p/w300${series.poster_path}`
+                                  }
+                                  alt={
+                                    season.name ||
+                                    `Season ${season.season_number}`
+                                  }
+                                  className="character-image"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
+                                    e.target.nextSibling.style.display = "flex";
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="image-placeholder"
+                                style={{
+                                  display:
+                                    season.poster_path || series.poster_path
+                                      ? "none"
+                                      : "flex",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "#374151",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexDirection: "column",
+                                  color: "#9ca3af",
+                                  fontSize: "0.9rem",
+                                  textAlign: "center",
+                                  padding: "20px",
                                 }}
-                              />
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="48"
+                                  height="48"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  style={{ marginBottom: "8px", opacity: 0.5 }}
+                                >
+                                  <rect
+                                    x="3"
+                                    y="4"
+                                    width="18"
+                                    height="18"
+                                    rx="2"
+                                    ry="2"
+                                  ></rect>
+                                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span
+                                  style={{
+                                    fontSize: "0.8rem",
+                                    lineHeight: "1.2",
+                                  }}
+                                >
+                                  Image Not Available
+                                </span>
+                              </div>
                               <div className="character-role">
-                                {season.episode_count} Episodes
+                                {season.episode_count || 0} Episodes
                               </div>
                             </div>
                             <div className="character-info">
