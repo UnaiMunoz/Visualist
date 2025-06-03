@@ -13,7 +13,7 @@ const Hero = () => {
       <div className="hero-content">
         <h1 className="hero-title">Welcome to Visualist</h1>
         <p className="hero-subtitle">
-          Discover and track your favorite anime, movies, and TV series
+          Discover and track your favorite anime, movies and series
         </p>
         <button className="hero-btn" onClick={handleExploreClick}>
           Start Tracking

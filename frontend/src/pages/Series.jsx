@@ -119,7 +119,7 @@ const Series = () => {
   return (
     <div className="container">
       <div className="search-container">
-        <h1 className="page-title">TV Series</h1>
+        <h1 className="page-title">Series</h1>
 
         <form onSubmit={handleSearch} className="search-form">
           <input

@@ -213,26 +213,6 @@ const Profile = () => {
     }
   };
 
-  // Function to format member since date
-  const formatMemberSince = () => {
-    if (!currentUser?.created_at) return "N/A";
-
-    const date = new Date(currentUser.created_at);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 30) {
-      return `${diffDays} days ago`;
-    } else if (diffDays < 365) {
-      const months = Math.floor(diffDays / 30);
-      return `${months} month${months > 1 ? "s" : ""} ago`;
-    } else {
-      const years = Math.floor(diffDays / 365);
-      return `${years} year${years > 1 ? "s" : ""} ago`;
-    }
-  };
-
   if (loading) {
     return (
       <div className="loading">
@@ -456,10 +436,6 @@ const Profile = () => {
           <div className="profile-stats">
             <div className="stats-card">
               <h3>Your Stats</h3>
-              <div className="stat-item">
-                <span className="stat-label">Member Since</span>
-                <span className="stat-value">{formatMemberSince()}</span>
-              </div>
               <div className="stat-item">
                 <span className="stat-label">Watched Items</span>
                 <span className="stat-value">
