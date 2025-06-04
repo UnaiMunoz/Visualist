@@ -1,5 +1,5 @@
 // frontend/src/services/moviesServices.js
-const API_URL = "/api"; // Using proxy setup in vite.config.js
+const API_URL = "https://visualist-production.up.railway.app/api"; // Using proxy setup in vite.config.js
 
 export const fetchTopMovies = async () => {
   try {
@@ -20,7 +20,7 @@ export const fetchTopMovies = async () => {
 
     // Make API call if no cache or cache has expired
     console.log("Making API call to: " + API_URL + "/movies/top");
-    const response = await fetch(`${API_URL}/movies/top`);
+    const response = await fetch(`${API_URL}/movies/top.php`);
 
     console.log("Response status:", response.status);
 
