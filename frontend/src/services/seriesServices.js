@@ -19,7 +19,7 @@ export const fetchTopSeries = async () => {
     }
 
     // Make API call if no cache or cache has expired
-    console.log("Making API call to: " + API_URL + "/series/top");
+    console.log("Making API call to: " + API_URL + "/series/top.php");
     const response = await fetch(`${API_URL}/series/top`);
 
     console.log("Response status:", response.status);
@@ -44,7 +44,7 @@ export const fetchTopSeries = async () => {
 
 export const fetchAllSeries = async (page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/series?page=${page}&perPage=${perPage}`;
+    const url = `${API_URL}/series?page=${page}&perPage=${perPage}.php`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);
