@@ -50,17 +50,17 @@ define('TMDB_API_KEY', getEnvVar('TMDB_API_KEY', ''));
 define('TMDB_API_URL', 'https://api.themoviedb.org/3');
 
 // Database Configuration
-define('DB_HOST', getEnvVar('DB_HOST', 'localhost'));
-define('DB_NAME', getEnvVar('DB_NAME', 'Visualist'));
-define('DB_USER', getEnvVar('DB_USER', 'root'));
-define('DB_PASS', getEnvVar('DB_PASS', ''));
+define('DB_HOST', getEnvVar('DB_HOST'));
+define('DB_NAME', getEnvVar('DB_NAME'));
+define('DB_USER', getEnvVar('DB_USER'));
+define('DB_PASS', getEnvVar('DB_PASS'));
 
 // Session Configuration with secure defaults
 define('SESSION_LIFETIME', (int)getEnvVar('SESSION_LIFETIME', 604800)); // 7 days in seconds
 define('SESSION_SECRET', getEnvVar('SESSION_SECRET', bin2hex(random_bytes(32)))); // Generate a random default in dev
 
 // Frontend URL for CORS - critical for security
-$frontendUrl = getEnvVar('FRONTEND_URL', 'http://localhost:5173');
+$frontendUrl = getEnvVar('FRONTEND_URL');
 
 // Debug mode
 define('DEBUG', getEnvVar('DEBUG', 'false') === 'true');

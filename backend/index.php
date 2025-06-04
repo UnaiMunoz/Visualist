@@ -9,7 +9,7 @@ error_reporting(E_ALL);
 
 // Parse the request URI
 $requestUri = $_SERVER['REQUEST_URI'];
-$basePath = '/Visualist/backend/api'; // Ajusta esto a tu ruta base correcta
+$basePath = '/api'; // Ajusta esto a tu ruta base correcta
 
 // Check if the request is for the API
 if (strpos($requestUri, $basePath) === 0) {
