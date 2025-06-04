@@ -148,7 +148,7 @@ export const getSeriesDetails = async (id) => {
     }
 
     // Fetch from API
-    const url = `${API_URL}/series/detail?id=${id}`;
+    const url = `${API_URL}/series/detail.php?id=${id}`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);

@@ -148,7 +148,7 @@ export const getMovieDetails = async (id) => {
     }
 
     // Fetch from API
-    const url = `${API_URL}/movies/detail?id=${id}`;
+    const url = `${API_URL}/movies/detail.php?id=${id}`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);
