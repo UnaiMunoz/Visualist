@@ -1,5 +1,5 @@
 // frontend/src/services/seriesServices.js
-const API_URL = "/api"; // Using proxy setup in vite.config.js
+const API_URL = "https://visualist-production.up.railway.app/api"; // Using proxy setup in vite.config.js
 
 export const fetchTopSeries = async () => {
   try {
