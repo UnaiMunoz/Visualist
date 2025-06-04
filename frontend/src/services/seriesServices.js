@@ -20,7 +20,7 @@ export const fetchTopSeries = async () => {
 
     // Make API call if no cache or cache has expired
     console.log("Making API call to: " + API_URL + "/series/top.php");
-    const response = await fetch(`${API_URL}/series/top`);
+    const response = await fetch(`${API_URL}/series/top.php`);
 
     console.log("Response status:", response.status);
 
