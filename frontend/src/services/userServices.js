@@ -4,7 +4,7 @@ const API_URL = "/api";
 // Get user profile data
 export const getUserProfile = async () => {
   try {
-    const response = await fetch(`${API_URL}/auth/session`, {
+    const response = await fetch(`${API_URL}/auth/session.php`, {
       method: "GET",
       credentials: "include", // Important for cookies
     });
@@ -36,7 +36,7 @@ export const updateUserProfile = async (profileData) => {
   try {
     console.log("Sending profile data to server:", profileData); // Debug log
 
-    const response = await fetch(`${API_URL}/auth/update-profile`, {
+    const response = await fetch(`${API_URL}/auth/update-profile.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

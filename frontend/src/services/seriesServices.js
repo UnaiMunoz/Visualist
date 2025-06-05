@@ -44,7 +44,7 @@ export const fetchTopSeries = async () => {
 
 export const fetchAllSeries = async (page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/series?page=${page}&perPage=${perPage}.php`;
+    const url = `${API_URL}/series/index.php?page=${page}&perPage=${perPage}.php`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);
@@ -87,7 +87,7 @@ export const fetchAllSeries = async (page = 1, perPage = 24) => {
 
 export const searchSeries = async (searchTerm, page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/series/search?query=${encodeURIComponent(
+    const url = `${API_URL}/series/search.php?query=${encodeURIComponent(
       searchTerm
     )}&page=${page}&perPage=${perPage}`;
 

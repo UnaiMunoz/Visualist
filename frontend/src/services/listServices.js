@@ -10,7 +10,7 @@ const API_URL = "/api";
  */
 export const addToList = async (contentId, contentType, listType) => {
   try {
-    const response = await fetch(`${API_URL}/lists/add`, {
+    const response = await fetch(`${API_URL}/lists/add.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export const addToList = async (contentId, contentType, listType) => {
  */
 export const removeFromList = async (contentId, contentType, listType) => {
   try {
-    const response = await fetch(`${API_URL}/lists/remove`, {
+    const response = await fetch(`${API_URL}/lists/remove.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export const removeFromList = async (contentId, contentType, listType) => {
 export const checkListStatus = async (contentId, contentType) => {
   try {
     const response = await fetch(
-      `${API_URL}/lists/check?contentId=${contentId}&contentType=${contentType}`,
+      `${API_URL}/lists/check.php?contentId=${contentId}&contentType=${contentType}`,
       {
         method: "GET",
         credentials: "include", // Important for cookies
@@ -116,7 +116,7 @@ export const getUserList = async (
 ) => {
   try {
     const response = await fetch(
-      `${API_URL}/lists/get?listType=${listType}&contentType=${contentType}&page=${page}&perPage=${perPage}`,
+      `${API_URL}/lists/get.php?listType=${listType}&contentType=${contentType}&page=${page}&perPage=${perPage}`,
       {
         method: "GET",
         credentials: "include", // Important for cookies
@@ -167,7 +167,7 @@ export const getUserList = async (
  */
 export const updateContentData = async (contentId, contentType, data) => {
   try {
-    const response = await fetch(`${API_URL}/lists/update-data`, {
+    const response = await fetch(`${API_URL}/lists/update-data.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -199,7 +199,7 @@ export const updateContentData = async (contentId, contentType, data) => {
 export const getContentData = async (contentId, contentType) => {
   try {
     const response = await fetch(
-      `${API_URL}/lists/get-data?contentId=${contentId}&contentType=${contentType}`,
+      `${API_URL}/lists/get-data.php?contentId=${contentId}&contentType=${contentType}`,
       {
         method: "GET",
         credentials: "include", // Important for cookies

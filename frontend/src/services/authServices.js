@@ -3,7 +3,7 @@ const API_URL = "/api";
 // Register user
 export const register = async (userData) => {
   try {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}/auth/register.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export const register = async (userData) => {
 // Login user
 export const login = async (credentials) => {
   try {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${API_URL}/auth/login.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,7 +61,7 @@ export const login = async (credentials) => {
 // Logout user
 export const logout = async () => {
   try {
-    const response = await fetch(`${API_URL}/auth/logout`, {
+    const response = await fetch(`${API_URL}/auth/logout.php`, {
       method: "POST",
       credentials: "include", // Important for cookies
     });
@@ -92,7 +92,7 @@ export const checkSession = async () => {
   if (storedUser) {
     try {
       // Verify the session with the server
-      const response = await fetch(`${API_URL}/auth/session`, {
+      const response = await fetch(`${API_URL}/auth/session.php`, {
         method: "GET",
         credentials: "include", // Important for cookies
       });
