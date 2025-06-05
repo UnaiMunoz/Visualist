@@ -44,7 +44,7 @@ export const fetchTopMovies = async () => {
 
 export const fetchAllMovies = async (page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/movies.php?page=${page}&perPage=${perPage}`;
+    const url = `${API_URL}/movies/index.php?page=${page}&perPage=${perPage}`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);
