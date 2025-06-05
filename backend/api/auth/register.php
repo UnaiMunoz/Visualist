@@ -54,7 +54,13 @@ if (strlen($password) < 6) {
 }
 
 // Create user instance
-$user = new User();
+try {
+    $user = new User();
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    exit;
+}
 $user->name = $name;
 $user->email = $email;
 $user->password = $password;
