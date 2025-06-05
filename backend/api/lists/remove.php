@@ -1,8 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: https://visualist.netlify.app"); // Cambia por tu dominio frontend exacto
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../includes/ListManager.php';
 
 // Manejo preflight OPTIONS (petición previa CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -10,11 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// This endpoint removes a content from a user's list
-
-// Include required files
-require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../includes/ListManager.php';
 
 // Set response content type
 header('Content-Type: application/json');

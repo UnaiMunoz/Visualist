@@ -1,11 +1,7 @@
-const API_URL = "https://visualist-production.up.railway.app/api"; // Using proxy setup in vite.config.js
+const API_URL = "https://visualist-production.up.railway.app/api";
 
 /**
  * Add content to a user's list (watched, to_watch, favorites)
- * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('movie', 'series')
- * @param {string} listType - The type of list ('watched', 'to_watch', 'favorites')
- * @returns {Promise} - A promise that resolves to the API response
  */
 export const addToList = async (contentId, contentType, listType) => {
   try {
@@ -19,25 +15,34 @@ export const addToList = async (contentId, contentType, listType) => {
         contentType,
         listType,
       }),
-      credentials: "include", // Important for cookies
+      credentials: "include",
     });
 
-    return await response.json();
+    // Verificar si la respuesta es exitosa
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Session expired, redirect to login
+        window.location.href = "/login";
+        throw new Error("Session expired. Please login again.");
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || "Failed to add to list");
+    }
+
+    return data;
   } catch (error) {
     console.error(`Error adding to ${listType} list:`, error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
+    throw error; // Re-throw para que el componente pueda manejarlo
   }
 };
 
 /**
  * Remove content from a user's list
- * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('movie', 'series')
- * @param {string} listType - The type of list ('watched', 'to_watch', 'favorites')
- * @returns {Promise} - A promise that resolves to the API response
  */
 export const removeFromList = async (contentId, contentType, listType) => {
   try {
@@ -51,24 +56,32 @@ export const removeFromList = async (contentId, contentType, listType) => {
         contentType,
         listType,
       }),
-      credentials: "include", // Important for cookies
+      credentials: "include",
     });
 
-    return await response.json();
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Session expired. Please login again.");
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || "Failed to remove from list");
+    }
+
+    return data;
   } catch (error) {
     console.error(`Error removing from ${listType} list:`, error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
+    throw error;
   }
 };
 
 /**
  * Check if content is in user's lists
- * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('movie', 'series')
- * @returns {Promise} - A promise that resolves to the list status
  */
 export const checkListStatus = async (contentId, contentType) => {
   try {
@@ -76,9 +89,21 @@ export const checkListStatus = async (contentId, contentType) => {
       `${API_URL}/lists/check.php?contentId=${contentId}&contentType=${contentType}`,
       {
         method: "GET",
-        credentials: "include", // Important for cookies
+        credentials: "include",
       }
     );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // For check status, don't redirect - just return empty status
+        return {
+          watched: false,
+          to_watch: false,
+          favorites: false,
+        };
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
 
@@ -101,11 +126,6 @@ export const checkListStatus = async (contentId, contentType) => {
 
 /**
  * Get user's list content
- * @param {string} listType - The type of list ('watched', 'to_watch', 'favorites')
- * @param {string} contentType - The type of content ('movie', 'series')
- * @param {number} page - The page number for pagination
- * @param {number} perPage - Items per page
- * @returns {Promise} - A promise that resolves to the list content
  */
 export const getUserList = async (
   listType,
@@ -118,11 +138,15 @@ export const getUserList = async (
       `${API_URL}/lists/get.php?listType=${listType}&contentType=${contentType}&page=${page}&perPage=${perPage}`,
       {
         method: "GET",
-        credentials: "include", // Important for cookies
+        credentials: "include",
       }
     );
 
     if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Session expired. Please login again.");
+      }
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -144,25 +168,12 @@ export const getUserList = async (
     };
   } catch (error) {
     console.error(`Error fetching ${listType} list:`, error);
-    return {
-      items: [],
-      pageInfo: {
-        total: 0,
-        currentPage: page,
-        lastPage: 1,
-        hasNextPage: false,
-        perPage: perPage,
-      },
-    };
+    throw error;
   }
 };
 
 /**
  * Update additional content data (score, progress, notes)
- * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('movie', 'series')
- * @param {object} data - Object containing score, progress, and notes
- * @returns {Promise} - A promise that resolves to the API response
  */
 export const updateContentData = async (contentId, contentType, data) => {
   try {
@@ -176,24 +187,32 @@ export const updateContentData = async (contentId, contentType, data) => {
         contentType,
         ...data,
       }),
-      credentials: "include", // Important for cookies
+      credentials: "include",
     });
 
-    return await response.json();
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Session expired. Please login again.");
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data_response = await response.json();
+
+    if (!data_response.success) {
+      throw new Error(data_response.message || "Failed to update content data");
+    }
+
+    return data_response;
   } catch (error) {
     console.error("Error updating content data:", error);
-    return {
-      success: false,
-      message: "Network error. Please try again later.",
-    };
+    throw error;
   }
 };
 
 /**
  * Get additional content data (score, progress, notes)
- * @param {number} contentId - The TMDB ID of the content
- * @param {string} contentType - The type of content ('movie', 'series')
- * @returns {Promise} - A promise that resolves to the content data
  */
 export const getContentData = async (contentId, contentType) => {
   try {
@@ -201,9 +220,21 @@ export const getContentData = async (contentId, contentType) => {
       `${API_URL}/lists/get-data.php?contentId=${contentId}&contentType=${contentType}`,
       {
         method: "GET",
-        credentials: "include", // Important for cookies
+        credentials: "include",
       }
     );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // For get data, don't redirect - just return empty data
+        return {
+          score: 0,
+          progress: 0,
+          notes: "",
+        };
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
 

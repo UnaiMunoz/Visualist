@@ -60,14 +60,14 @@ define('SESSION_LIFETIME', (int)getEnvVar('SESSION_LIFETIME', 604800)); // 7 day
 define('SESSION_SECRET', getEnvVar('SESSION_SECRET', bin2hex(random_bytes(32)))); // Generate a random default in dev
 
 // Frontend URL for CORS - critical for security
-$frontendUrl = getEnvVar('FRONTEND_URL');
+$frontendUrl = getEnvVar('FRONTEND_URL', 'https://visualist.netlify.app');
 
 // Debug mode
 define('DEBUG', getEnvVar('DEBUG', 'false') === 'true');
 
 // Application settings
-define('APP_ENV', getEnvVar('APP_ENV', 'development'));
-define('APP_URL', getEnvVar('APP_URL', 'https://visualist.netlify.app'));
+define('APP_ENV', getEnvVar('APP_ENV', 'production')); // Cambiar a production
+define('APP_URL', getEnvVar('APP_URL', 'https://visualist-production.up.railway.app'));
 
 // Set error reporting based on environment
 if (APP_ENV === 'production') {
@@ -78,26 +78,44 @@ if (APP_ENV === 'production') {
     ini_set('display_errors', DEBUG ? 1 : 0);
 }
 
-// Headers
-header('Content-Type: application/json');
+// CORS Configuration - ARREGLADO
+$allowedOrigins = [
+    'https://visualist.netlify.app',
+    'http://localhost:5173', // Para desarrollo local
+    'http://localhost:3000',
+];
 
-// CORS headers - Allow specific frontend origin
-header('Access-Control-Allow-Origin: https://visualist.netlify.app');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    // Fallback para producción
+    header('Access-Control-Allow-Origin: https://visualist.netlify.app');
+}
+
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
+header('Content-Type: application/json; charset=utf-8');
+
+// Handle preflight OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Session configuration for cross-domain
+ini_set('session.cookie_samesite', 'None');
+ini_set('session.cookie_secure', '1'); // HTTPS only
+ini_set('session.cookie_httponly', '1');
+ini_set('session.use_strict_mode', '1');
 
 if (empty(TMDB_API_KEY)) {
     error_log("WARNING: TMDB_API_KEY no está configurada");
     if (APP_ENV === 'production') {
         sendErrorResponse('API key not configured', 500);
     }
-}
-
-// Handle OPTIONS requests for CORS preflight
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    header("HTTP/1.1 200 OK");
-    exit;
 }
 
 // Helper function for error responses
@@ -154,12 +172,9 @@ define('GENRE_MAP', [
     10766 => 'Soap',
     10767 => 'Talk',
     10768 => 'War & Politics',
-
 ]);
 
 // Check for required configuration
 if (empty(TMDB_API_KEY) && APP_ENV === 'production') {
     sendErrorResponse('TMDB API key is not configured', 500);
 }
-
-

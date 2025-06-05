@@ -1,23 +1,8 @@
 <?php
-header("Access-Control-Allow-Origin: https://visualist.netlify.app"); // Cambia por tu dominio frontend exacto
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-// Manejo preflight OPTIONS (petición previa CORS)
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-    
-}// This endpoint adds content to a user's list (watched, to_watch, or favorites)
-
-// Include required files
+// Include configuration first - handles all CORS headers
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../includes/ListManager.php';
 require_once __DIR__ . '/../../includes/Database.php';
-
-// Set response content type
-header('Content-Type: application/json');
 
 // Start session for authentication
 session_start();

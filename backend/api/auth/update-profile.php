@@ -3,11 +3,9 @@
 session_start();
 
 // Headers
-header('Access-Control-Allow-Origin: https://visualist.netlify.app');
-header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../includes/Database.php';
+require_once __DIR__ . '/../../includes/User.php';
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -15,9 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Include database connection
-require_once __DIR__ . '/../../includes/Database.php';
-require_once __DIR__ . '/../../includes/User.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
