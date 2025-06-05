@@ -47,7 +47,7 @@ class ListManager
         $referenceId = $this->getContentReferenceId($contentId, $contentType);
 
         if (!$referenceId) {
-            throw new Exception("Content reference not found");
+            return null;
         }
 
         // Remove from the appropriate list based on list type
