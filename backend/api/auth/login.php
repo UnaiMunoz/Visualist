@@ -1,27 +1,30 @@
 <?php
+// Headers - ponlos al principio
+header('Access-Control-Allow-Origin: https://visualist.netlify.app');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Content-Type: application/json');
+
+// Manejar preflight OPTIONS (petición previa del navegador)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 // Check if remember me is set in the request data
 $data = json_decode(file_get_contents("php://input"));
 $remember = isset($data->remember) && $data->remember === true;
 
-// Only set a long session if remember me is checked
+// Set session cookie params BEFORE session_start
 if ($remember) {
-    // Set session to expire in 1 week (7 days)
-    $oneWeek = 7 * 24 * 60 * 60; // 7 days in seconds
-    session_set_cookie_params($oneWeek); // ✅ This must come before session_start()
+    $oneWeek = 7 * 24 * 60 * 60; // 7 días en segundos
+    session_set_cookie_params($oneWeek);
 } else {
-    // Set session to expire when browser closes (default behavior)
     session_set_cookie_params(0);
 }
 
-// Start session
 session_start();
-
-// Headers
-header('Access-Control-Allow-Origin: https://visualist.netlify.app');
-header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
-
 // Include user model
 require_once __DIR__ . '/../../includes/User.php';
 
@@ -62,7 +65,7 @@ if (!empty($data->email) && !empty($data->password)) {
                 "name" => $user->name,
                 "email" => $user->email,
                 "short_bio" => $user->short_bio,
-                "created_at" => $user->created_at 
+                "created_at" => $user->created_at
             ]
         ]);
     } else {
