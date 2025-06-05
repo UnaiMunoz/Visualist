@@ -54,14 +54,25 @@ const ListActionButtons = ({ contentId, contentType }) => {
         newStatus[listType] = true;
 
         // Handle mutual exclusivity between watched and to_watch
+        // ONLY try to remove if the item is actually in the other list
         if (listType === "watched" && inLists.to_watch) {
           // If adding to watched and item is in to_watch, remove from to_watch
-          await removeFromList(contentId, contentType, "to_watch");
-          newStatus.to_watch = false;
+          try {
+            await removeFromList(contentId, contentType, "to_watch");
+            newStatus.to_watch = false;
+          } catch (error) {
+            // If removal fails, log but don't break the flow
+            console.warn("Failed to remove from to_watch list:", error);
+          }
         } else if (listType === "to_watch" && inLists.watched) {
           // If adding to to_watch and item is watched, remove from watched
-          await removeFromList(contentId, contentType, "watched");
-          newStatus.watched = false;
+          try {
+            await removeFromList(contentId, contentType, "watched");
+            newStatus.watched = false;
+          } catch (error) {
+            // If removal fails, log but don't break the flow
+            console.warn("Failed to remove from watched list:", error);
+          }
         }
       }
 

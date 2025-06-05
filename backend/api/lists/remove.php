@@ -44,15 +44,31 @@ try {
     // Remove the content from the list
     $result = $listManager->removeFromList($userId, $contentId, $contentType, $listType);
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Removed from ' . ucfirst($listType) . ' list successfully',
-        'data' => $result
-    ]);
+    // Check if the result indicates the item wasn't in the list
+    if (isset($result['removed']) && $result['removed'] === false) {
+        // Item wasn't in the list, but this is not an error - return success
+        echo json_encode([
+            'success' => true,
+            'message' => $result['message'] ?? 'Item was not in the specified list',
+            'data' => $result,
+            'was_in_list' => false
+        ]);
+    } else {
+        // Item was successfully removed
+        echo json_encode([
+            'success' => true,
+            'message' => 'Removed from ' . ucfirst($listType) . ' list successfully',
+            'data' => $result,
+            'was_in_list' => true
+        ]);
+    }
 } catch (Exception $e) {
+    // Log the error for debugging
+    error_log("Error removing from list: " . $e->getMessage());
+
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => 'Failed to remove from list: ' . $e->getMessage()
     ]);
 }

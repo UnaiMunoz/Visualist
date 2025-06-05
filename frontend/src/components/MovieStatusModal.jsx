@@ -80,32 +80,56 @@ const MovieStatusModal = ({
 
     setSaving(true);
     try {
+      // Helper function to safely add/remove from lists
+      const safeListOperation = async (operation, listType) => {
+        try {
+          return await operation(contentId, contentType, listType);
+        } catch (error) {
+          console.warn(`Failed to ${operation.name} ${listType}:`, error);
+          // Don't throw, just log the warning
+          return null;
+        }
+      };
+
       // Handle watched status
       if (status.watched) {
-        await addToList(contentId, contentType, "watched");
+        await safeListOperation(addToList, "watched");
+        // Only try to remove from to_watch if we know it's there
+        if (status.to_watch) {
+          await safeListOperation(removeFromList, "to_watch");
+        }
       } else {
-        await removeFromList(contentId, contentType, "watched");
+        await safeListOperation(removeFromList, "watched");
       }
 
       // Handle to_watch status
       if (status.to_watch) {
-        await addToList(contentId, contentType, "to_watch");
+        await safeListOperation(addToList, "to_watch");
+        // Only try to remove from watched if we know it's there
+        if (status.watched) {
+          await safeListOperation(removeFromList, "watched");
+        }
       } else {
-        await removeFromList(contentId, contentType, "to_watch");
+        await safeListOperation(removeFromList, "to_watch");
       }
 
       // Update additional data (score, notes)
       if (status.watched || status.to_watch) {
-        await updateContentData(contentId, contentType, {
-          score: score,
-          notes: notes,
-        });
+        try {
+          await updateContentData(contentId, contentType, {
+            score: score,
+            notes: notes,
+          });
+        } catch (error) {
+          console.warn("Failed to update content data:", error);
+        }
       }
 
       // Close modal after successful save
       onClose();
     } catch (error) {
       console.error("Error saving status:", error);
+      // Optionally show error message to user
     } finally {
       setSaving(false);
     }
