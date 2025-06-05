@@ -1,5 +1,4 @@
-// frontend/src/services/listServices.js
-const API_URL = "/api";
+const API_URL = "https://visualist-production.up.railway.app/api"; // Using proxy setup in vite.config.js
 
 /**
  * Add content to a user's list (watched, to_watch, favorites)

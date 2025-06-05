@@ -1,5 +1,4 @@
-// frontend/src/services/userServices.js
-const API_URL = "/api";
+const API_URL = "https://visualist-production.up.railway.app/api"; // Using proxy setup in vite.config.js
 
 // Get user profile data
 export const getUserProfile = async () => {

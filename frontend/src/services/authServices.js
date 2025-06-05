@@ -1,4 +1,4 @@
-const API_URL = "/api";
+const API_URL = "https://visualist-production.up.railway.app/api"; // Using proxy setup in vite.config.js
 
 // Register user
 export const register = async (userData) => {
