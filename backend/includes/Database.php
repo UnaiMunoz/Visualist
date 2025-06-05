@@ -9,7 +9,7 @@ class Database
 
     public function __construct()
     {
-        $this->host = defined('DB_HOST') ? DB_HOST : 'localhost';
+        $this->host = defined('DB_HOST') ? DB_HOST : 'mysql.railway.internal';
         $this->username = defined('DB_USER') ? DB_USER : 'root';
         $this->password = defined('DB_PASS') ? DB_PASS : '';
         $this->database = defined('DB_NAME') ? DB_NAME : 'Visualist';
