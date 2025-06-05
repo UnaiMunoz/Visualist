@@ -67,7 +67,7 @@ define('DEBUG', getEnvVar('DEBUG', 'false') === 'true');
 
 // Application settings
 define('APP_ENV', getEnvVar('APP_ENV', 'development'));
-define('APP_URL', getEnvVar('APP_URL', 'http://localhost'));
+define('APP_URL', getEnvVar('APP_URL', 'https://visualist.netlify.app'));
 
 // Set error reporting based on environment
 if (APP_ENV === 'production') {
@@ -82,7 +82,7 @@ if (APP_ENV === 'production') {
 header('Content-Type: application/json');
 
 // CORS headers - Allow specific frontend origin
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: https://visualist.netlify.app');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
