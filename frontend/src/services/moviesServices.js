@@ -44,7 +44,7 @@ export const fetchTopMovies = async () => {
 
 export const fetchAllMovies = async (page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/movies?page=${page}&perPage=${perPage}`;
+    const url = `${API_URL}/movies.php?page=${page}&perPage=${perPage}`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);
@@ -87,7 +87,7 @@ export const fetchAllMovies = async (page = 1, perPage = 24) => {
 
 export const searchMovies = async (searchTerm, page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/movies/search?query=${encodeURIComponent(
+    const url = `${API_URL}/movies/search.php?query=${encodeURIComponent(
       searchTerm
     )}&page=${page}&perPage=${perPage}`;
 
