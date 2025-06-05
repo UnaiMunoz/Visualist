@@ -2,13 +2,6 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../includes/ListManager.php';
 
-// Manejo preflight OPTIONS (petición previa CORS)
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
-
-
 // Set response content type
 header('Content-Type: application/json');
 

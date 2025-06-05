@@ -44,7 +44,7 @@ export const fetchTopSeries = async () => {
 
 export const fetchAllSeries = async (page = 1, perPage = 24) => {
   try {
-    const url = `${API_URL}/series/index.php?page=${page}&perPage=${perPage}.php`;
+    const url = `${API_URL}/series/index.php?page=${page}&perPage=${perPage}`;
     console.log("Making API call to:", url);
 
     const response = await fetch(url);
