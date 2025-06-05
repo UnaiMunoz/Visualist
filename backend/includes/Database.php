@@ -9,10 +9,10 @@ class Database
 
     public function __construct()
     {
-        $this->host = defined('DB_HOST') ? DB_HOST : 'mysql.railway.internal';
-        $this->username = defined('DB_USER') ? DB_USER : 'root';
-        $this->password = defined('DB_PASS') ? DB_PASS : '';
-        $this->database = defined('DB_NAME') ? DB_NAME : 'Visualist';
+        $this->host = getenv('DB_HOST');
+        $this->username = getenv('DB_USER');
+        $this->password = getenv('DB_PASS');
+        $this->database = getenv('DB_NAME');
     }
 
     public function connect()
