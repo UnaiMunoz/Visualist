@@ -1,16 +1,20 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: "/", // Importante para rutas
+  build: {
+    outDir: "dist",
+    assetsDir: "assets",
+  },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost',
+      "/api": {
+        target: "https://visualist-production.up.railway.app",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/Visualist/backend/api')
-      }
-    }
-  }
-})
+        rewrite: (path) => path.replace(/^\/api/, "/api"),
+      },
+    },
+  },
+});
