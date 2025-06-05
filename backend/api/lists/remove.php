@@ -1,5 +1,15 @@
 <?php
-// backend/api/lists/remove.php
+header("Access-Control-Allow-Origin: https://visualist.netlify.app"); // Cambia por tu dominio frontend exacto
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Manejo preflight OPTIONS (petición previa CORS)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 // This endpoint removes a content from a user's list
 
 // Include required files
