@@ -18,7 +18,7 @@ class ListManager
     }
 
     /**
-     * Add content to a user's list (watched, to_watch, favorites)
+     * Add content to a user's list (watched, to_watch, watching, favorites)
      */
     public function addToList($userId, $contentId, $contentType, $listType)
     {
@@ -32,6 +32,8 @@ class ListManager
             case 'watched':
                 return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
             case 'to_watch':
+                return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
+            case 'watching':
                 return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
             default:
                 throw new Exception("Invalid list type: $listType");
