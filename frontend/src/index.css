@@ -111,12 +111,12 @@ ul {
 
 /* Surprise Me button specific styles */
 .hero-btn-surprise {
-  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  background-color: #2563eb;
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
 }
 
 .hero-btn-surprise:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+  background-color: #2563eb;
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
 }
 

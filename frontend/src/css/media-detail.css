@@ -576,7 +576,7 @@
 }
 
 .description-content.collapsed {
-  max-height: 50px;
+  max-height: 57px;
   overflow: hidden;
   position: relative;
 }

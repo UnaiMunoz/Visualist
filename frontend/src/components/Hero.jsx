@@ -1,19 +1,15 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Hero = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleExploreClick = () => {
     navigate("/login");
   };
 
   const getRandomContent = async () => {
-    setIsLoading(true);
-
     try {
       // Decidir aleatoriamente entre película o serie
       const contentTypes = ["movie", "series"];
@@ -52,8 +48,6 @@ const Hero = () => {
       console.error("Error fetching random content:", error);
       // Fallback: navegar a la página de películas
       navigate("/movies");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -70,31 +64,21 @@ const Hero = () => {
 
         {isLoggedIn ? (
           <button
-            className={`hero-btn hero-btn-surprise ${
-              isLoading ? "loading" : ""
-            }`}
+            className="hero-btn hero-btn-surprise"
             onClick={getRandomContent}
-            disabled={isLoading}
           >
-            {isLoading ? (
-              <>
-              </>
-            ) : (
-              <>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M5 12h14" />
-                  <path d="M12 5l7 7-7 7" />
-                </svg>
-                Surprise Me!
-              </>
-            )}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M5 12h14" />
+              <path d="M12 5l7 7-7 7" />
+            </svg>
+            Surprise Me!
           </button>
         ) : (
           <button className="hero-btn" onClick={handleExploreClick}>
