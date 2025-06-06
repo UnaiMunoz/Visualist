@@ -182,30 +182,6 @@ const UserList = ({ listType, contentType = "movie" }) => {
     }
   };
 
-  // Helper function to format time watched (for movies)
-  const formatTimeWatched = (minutes) => {
-    if (!minutes || minutes === 0) return null;
-
-    if (minutes < 60) {
-      return `${minutes}m watched`;
-    }
-
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (remainingMinutes === 0) {
-      return `${hours}h watched`;
-    }
-
-    return `${hours}h ${remainingMinutes}m watched`;
-  };
-
-  // Helper function to format progress (for series)
-  const formatProgress = (episodes) => {
-    if (!episodes || episodes === 0) return null;
-    return `${episodes} episodes watched`;
-  };
-
   // Show loading spinner while data is being fetched or during initial load
   if (loading || isInitialLoad) {
     return (
@@ -257,14 +233,6 @@ const UserList = ({ listType, contentType = "movie" }) => {
                 const episodesProgress = getEpisodesProgress(item);
                 const userScoreData = getUserScore(item);
 
-                // Get progress/time info for watching items
-                const progressInfo =
-                  listType === "watching"
-                    ? contentType === "movie"
-                      ? formatTimeWatched(item.time_watched)
-                      : formatProgress(item.progress)
-                    : null;
-
                 // Don't render if we don't have basic data
                 if (title === "Unknown Title") {
                   console.warn("Item with insufficient data:", item);
@@ -314,11 +282,6 @@ const UserList = ({ listType, contentType = "movie" }) => {
                           {userScoreData.score}
                         </span>
                       </div>
-                      {progressInfo && (
-                        <div className="media-grid-progress">
-                          <span className="progress-info">{progressInfo}</span>
-                        </div>
-                      )}
                     </div>
                   </Link>
                 );
