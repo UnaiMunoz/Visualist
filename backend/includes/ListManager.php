@@ -149,8 +149,8 @@ class ListManager
         if ($listType === 'favorites') {
             // Get favorites count
             $countQuery = "SELECT COUNT(*) as total FROM Favorites f
-                          JOIN Content_References cr ON f.reference_id = cr.reference_id
-                          WHERE f.user_id = :user_id AND cr.type = :content_type";
+                      JOIN Content_References cr ON f.reference_id = cr.reference_id
+                      WHERE f.user_id = :user_id AND cr.type = :content_type";
             $countStmt = $this->conn->prepare($countQuery);
             $countStmt->bindParam(':user_id', $userId);
             $countStmt->bindParam(':content_type', $contentType);
@@ -158,13 +158,15 @@ class ListManager
             $totalRow = $countStmt->fetch(PDO::FETCH_ASSOC);
             $total = $totalRow['total'];
 
-            // Get favorites list
-            $query = "SELECT cr.tmdb_id, cr.title, cr.year, cr.reference_id 
-                     FROM Favorites f
-                     JOIN Content_References cr ON f.reference_id = cr.reference_id
-                     WHERE f.user_id = :user_id AND cr.type = :content_type
-                     ORDER BY f.added_at DESC
-                     LIMIT :offset, :limit";
+            // Get favorites list WITH additional data from User_Content_Status
+            $query = "SELECT cr.tmdb_id, cr.title, cr.year, cr.reference_id,
+                        ucs.score, ucs.progress, ucs.time_watched, ucs.notes
+                 FROM Favorites f
+                 JOIN Content_References cr ON f.reference_id = cr.reference_id
+                 LEFT JOIN User_Content_Status ucs ON (f.user_id = ucs.user_id AND f.reference_id = ucs.reference_id)
+                 WHERE f.user_id = :user_id AND cr.type = :content_type
+                 ORDER BY f.added_at DESC
+                 LIMIT :offset, :limit";
         } else {
             // Map list type to status in User_Content_Status
             $status = '';
@@ -184,8 +186,8 @@ class ListManager
 
             // Get count for this status
             $countQuery = "SELECT COUNT(*) as total FROM User_Content_Status ucs
-                          JOIN Content_References cr ON ucs.reference_id = cr.reference_id
-                          WHERE ucs.user_id = :user_id AND ucs.status = :status AND cr.type = :content_type";
+                      JOIN Content_References cr ON ucs.reference_id = cr.reference_id
+                      WHERE ucs.user_id = :user_id AND ucs.status = :status AND cr.type = :content_type";
             $countStmt = $this->conn->prepare($countQuery);
             $countStmt->bindParam(':user_id', $userId);
             $countStmt->bindParam(':status', $status);
@@ -196,12 +198,12 @@ class ListManager
 
             // Get list
             $query = "SELECT cr.tmdb_id, cr.title, cr.year, cr.reference_id,
-                            ucs.score, ucs.progress, ucs.time_watched, ucs.notes
-                     FROM User_Content_Status ucs
-                     JOIN Content_References cr ON ucs.reference_id = cr.reference_id
-                     WHERE ucs.user_id = :user_id AND ucs.status = :status AND cr.type = :content_type
-                     ORDER BY ucs.updated_at DESC
-                     LIMIT :offset, :limit";
+                        ucs.score, ucs.progress, ucs.time_watched, ucs.notes
+                 FROM User_Content_Status ucs
+                 JOIN Content_References cr ON ucs.reference_id = cr.reference_id
+                 WHERE ucs.user_id = :user_id AND ucs.status = :status AND cr.type = :content_type
+                 ORDER BY ucs.updated_at DESC
+                 LIMIT :offset, :limit";
         }
 
         // Update pagination info
@@ -230,13 +232,15 @@ class ListManager
             $contentDetails = $this->getContentDetails($item['tmdb_id'], $contentType);
             if ($contentDetails) {
                 // Merge the database data with the API data
-                $result['items'][] = array_merge($contentDetails, [
+                $mergedItem = array_merge($contentDetails, [
                     'reference_id' => $item['reference_id'],
                     'score' => $item['score'] ?? null,
                     'progress' => $item['progress'] ?? null,
                     'time_watched' => $item['time_watched'] ?? null,
                     'notes' => $item['notes'] ?? null
                 ]);
+
+                $result['items'][] = $mergedItem;
             }
         }
 
