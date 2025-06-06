@@ -22,6 +22,7 @@ const SeriesStatusModal = ({
 
   const [status, setStatus] = useState({
     watched: false,
+    watching: false, // Nueva opción
     to_watch: false,
     favorites: false,
   });
@@ -64,11 +65,16 @@ const SeriesStatusModal = ({
   };
 
   const handleStatusChange = (statusType) => {
-    if (statusType === "watched" || statusType === "to_watch") {
-      // Mutual exclusivity for watched and to_watch
+    if (
+      statusType === "watched" ||
+      statusType === "watching" ||
+      statusType === "to_watch"
+    ) {
+      // Mutual exclusivity for watched, watching and to_watch
       setStatus((prev) => ({
         ...prev,
         watched: statusType === "watched" ? !prev.watched : false,
+        watching: statusType === "watching" ? !prev.watching : false,
         to_watch: statusType === "to_watch" ? !prev.to_watch : false,
       }));
     }
@@ -96,7 +102,10 @@ const SeriesStatusModal = ({
       // Handle watched status
       if (status.watched) {
         await safeListOperation(addToList, "watched");
-        // Only try to remove from to_watch if we know it's there
+        // Remove from other statuses
+        if (status.watching) {
+          await safeListOperation(removeFromList, "watching");
+        }
         if (status.to_watch) {
           await safeListOperation(removeFromList, "to_watch");
         }
@@ -104,19 +113,36 @@ const SeriesStatusModal = ({
         await safeListOperation(removeFromList, "watched");
       }
 
+      // Handle watching status
+      if (status.watching) {
+        await safeListOperation(addToList, "watching");
+        // Remove from other statuses
+        if (status.watched) {
+          await safeListOperation(removeFromList, "watched");
+        }
+        if (status.to_watch) {
+          await safeListOperation(removeFromList, "to_watch");
+        }
+      } else {
+        await safeListOperation(removeFromList, "watching");
+      }
+
       // Handle to_watch status
       if (status.to_watch) {
         await safeListOperation(addToList, "to_watch");
-        // Only try to remove from watched if we know it's there
+        // Remove from other statuses
         if (status.watched) {
           await safeListOperation(removeFromList, "watched");
+        }
+        if (status.watching) {
+          await safeListOperation(removeFromList, "watching");
         }
       } else {
         await safeListOperation(removeFromList, "to_watch");
       }
 
       // Update additional data (score, progress, notes)
-      if (status.watched || status.to_watch) {
+      if (status.watched || status.watching || status.to_watch) {
         try {
           await updateContentData(contentId, contentType, {
             score: score,
@@ -221,6 +247,31 @@ const SeriesStatusModal = ({
                       <input
                         type="radio"
                         name="watchStatus"
+                        checked={status.watching}
+                        onChange={() => handleStatusChange("watching")}
+                      />
+                      <span className="status-label">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        Watching
+                      </span>
+                    </label>
+
+                    <label className="status-option compact-option">
+                      <input
+                        type="radio"
+                        name="watchStatus"
                         checked={status.to_watch}
                         onChange={() => handleStatusChange("to_watch")}
                       />
@@ -247,11 +298,16 @@ const SeriesStatusModal = ({
                       <input
                         type="radio"
                         name="watchStatus"
-                        checked={!status.watched && !status.to_watch}
+                        checked={
+                          !status.watched &&
+                          !status.watching &&
+                          !status.to_watch
+                        }
                         onChange={() => {
                           setStatus((prev) => ({
                             ...prev,
                             watched: false,
+                            watching: false,
                             to_watch: false,
                           }));
                         }}

@@ -15,6 +15,7 @@ const MovieStatusButton = ({ contentId, contentType, movieTitle }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [status, setStatus] = useState({
     watched: false,
+    watching: false, // Nueva opción
     to_watch: false,
     favorites: false,
   });
@@ -100,6 +101,26 @@ const MovieStatusButton = ({ contentId, contentType, movieTitle }) => {
           </svg>
         ),
         className: "status-watched",
+      };
+    } else if (status.watching) {
+      return {
+        text: "Watching",
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        ),
+        className: "status-watching",
       };
     } else if (status.to_watch) {
       return {

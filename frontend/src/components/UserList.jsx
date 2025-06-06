@@ -93,6 +93,8 @@ const UserList = ({ listType, contentType = "movie" }) => {
     switch (listType) {
       case "watched":
         return "Watched";
+      case "watching":
+        return "Watching";
       case "to_watch":
         return "To Watch";
       case "favorites":
@@ -174,6 +176,30 @@ const UserList = ({ listType, contentType = "movie" }) => {
     }
   };
 
+  // Helper function to format time watched (for movies)
+  const formatTimeWatched = (minutes) => {
+    if (!minutes || minutes === 0) return null;
+
+    if (minutes < 60) {
+      return `${minutes}m watched`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (remainingMinutes === 0) {
+      return `${hours}h watched`;
+    }
+
+    return `${hours}h ${remainingMinutes}m watched`;
+  };
+
+  // Helper function to format progress (for series)
+  const formatProgress = (episodes) => {
+    if (!episodes || episodes === 0) return null;
+    return `${episodes} episodes watched`;
+  };
+
   // Show loading spinner while data is being fetched or during initial load
   if (loading || isInitialLoad) {
     return (
@@ -225,6 +251,14 @@ const UserList = ({ listType, contentType = "movie" }) => {
                 const year = getYear(item);
                 const score = getScore(item);
 
+                // Get progress/time info for watching items
+                const progressInfo =
+                  listType === "watching"
+                    ? contentType === "movie"
+                      ? formatTimeWatched(item.time_watched)
+                      : formatProgress(item.progress)
+                    : null;
+
                 // Don't render if we don't have basic data
                 if (
                   title === "Unknown Title" &&
@@ -259,6 +293,18 @@ const UserList = ({ listType, contentType = "movie" }) => {
                         <span className="media-card-info">{year}</span>
                         <span className="media-card-score">{score}</span>
                       </div>
+                      {progressInfo && (
+                        <div className="media-grid-progress">
+                          <span className="progress-info">{progressInfo}</span>
+                        </div>
+                      )}
+                      {item.score && item.score > 0 && (
+                        <div className="media-grid-user-score">
+                          <span className="user-score">
+                            Your score: {item.score}/10
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </Link>
                 );

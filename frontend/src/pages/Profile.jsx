@@ -32,6 +32,7 @@ const Profile = () => {
   const [stats, setStats] = useState({
     watchedCount: 0,
     toWatchCount: 0,
+    watchingCount: 0, // Nuevo estado para watching
     favoritesCount: 0,
     loadingStats: true,
   });
@@ -72,23 +73,27 @@ const Profile = () => {
         const contentTypes = ["movie", "series"];
         let totalWatched = 0;
         let totalToWatch = 0;
+        let totalWatching = 0; // Nuevo contador
         let totalFavorites = 0;
 
         for (const type of contentTypes) {
-          const [watched, toWatch, favorites] = await Promise.all([
+          const [watched, toWatch, watching, favorites] = await Promise.all([
             getUserList("watched", type, 1, 1),
             getUserList("to_watch", type, 1, 1),
+            getUserList("watching", type, 1, 1),
             getUserList("favorites", type, 1, 1),
           ]);
 
           totalWatched += watched.pageInfo.total || 0;
           totalToWatch += toWatch.pageInfo.total || 0;
+          totalWatching += watching.pageInfo.total || 0; 
           totalFavorites += favorites.pageInfo.total || 0;
         }
 
         setStats({
           watchedCount: totalWatched,
           toWatchCount: totalToWatch,
+          watchingCount: totalWatching, // Nuevo estado
           favoritesCount: totalFavorites,
           loadingStats: false,
         });
@@ -97,6 +102,7 @@ const Profile = () => {
         setStats({
           watchedCount: 0,
           toWatchCount: 0,
+          watchingCount: 0, // Reset watching count
           favoritesCount: 0,
           loadingStats: false,
         });
@@ -277,7 +283,7 @@ const Profile = () => {
 
       {errors.form && <div className="error-message">{errors.form}</div>}
 
-      {/* Profile Tabs */}
+      {/* Profile Tabs - Añadida la pestaña Watching */}
       <div className="profile-tabs">
         <button
           className={`profile-tab ${activeTab === "profile" ? "active" : ""}`}
@@ -290,6 +296,12 @@ const Profile = () => {
           onClick={() => setActiveTab("watched")}
         >
           Watched
+        </button>
+        <button
+          className={`profile-tab ${activeTab === "watching" ? "active" : ""}`}
+          onClick={() => setActiveTab("watching")}
+        >
+          Watching
         </button>
         <button
           className={`profile-tab ${activeTab === "to_watch" ? "active" : ""}`}
@@ -440,6 +452,12 @@ const Profile = () => {
                 <span className="stat-label">Watched Items</span>
                 <span className="stat-value">
                   {stats.loadingStats ? "..." : stats.watchedCount}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Currently Watching</span>
+                <span className="stat-value">
+                  {stats.loadingStats ? "..." : stats.watchingCount}
                 </span>
               </div>
               <div className="stat-item">

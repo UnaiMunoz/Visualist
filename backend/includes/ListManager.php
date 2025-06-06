@@ -30,11 +30,11 @@ class ListManager
             case 'favorites':
                 return $this->addToFavorites($userId, $referenceId);
             case 'watched':
-                return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
+                return $this->addToUserContentStatus($userId, $referenceId, 'completed', true);
             case 'to_watch':
-                return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
+                return $this->addToUserContentStatus($userId, $referenceId, 'plan_to_watch', true);
             case 'watching':
-                return $this->addToUserContentStatus($userId, $referenceId, $listType, true);
+                return $this->addToUserContentStatus($userId, $referenceId, 'watching', true);
             default:
                 throw new Exception("Invalid list type: $listType");
         }
@@ -57,8 +57,11 @@ class ListManager
             case 'favorites':
                 return $this->removeFromFavorites($userId, $referenceId);
             case 'watched':
+                return $this->removeFromUserContentStatus($userId, $referenceId, 'completed');
             case 'to_watch':
-                return $this->removeFromUserContentStatus($userId, $referenceId, $listType);
+                return $this->removeFromUserContentStatus($userId, $referenceId, 'plan_to_watch');
+            case 'watching':
+                return $this->removeFromUserContentStatus($userId, $referenceId, 'watching');
             default:
                 throw new Exception("Invalid list type: $listType");
         }
@@ -75,6 +78,7 @@ class ListManager
             // Content not in our database yet, so it's not in any list
             return [
                 'watched' => false,
+                'watching' => false,
                 'to_watch' => false,
                 'favorites' => false
             ];
@@ -83,11 +87,12 @@ class ListManager
         // Check status in each list
         $status = [
             'watched' => false,
+            'watching' => false,
             'to_watch' => false,
             'favorites' => false
         ];
 
-        // Check User_Content_Status table for watched and to_watch
+        // Check User_Content_Status table for watched, watching and to_watch
         $query = "SELECT status FROM User_Content_Status 
                   WHERE user_id = :user_id AND reference_id = :reference_id";
         $stmt = $this->conn->prepare($query);
@@ -100,6 +105,8 @@ class ListManager
                 $status['watched'] = true;
             } else if ($row['status'] === 'plan_to_watch') {
                 $status['to_watch'] = true;
+            } else if ($row['status'] === 'watching') {
+                $status['watching'] = true;
             }
         }
 
@@ -160,7 +167,20 @@ class ListManager
                      LIMIT :offset, :limit";
         } else {
             // Map list type to status in User_Content_Status
-            $status = ($listType === 'watched') ? 'completed' : 'plan_to_watch';
+            $status = '';
+            switch ($listType) {
+                case 'watched':
+                    $status = 'completed';
+                    break;
+                case 'watching':
+                    $status = 'watching';
+                    break;
+                case 'to_watch':
+                    $status = 'plan_to_watch';
+                    break;
+                default:
+                    throw new Exception("Invalid list type: $listType");
+            }
 
             // Get count for this status
             $countQuery = "SELECT COUNT(*) as total FROM User_Content_Status ucs
@@ -176,7 +196,7 @@ class ListManager
 
             // Get list
             $query = "SELECT cr.tmdb_id, cr.title, cr.year, cr.reference_id,
-                            ucs.score, ucs.progress, ucs.notes
+                            ucs.score, ucs.progress, ucs.time_watched, ucs.notes
                      FROM User_Content_Status ucs
                      JOIN Content_References cr ON ucs.reference_id = cr.reference_id
                      WHERE ucs.user_id = :user_id AND ucs.status = :status AND cr.type = :content_type
@@ -214,6 +234,7 @@ class ListManager
                     'reference_id' => $item['reference_id'],
                     'score' => $item['score'] ?? null,
                     'progress' => $item['progress'] ?? null,
+                    'time_watched' => $item['time_watched'] ?? null,
                     'notes' => $item['notes'] ?? null
                 ]);
             }
@@ -223,7 +244,7 @@ class ListManager
     }
 
     /**
-     * Update additional data (score, progress, notes) for content in user's list
+     * Update additional data (score, progress, time_watched, notes) for content in user's list
      */
     public function updateContentData($userId, $contentId, $contentType, $data)
     {
@@ -249,19 +270,21 @@ class ListManager
                 $query = "UPDATE User_Content_Status 
                          SET score = :score, 
                              progress = :progress, 
+                             time_watched = :time_watched,
                              notes = :notes,
                              updated_at = CURRENT_TIMESTAMP
                          WHERE user_id = :user_id AND reference_id = :reference_id";
             } else {
                 // Insert new record with default status (this shouldn't happen in normal flow)
                 $query = "INSERT INTO User_Content_Status 
-                         (user_id, reference_id, status, score, progress, notes) 
-                         VALUES (:user_id, :reference_id, 'plan_to_watch', :score, :progress, :notes)";
+                         (user_id, reference_id, status, score, progress, time_watched, notes) 
+                         VALUES (:user_id, :reference_id, 'plan_to_watch', :score, :progress, :time_watched, :notes)";
             }
 
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':score', $data['score']);
             $stmt->bindParam(':progress', $data['progress']);
+            $stmt->bindParam(':time_watched', $data['time_watched']);
             $stmt->bindParam(':notes', $data['notes']);
             $stmt->bindParam(':user_id', $userId);
             $stmt->bindParam(':reference_id', $referenceId);
@@ -281,120 +304,24 @@ class ListManager
     }
 
     /**
-     * Get additional content data for a user
+     * Add to user content status (watched, watching or to_watch lists) with mutual exclusivity
      */
-    public function getContentData($userId, $contentId, $contentType)
+    private function addToUserContentStatus($userId, $referenceId, $status, $handleExclusivity = false)
     {
-        $referenceId = $this->getContentReferenceId($contentId, $contentType);
-
-        if (!$referenceId) {
-            return [
-                'score' => 0,
-                'progress' => 0,
-                'notes' => ''
-            ];
-        }
-
-        $query = "SELECT score, progress, notes FROM User_Content_Status 
-                  WHERE user_id = :user_id AND reference_id = :reference_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':reference_id', $referenceId);
-        $stmt->execute();
-
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            return [
-                'score' => $row['score'] ? (float)$row['score'] : 0,
-                'progress' => $row['progress'] ? (int)$row['progress'] : 0,
-                'notes' => $row['notes'] ?: ''
-            ];
-        }
-
-        return [
-            'score' => 0,
-            'progress' => 0,
-            'notes' => ''
-        ];
-    }
-
-    /**
-     * Add to favorites list
-     */
-    private function addToFavorites($userId, $referenceId)
-    {
-        // Check if already in favorites
-        $checkQuery = "SELECT 1 FROM Favorites 
-                      WHERE user_id = :user_id AND reference_id = :reference_id";
-        $checkStmt = $this->conn->prepare($checkQuery);
-        $checkStmt->bindParam(':user_id', $userId);
-        $checkStmt->bindParam(':reference_id', $referenceId);
-        $checkStmt->execute();
-
-        if ($checkStmt->fetch(PDO::FETCH_ASSOC)) {
-            // Already in favorites, nothing to do
-            return ['reference_id' => $referenceId, 'already_added' => true];
-        }
-
-        // Add to favorites
-        $query = "INSERT INTO Favorites (user_id, reference_id) 
-                 VALUES (:user_id, :reference_id)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':reference_id', $referenceId);
-
-        if ($stmt->execute()) {
-            return ['reference_id' => $referenceId, 'added' => true];
-        } else {
-            throw new Exception("Failed to add to favorites");
-        }
-    }
-
-    /**
-     * Remove from favorites
-     */
-    private function removeFromFavorites($userId, $referenceId)
-    {
-        $query = "DELETE FROM Favorites 
-                 WHERE user_id = :user_id AND reference_id = :reference_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':reference_id', $referenceId);
-
-        if ($stmt->execute()) {
-            return ['reference_id' => $referenceId, 'removed' => true];
-        } else {
-            throw new Exception("Failed to remove from favorites");
-        }
-    }
-
-    /**
-     * Add to user content status (watched or to_watch lists) with mutual exclusivity
-     */
-    private function addToUserContentStatus($userId, $referenceId, $listType, $handleExclusivity = false)
-    {
-        // Map list type to status
-        $status = ($listType === 'watched') ? 'completed' : 'plan_to_watch';
-
         // Start transaction for mutual exclusivity handling
         $this->conn->beginTransaction();
 
         try {
-            // If handling exclusivity and adding to watched, remove from to_watch first
-            if ($handleExclusivity && $listType === 'watched') {
+            // If handling exclusivity, remove from other statuses first
+            if ($handleExclusivity) {
                 $removeQuery = "DELETE FROM User_Content_Status 
-                               WHERE user_id = :user_id AND reference_id = :reference_id AND status = 'plan_to_watch'";
+                               WHERE user_id = :user_id AND reference_id = :reference_id 
+                               AND status IN ('completed', 'plan_to_watch', 'watching')
+                               AND status != :current_status";
                 $removeStmt = $this->conn->prepare($removeQuery);
                 $removeStmt->bindParam(':user_id', $userId);
                 $removeStmt->bindParam(':reference_id', $referenceId);
-                $removeStmt->execute();
-            }
-            // If handling exclusivity and adding to to_watch, remove from watched first
-            else if ($handleExclusivity && $listType === 'to_watch') {
-                $removeQuery = "DELETE FROM User_Content_Status 
-                               WHERE user_id = :user_id AND reference_id = :reference_id AND status = 'completed'";
-                $removeStmt = $this->conn->prepare($removeQuery);
-                $removeStmt->bindParam(':user_id', $userId);
-                $removeStmt->bindParam(':reference_id', $referenceId);
+                $removeStmt->bindParam(':current_status', $status);
                 $removeStmt->execute();
             }
 
@@ -452,11 +379,8 @@ class ListManager
     /**
      * Remove from user content status
      */
-    private function removeFromUserContentStatus($userId, $referenceId, $listType)
+    private function removeFromUserContentStatus($userId, $referenceId, $status)
     {
-        // Map list type to status for checking
-        $status = ($listType === 'watched') ? 'completed' : 'plan_to_watch';
-
         // Check if current status matches what we're trying to remove
         $checkQuery = "SELECT status FROM User_Content_Status 
                       WHERE user_id = :user_id AND reference_id = :reference_id";
@@ -519,7 +443,6 @@ class ListManager
 
         // Extract title and release year
         $title = ($contentDetails['title'] ?? $contentDetails['name'] ?? 'Unknown Title');
-
 
         $year = null;
         if (isset($contentDetails['release_date'])) {
@@ -625,5 +548,55 @@ class ListManager
             'name' => 'Series #' . $seriesId,
             'type' => 'series'
         ];
+    }
+
+    /**
+     * Add to favorites list
+     */
+    private function addToFavorites($userId, $referenceId)
+    {
+        // Check if already in favorites
+        $checkQuery = "SELECT 1 FROM Favorites 
+                      WHERE user_id = :user_id AND reference_id = :reference_id";
+        $checkStmt = $this->conn->prepare($checkQuery);
+        $checkStmt->bindParam(':user_id', $userId);
+        $checkStmt->bindParam(':reference_id', $referenceId);
+        $checkStmt->execute();
+
+        if ($checkStmt->fetch(PDO::FETCH_ASSOC)) {
+            // Already in favorites, nothing to do
+            return ['reference_id' => $referenceId, 'already_added' => true];
+        }
+
+        // Add to favorites
+        $query = "INSERT INTO Favorites (user_id, reference_id) 
+                 VALUES (:user_id, :reference_id)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':reference_id', $referenceId);
+
+        if ($stmt->execute()) {
+            return ['reference_id' => $referenceId, 'added' => true];
+        } else {
+            throw new Exception("Failed to add to favorites");
+        }
+    }
+
+    /**
+     * Remove from favorites
+     */
+    private function removeFromFavorites($userId, $referenceId)
+    {
+        $query = "DELETE FROM Favorites 
+                 WHERE user_id = :user_id AND reference_id = :reference_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':reference_id', $referenceId);
+
+        if ($stmt->execute()) {
+            return ['reference_id' => $referenceId, 'removed' => true];
+        } else {
+            throw new Exception("Failed to remove from favorites");
+        }
     }
 }

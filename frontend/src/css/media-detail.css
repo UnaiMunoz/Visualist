@@ -1008,6 +1008,79 @@
   left: 100%;
 }
 
+/* Estilos adicionales para UserList con información de progreso y puntuación */
+
+.media-grid-progress {
+  margin-top: 8px;
+  padding: 4px 8px;
+  background-color: rgba(245, 158, 11, 0.1); /* Amber background for watching */
+  border-radius: 4px;
+  border-left: 3px solid #f59e0b;
+}
+
+.progress-info {
+  color: #f59e0b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress-info::before {
+  content: "⏱️";
+  font-size: 0.7rem;
+}
+
+.media-grid-user-score {
+  margin-top: 6px;
+  padding: 2px 6px;
+  background-color: rgba(37, 99, 235, 0.1);
+  border-radius: 3px;
+  text-align: center;
+}
+
+.user-score {
+  color: #2563eb;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Enhanced media grid card for better information display */
+.media-grid-card .media-grid-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.media-grid-card:hover .media-grid-progress {
+  background-color: rgba(245, 158, 11, 0.15);
+}
+
+.media-grid-card:hover .media-grid-user-score {
+  background-color: rgba(37, 99, 235, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .progress-info {
+    font-size: 0.7rem;
+  }
+  
+  .user-score {
+    font-size: 0.65rem;
+  }
+  
+  .media-grid-progress {
+    padding: 3px 6px;
+  }
+  
+  .media-grid-user-score {
+    padding: 2px 4px;
+  }
+}
+
 /* Responsive adjustments for placeholders */
 @media (max-width: 768px) {
   .image-placeholder {

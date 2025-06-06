@@ -22,12 +22,14 @@ const MovieStatusModal = ({
 
   const [status, setStatus] = useState({
     watched: false,
+    watching: false, // Nueva opción
     to_watch: false,
     favorites: false,
   });
 
   const [score, setScore] = useState(0);
   const [notes, setNotes] = useState("");
+  const [timeWatched, setTimeWatched] = useState(0); // Para películas: tiempo en minutos
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -55,6 +57,7 @@ const MovieStatusModal = ({
     try {
       const contentData = await getContentData(contentId, contentType);
       setScore(contentData.score || 0);
+      setTimeWatched(contentData.time_watched || 0); // Cambiado de progress a time_watched
       setNotes(contentData.notes || "");
     } catch (error) {
       console.error("Error fetching content data:", error);
@@ -62,11 +65,16 @@ const MovieStatusModal = ({
   };
 
   const handleStatusChange = (statusType) => {
-    if (statusType === "watched" || statusType === "to_watch") {
-      // Mutual exclusivity for watched and to_watch
+    if (
+      statusType === "watched" ||
+      statusType === "watching" ||
+      statusType === "to_watch"
+    ) {
+      // Mutual exclusivity for watched, watching and to_watch
       setStatus((prev) => ({
         ...prev,
         watched: statusType === "watched" ? !prev.watched : false,
+        watching: statusType === "watching" ? !prev.watching : false,
         to_watch: statusType === "to_watch" ? !prev.to_watch : false,
       }));
     }
@@ -94,7 +102,10 @@ const MovieStatusModal = ({
       // Handle watched status
       if (status.watched) {
         await safeListOperation(addToList, "watched");
-        // Only try to remove from to_watch if we know it's there
+        // Remove from other statuses
+        if (status.watching) {
+          await safeListOperation(removeFromList, "watching");
+        }
         if (status.to_watch) {
           await safeListOperation(removeFromList, "to_watch");
         }
@@ -102,22 +113,40 @@ const MovieStatusModal = ({
         await safeListOperation(removeFromList, "watched");
       }
 
+      // Handle watching status
+      if (status.watching) {
+        await safeListOperation(addToList, "watching");
+        // Remove from other statuses
+        if (status.watched) {
+          await safeListOperation(removeFromList, "watched");
+        }
+        if (status.to_watch) {
+          await safeListOperation(removeFromList, "to_watch");
+        }
+      } else {
+        await safeListOperation(removeFromList, "watching");
+      }
+
       // Handle to_watch status
       if (status.to_watch) {
         await safeListOperation(addToList, "to_watch");
-        // Only try to remove from watched if we know it's there
+        // Remove from other statuses
         if (status.watched) {
           await safeListOperation(removeFromList, "watched");
+        }
+        if (status.watching) {
+          await safeListOperation(removeFromList, "watching");
         }
       } else {
         await safeListOperation(removeFromList, "to_watch");
       }
 
-      // Update additional data (score, notes)
-      if (status.watched || status.to_watch) {
+      // Update additional data (score, time_watched, notes)
+      if (status.watched || status.watching || status.to_watch) {
         try {
           await updateContentData(contentId, contentType, {
             score: score,
+            time_watched: timeWatched, // Cambiado de progress a time_watched
             notes: notes,
           });
         } catch (error) {
@@ -140,6 +169,20 @@ const MovieStatusModal = ({
     // Reset form state
     setScore(0);
     setNotes("");
+    setTimeWatched(0);
+  };
+
+  // Formatear tiempo en minutos a horas y minutos
+  const formatTime = (minutes) => {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${remainingMinutes}m`;
   };
 
   if (!isOpen) return null;
@@ -217,6 +260,31 @@ const MovieStatusModal = ({
                       <input
                         type="radio"
                         name="watchStatus"
+                        checked={status.watching}
+                        onChange={() => handleStatusChange("watching")}
+                      />
+                      <span className="status-label">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        Watching
+                      </span>
+                    </label>
+
+                    <label className="status-option compact-option">
+                      <input
+                        type="radio"
+                        name="watchStatus"
                         checked={status.to_watch}
                         onChange={() => handleStatusChange("to_watch")}
                       />
@@ -243,11 +311,16 @@ const MovieStatusModal = ({
                       <input
                         type="radio"
                         name="watchStatus"
-                        checked={!status.watched && !status.to_watch}
+                        checked={
+                          !status.watched &&
+                          !status.watching &&
+                          !status.to_watch
+                        }
                         onChange={() => {
                           setStatus((prev) => ({
                             ...prev,
                             watched: false,
+                            watching: false,
                             to_watch: false,
                           }));
                         }}
@@ -278,7 +351,7 @@ const MovieStatusModal = ({
                   </div>
                 </div>
 
-                {/* Right Column - Score */}
+                {/* Right Column - Score & Time Watched */}
                 <div className="data-column">
                   <div className="score-section compact-section">
                     <h4 className="section-title">Score</h4>
@@ -295,6 +368,25 @@ const MovieStatusModal = ({
                       <div className="score-display">
                         {score === 0 ? "Not Rated" : `${score}/10`}
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="progress-section compact-section">
+                    <h4 className="section-title">Time Watched</h4>
+                    <div className="progress-input-container">
+                      <input
+                        type="number"
+                        min="0"
+                        value={timeWatched}
+                        onChange={(e) =>
+                          setTimeWatched(parseInt(e.target.value) || 0)
+                        }
+                        className="progress-input"
+                        placeholder="Minutes"
+                      />
+                      <span className="progress-label">
+                        {timeWatched > 0 ? formatTime(timeWatched) : "min"}
+                      </span>
                     </div>
                   </div>
                 </div>
