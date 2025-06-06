@@ -30,11 +30,11 @@ class ListManager
             case 'favorites':
                 return $this->addToFavorites($userId, $referenceId);
             case 'watched':
-                return $this->addToUserContentStatus($userId, $referenceId, 'completed', true);
+                return $this->addToUserContentStatus($userId, $referenceId, 'completed', true, $contentType, $contentId);
             case 'to_watch':
-                return $this->addToUserContentStatus($userId, $referenceId, 'plan_to_watch', true);
+                return $this->addToUserContentStatus($userId, $referenceId, 'plan_to_watch', true, $contentType, $contentId);
             case 'watching':
-                return $this->addToUserContentStatus($userId, $referenceId, 'watching', true);
+                return $this->addToUserContentStatus($userId, $referenceId, 'watching', true, $contentType, $contentId);
             default:
                 throw new Exception("Invalid list type: $listType");
         }
@@ -305,8 +305,9 @@ class ListManager
 
     /**
      * Add to user content status (watched, watching or to_watch lists) with mutual exclusivity
+     * Enhanced version with auto-completion for series
      */
-    private function addToUserContentStatus($userId, $referenceId, $status, $handleExclusivity = false)
+    private function addToUserContentStatus($userId, $referenceId, $status, $handleExclusivity = false, $contentType = null, $contentId = null)
     {
         // Start transaction for mutual exclusivity handling
         $this->conn->beginTransaction();
@@ -326,20 +327,47 @@ class ListManager
             }
 
             // Check if already has this status
-            $checkQuery = "SELECT status FROM User_Content_Status 
+            $checkQuery = "SELECT status, progress, time_watched FROM User_Content_Status 
                           WHERE user_id = :user_id AND reference_id = :reference_id";
             $checkStmt = $this->conn->prepare($checkQuery);
             $checkStmt->bindParam(':user_id', $userId);
             $checkStmt->bindParam(':reference_id', $referenceId);
             $checkStmt->execute();
 
+            $autoCompletedData = [];
+
             if ($row = $checkStmt->fetch(PDO::FETCH_ASSOC)) {
+                // Prepare auto-completion data for series marked as watched
+                $progress = $row['progress'];
+                $timeWatched = $row['time_watched'];
+
+                if ($status === 'completed' && $contentType === 'series' && $contentId) {
+                    // Get series details to auto-complete progress
+                    $seriesDetails = $this->getSeriesDetails($contentId);
+                    if ($seriesDetails && isset($seriesDetails['number_of_episodes'])) {
+                        $progress = $seriesDetails['number_of_episodes'];
+                        $autoCompletedData['progress'] = $progress;
+                    }
+                } elseif ($status === 'completed' && $contentType === 'movie' && $contentId) {
+                    // Auto-complete time watched for movies marked as watched
+                    $movieDetails = $this->getMovieDetails($contentId);
+                    if ($movieDetails && isset($movieDetails['runtime'])) {
+                        $timeWatched = $movieDetails['runtime'];
+                        $autoCompletedData['time_watched'] = $timeWatched;
+                    }
+                }
+
                 // Update existing status
                 $query = "UPDATE User_Content_Status 
-                         SET status = :status, updated_at = CURRENT_TIMESTAMP
+                         SET status = :status, 
+                             progress = :progress,
+                             time_watched = :time_watched,
+                             updated_at = CURRENT_TIMESTAMP
                          WHERE user_id = :user_id AND reference_id = :reference_id";
                 $stmt = $this->conn->prepare($query);
                 $stmt->bindParam(':status', $status);
+                $stmt->bindParam(':progress', $progress);
+                $stmt->bindParam(':time_watched', $timeWatched);
                 $stmt->bindParam(':user_id', $userId);
                 $stmt->bindParam(':reference_id', $referenceId);
 
@@ -349,23 +377,51 @@ class ListManager
                         'reference_id' => $referenceId,
                         'updated' => true,
                         'previous_status' => $row['status'],
-                        'new_status' => $status
+                        'new_status' => $status,
+                        'auto_completed' => $autoCompletedData
                     ];
                 } else {
                     throw new Exception("Failed to update status");
                 }
             } else {
+                // Prepare initial data for new entries
+                $progress = 0;
+                $timeWatched = 0;
+
+                if ($status === 'completed' && $contentType === 'series' && $contentId) {
+                    // Auto-complete progress for new series marked as watched
+                    $seriesDetails = $this->getSeriesDetails($contentId);
+                    if ($seriesDetails && isset($seriesDetails['number_of_episodes'])) {
+                        $progress = $seriesDetails['number_of_episodes'];
+                        $autoCompletedData['progress'] = $progress;
+                    }
+                } elseif ($status === 'completed' && $contentType === 'movie' && $contentId) {
+                    // Auto-complete time watched for movies marked as watched
+                    $movieDetails = $this->getMovieDetails($contentId);
+                    if ($movieDetails && isset($movieDetails['runtime'])) {
+                        $timeWatched = $movieDetails['runtime'];
+                        $autoCompletedData['time_watched'] = $timeWatched;
+                    }
+                }
+
                 // Insert new status
-                $query = "INSERT INTO User_Content_Status (user_id, reference_id, status) 
-                         VALUES (:user_id, :reference_id, :status)";
+                $query = "INSERT INTO User_Content_Status (user_id, reference_id, status, progress, time_watched) 
+                         VALUES (:user_id, :reference_id, :status, :progress, :time_watched)";
                 $stmt = $this->conn->prepare($query);
                 $stmt->bindParam(':user_id', $userId);
                 $stmt->bindParam(':reference_id', $referenceId);
                 $stmt->bindParam(':status', $status);
+                $stmt->bindParam(':progress', $progress);
+                $stmt->bindParam(':time_watched', $timeWatched);
 
                 if ($stmt->execute()) {
                     $this->conn->commit();
-                    return ['reference_id' => $referenceId, 'added' => true, 'status' => $status];
+                    return [
+                        'reference_id' => $referenceId,
+                        'added' => true,
+                        'status' => $status,
+                        'auto_completed' => $autoCompletedData
+                    ];
                 } else {
                     throw new Exception("Failed to add status");
                 }
@@ -623,7 +679,7 @@ class ListManager
             $query = "SELECT score, progress, time_watched, notes 
                       FROM User_Content_Status 
                       WHERE user_id = :user_id AND reference_id = :reference_id";
-            
+
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt->bindParam(':reference_id', $referenceId, PDO::PARAM_INT);

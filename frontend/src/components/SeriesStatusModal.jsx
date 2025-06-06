@@ -9,6 +9,7 @@ import {
   getContentData,
   updateContentData,
 } from "../services/listServices";
+import { getSeriesDetails } from "../services/seriesServices";
 
 const SeriesStatusModal = ({
   isOpen,
@@ -22,7 +23,7 @@ const SeriesStatusModal = ({
 
   const [status, setStatus] = useState({
     watched: false,
-    watching: false, // Nueva opción
+    watching: false,
     to_watch: false,
     favorites: false,
   });
@@ -32,14 +33,25 @@ const SeriesStatusModal = ({
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [seriesDetails, setSeriesDetails] = useState(null);
 
   // Fetch initial status when modal opens
   useEffect(() => {
     if (isOpen && isLoggedIn && contentId) {
       fetchStatus();
       fetchContentData();
+      fetchSeriesDetails();
     }
   }, [isOpen, isLoggedIn, contentId]);
+
+  const fetchSeriesDetails = async () => {
+    try {
+      const details = await getSeriesDetails(contentId);
+      setSeriesDetails(details);
+    } catch (error) {
+      console.error("Error fetching series details:", error);
+    }
+  };
 
   const fetchStatus = async () => {
     try {
@@ -71,12 +83,39 @@ const SeriesStatusModal = ({
       statusType === "to_watch"
     ) {
       // Mutual exclusivity for watched, watching and to_watch
-      setStatus((prev) => ({
-        ...prev,
-        watched: statusType === "watched" ? !prev.watched : false,
-        watching: statusType === "watching" ? !prev.watching : false,
-        to_watch: statusType === "to_watch" ? !prev.to_watch : false,
-      }));
+      const newStatus = {
+        ...status,
+        watched: statusType === "watched" ? !status.watched : false,
+        watching: statusType === "watching" ? !status.watching : false,
+        to_watch: statusType === "to_watch" ? !status.to_watch : false,
+      };
+
+      setStatus(newStatus);
+
+      // Si se marca como "watched", establecer el progreso al máximo (todos los episodios)
+      if (
+        statusType === "watched" &&
+        !status.watched &&
+        seriesDetails?.number_of_episodes
+      ) {
+        setProgress(seriesDetails.number_of_episodes);
+      }
+    }
+  };
+
+  const handleProgressChange = (value) => {
+    const newValue = parseInt(value) || 0;
+
+    // Validar que no exceda el número total de episodios
+    if (
+      seriesDetails?.number_of_episodes &&
+      newValue > seriesDetails.number_of_episodes
+    ) {
+      setProgress(seriesDetails.number_of_episodes);
+    } else if (newValue < 0) {
+      setProgress(0);
+    } else {
+      setProgress(newValue);
     }
   };
 
@@ -94,7 +133,6 @@ const SeriesStatusModal = ({
           return await operation(contentId, contentType, listType);
         } catch (error) {
           console.warn(`Failed to ${operation.name} ${listType}:`, error);
-          // Don't throw, just log the warning
           return null;
         }
       };
@@ -102,7 +140,6 @@ const SeriesStatusModal = ({
       // Handle watched status
       if (status.watched) {
         await safeListOperation(addToList, "watched");
-        // Remove from other statuses
         if (status.watching) {
           await safeListOperation(removeFromList, "watching");
         }
@@ -116,7 +153,6 @@ const SeriesStatusModal = ({
       // Handle watching status
       if (status.watching) {
         await safeListOperation(addToList, "watching");
-        // Remove from other statuses
         if (status.watched) {
           await safeListOperation(removeFromList, "watched");
         }
@@ -130,7 +166,6 @@ const SeriesStatusModal = ({
       // Handle to_watch status
       if (status.to_watch) {
         await safeListOperation(addToList, "to_watch");
-        // Remove from other statuses
         if (status.watched) {
           await safeListOperation(removeFromList, "watched");
         }
@@ -158,7 +193,6 @@ const SeriesStatusModal = ({
       onClose();
     } catch (error) {
       console.error("Error saving status:", error);
-      // Optionally show error message to user
     } finally {
       setSaving(false);
     }
@@ -173,6 +207,8 @@ const SeriesStatusModal = ({
   };
 
   if (!isOpen) return null;
+
+  const maxEpisodes = seriesDetails?.number_of_episodes || 999;
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
@@ -210,6 +246,20 @@ const SeriesStatusModal = ({
             <>
               <div className="media-info">
                 <h3 className="media-title">{seriesTitle}</h3>
+                {seriesDetails && (
+                  <div className="series-info">
+                    {seriesDetails.number_of_seasons && (
+                      <p className="media-seasons">
+                        Seasons: {seriesDetails.number_of_seasons}
+                      </p>
+                    )}
+                    {seriesDetails.number_of_episodes && (
+                      <p className="media-episodes">
+                        Total Episodes: {seriesDetails.number_of_episodes}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="compact-grid">
@@ -359,15 +409,21 @@ const SeriesStatusModal = ({
                   </div>
 
                   <div className="progress-section compact-section">
-                    <h4 className="section-title">Progress</h4>
+                    <h4 className="section-title">
+                      Progress
+                      {seriesDetails?.number_of_episodes && (
+                        <span className="max-hint">
+                          (max: {seriesDetails.number_of_episodes} eps)
+                        </span>
+                      )}
+                    </h4>
                     <div className="progress-input-container">
                       <input
                         type="number"
                         min="0"
+                        max={maxEpisodes}
                         value={progress}
-                        onChange={(e) =>
-                          setProgress(parseInt(e.target.value) || 0)
-                        }
+                        onChange={(e) => handleProgressChange(e.target.value)}
                         className="progress-input"
                         placeholder="Episodes"
                       />
@@ -405,7 +461,7 @@ const SeriesStatusModal = ({
             onClick={handleSave}
             disabled={saving || loading}
           >
-            {saving ? "Saving..." : "Save Changes"}
+            Saving
           </button>
         </div>
       </div>

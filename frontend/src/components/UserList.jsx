@@ -138,16 +138,39 @@ const UserList = ({ listType, contentType = "movie" }) => {
     }
   };
 
-  // Helper function to get episodes progress for content
+  // Helper function to format time in minutes to hours and minutes
+  const formatTime = (minutes) => {
+    if (!minutes || minutes <= 0) return "0 min";
+
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
+  // Helper function to get episodes progress for content - MEJORADO
   const getEpisodesProgress = (item) => {
     try {
       if (contentType === "movie") {
-        // For movies, if it's in watched list or has progress, show 1/1, otherwise 0/1
+        // Para películas en watching, mostrar tiempo visto si está disponible
+        if (
+          listType === "watching" &&
+          item.time_watched &&
+          item.time_watched > 0
+        ) {
+          return formatTime(item.time_watched);
+        }
+        // Para películas watched o sin tiempo, mostrar 1/1 o 0/1
         const isCompleted =
           listType === "watched" || (item.progress && item.progress > 0);
         return isCompleted ? "1/1" : "0/1";
       } else {
-        // For series, show actual progress
+        // Para series, mostrar progreso de episodios
         const watchedEpisodes = item.progress || 0;
         const totalEpisodes = item.number_of_episodes || "?";
         return `${watchedEpisodes}/${totalEpisodes}`;
@@ -261,12 +284,20 @@ const UserList = ({ listType, contentType = "movie" }) => {
                     <div className="media-grid-body">
                       <h3 className="media-grid-title">{title}</h3>
                       <div className="media-grid-footer">
-                        {/* Show episodes progress */}
+                        {/* Show episodes progress or time watched */}
                         <span
-                          className="media-card-info episodes-progress"
+                          className={`media-card-info episodes-progress ${
+                            contentType === "movie" &&
+                            listType === "watching" &&
+                            item.time_watched
+                              ? "time-watched"
+                              : ""
+                          }`}
                           title={
                             contentType === "movie"
-                              ? "Movie completion"
+                              ? listType === "watching" && item.time_watched
+                                ? "Time watched"
+                                : "Movie completion"
                               : "Episodes watched"
                           }
                         >

@@ -566,6 +566,284 @@
   }
 }
 
+/* Estilos adicionales para el modal mejorado */
+
+/* Media duration display */
+.media-duration {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Series info display */
+.series-info {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.media-seasons,
+.media-episodes {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Max hint for inputs */
+.max-hint {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+/* Enhanced progress input with validation */
+.progress-input:invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+.progress-input:focus:invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Time watched styling for UserList */
+.episodes-progress.time-watched {
+  background-color: #059669;
+  color: white;
+  font-weight: 600;
+}
+
+.episodes-progress.time-watched::before {
+  content: "🕒";
+  font-size: 0.7rem;
+  margin-right: 2px;
+}
+
+/* Enhanced hover effects for time watched */
+.media-grid-card:hover .episodes-progress.time-watched {
+  background-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(5, 150, 105, 0.3);
+}
+
+/* Validation feedback styles */
+.input-validation-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.input-validation-success {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Progress bar for episodes */
+.progress-indicator {
+  width: 100%;
+  height: 4px;
+  background-color: #374151;
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Enhanced modal sections */
+.modal-section-divider {
+  border-top: 1px solid #374151;
+  margin: 16px 0;
+  padding-top: 16px;
+}
+
+/* Auto-complete indicators */
+.auto-filled {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  animation: autoFillPulse 0.5s ease-out;
+}
+
+@keyframes autoFillPulse {
+  0% {
+    background-color: rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    background-color: rgba(16, 185, 129, 0.1);
+  }
+}
+
+/* Enhanced section titles */
+.section-title-with-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: normal;
+}
+
+/* Better input grouping */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-group .progress-input {
+  flex: 1;
+  min-width: 80px;
+}
+
+.input-group .progress-label {
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: left;
+}
+
+/* Status change animations */
+.status-option.changing {
+  background-color: rgba(37, 99, 235, 0.1);
+  border-color: #2563eb;
+  animation: statusChange 0.3s ease-out;
+}
+
+@keyframes statusChange {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Enhanced compact grid for mobile */
+@media (max-width: 480px) {
+  .series-info {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .input-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .input-group .progress-input {
+    width: 100%;
+  }
+
+  .max-hint {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-left: 0;
+    margin-top: 2px;
+  }
+}
+
+/* Loading states for auto-completion */
+.auto-completing {
+  position: relative;
+  overflow: hidden;
+}
+
+.auto-completing::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(16, 185, 129, 0.2),
+    transparent
+  );
+  animation: autoCompleteShimmer 1s ease-in-out;
+}
+
+@keyframes autoCompleteShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Enhanced tooltips for validation */
+.input-tooltip {
+  position: relative;
+}
+
+.input-tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.input-tooltip:hover::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 1000;
+}
+
+/* Success feedback for saves */
+.save-success {
+  background-color: #10b981;
+  color: white;
+  animation: saveSuccess 0.3s ease-out;
+}
+
+@keyframes saveSuccess {
+  0% {
+    background-color: #10b981;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #059669;
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: #10b981;
+    transform: scale(1);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .modal-content {

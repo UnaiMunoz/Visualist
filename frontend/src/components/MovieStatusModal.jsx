@@ -9,6 +9,7 @@ import {
   getContentData,
   updateContentData,
 } from "../services/listServices";
+import { getMovieDetails } from "../services/moviesServices";
 
 const MovieStatusModal = ({
   isOpen,
@@ -22,24 +23,35 @@ const MovieStatusModal = ({
 
   const [status, setStatus] = useState({
     watched: false,
-    watching: false, // Nueva opción
+    watching: false,
     to_watch: false,
     favorites: false,
   });
 
   const [score, setScore] = useState(0);
   const [notes, setNotes] = useState("");
-  const [timeWatched, setTimeWatched] = useState(0); // Para películas: tiempo en minutos
+  const [timeWatched, setTimeWatched] = useState(0);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [movieDetails, setMovieDetails] = useState(null);
 
   // Fetch initial status when modal opens
   useEffect(() => {
     if (isOpen && isLoggedIn && contentId) {
       fetchStatus();
       fetchContentData();
+      fetchMovieDetails();
     }
   }, [isOpen, isLoggedIn, contentId]);
+
+  const fetchMovieDetails = async () => {
+    try {
+      const details = await getMovieDetails(contentId);
+      setMovieDetails(details);
+    } catch (error) {
+      console.error("Error fetching movie details:", error);
+    }
+  };
 
   const fetchStatus = async () => {
     try {
@@ -57,7 +69,7 @@ const MovieStatusModal = ({
     try {
       const contentData = await getContentData(contentId, contentType);
       setScore(contentData.score || 0);
-      setTimeWatched(contentData.time_watched || 0); // Cambiado de progress a time_watched
+      setTimeWatched(contentData.time_watched || 0);
       setNotes(contentData.notes || "");
     } catch (error) {
       console.error("Error fetching content data:", error);
@@ -71,12 +83,36 @@ const MovieStatusModal = ({
       statusType === "to_watch"
     ) {
       // Mutual exclusivity for watched, watching and to_watch
-      setStatus((prev) => ({
-        ...prev,
-        watched: statusType === "watched" ? !prev.watched : false,
-        watching: statusType === "watching" ? !prev.watching : false,
-        to_watch: statusType === "to_watch" ? !prev.to_watch : false,
-      }));
+      const newStatus = {
+        ...status,
+        watched: statusType === "watched" ? !status.watched : false,
+        watching: statusType === "watching" ? !status.watching : false,
+        to_watch: statusType === "to_watch" ? !status.to_watch : false,
+      };
+
+      setStatus(newStatus);
+
+      // Si se marca como "watched", establecer el tiempo visto al máximo (duración completa)
+      if (
+        statusType === "watched" &&
+        !status.watched &&
+        movieDetails?.runtime
+      ) {
+        setTimeWatched(movieDetails.runtime);
+      }
+    }
+  };
+
+  const handleTimeWatchedChange = (value) => {
+    const newValue = parseInt(value) || 0;
+
+    // Validar que no exceda la duración de la película
+    if (movieDetails?.runtime && newValue > movieDetails.runtime) {
+      setTimeWatched(movieDetails.runtime);
+    } else if (newValue < 0) {
+      setTimeWatched(0);
+    } else {
+      setTimeWatched(newValue);
     }
   };
 
@@ -94,7 +130,6 @@ const MovieStatusModal = ({
           return await operation(contentId, contentType, listType);
         } catch (error) {
           console.warn(`Failed to ${operation.name} ${listType}:`, error);
-          // Don't throw, just log the warning
           return null;
         }
       };
@@ -102,7 +137,6 @@ const MovieStatusModal = ({
       // Handle watched status
       if (status.watched) {
         await safeListOperation(addToList, "watched");
-        // Remove from other statuses
         if (status.watching) {
           await safeListOperation(removeFromList, "watching");
         }
@@ -116,7 +150,6 @@ const MovieStatusModal = ({
       // Handle watching status
       if (status.watching) {
         await safeListOperation(addToList, "watching");
-        // Remove from other statuses
         if (status.watched) {
           await safeListOperation(removeFromList, "watched");
         }
@@ -130,7 +163,6 @@ const MovieStatusModal = ({
       // Handle to_watch status
       if (status.to_watch) {
         await safeListOperation(addToList, "to_watch");
-        // Remove from other statuses
         if (status.watched) {
           await safeListOperation(removeFromList, "watched");
         }
@@ -146,7 +178,7 @@ const MovieStatusModal = ({
         try {
           await updateContentData(contentId, contentType, {
             score: score,
-            time_watched: timeWatched, // Cambiado de progress a time_watched
+            time_watched: timeWatched,
             notes: notes,
           });
         } catch (error) {
@@ -158,7 +190,6 @@ const MovieStatusModal = ({
       onClose();
     } catch (error) {
       console.error("Error saving status:", error);
-      // Optionally show error message to user
     } finally {
       setSaving(false);
     }
@@ -186,6 +217,8 @@ const MovieStatusModal = ({
   };
 
   if (!isOpen) return null;
+
+  const maxDuration = movieDetails?.runtime || 999;
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
@@ -223,6 +256,11 @@ const MovieStatusModal = ({
             <>
               <div className="media-info">
                 <h3 className="media-title">{movieTitle}</h3>
+                {movieDetails?.runtime && (
+                  <p className="media-duration">
+                    Duration: {formatTime(movieDetails.runtime)}
+                  </p>
+                )}
               </div>
 
               <div className="compact-grid">
@@ -372,14 +410,22 @@ const MovieStatusModal = ({
                   </div>
 
                   <div className="progress-section compact-section">
-                    <h4 className="section-title">Time Watched</h4>
+                    <h4 className="section-title">
+                      Time Watched
+                      {movieDetails?.runtime && (
+                        <span className="max-hint">
+                          (max: {formatTime(movieDetails.runtime)})
+                        </span>
+                      )}
+                    </h4>
                     <div className="progress-input-container">
                       <input
                         type="number"
                         min="0"
+                        max={maxDuration}
                         value={timeWatched}
                         onChange={(e) =>
-                          setTimeWatched(parseInt(e.target.value) || 0)
+                          handleTimeWatchedChange(e.target.value)
                         }
                         className="progress-input"
                         placeholder="Minutes"

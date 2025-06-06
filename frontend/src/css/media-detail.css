@@ -1415,3 +1415,252 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Estilos adicionales para agregar al final de media-detail.css */
+
+/* Enhanced time watched display for movies in watching status */
+.episodes-progress.time-watched {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.episodes-progress.time-watched::before {
+  content: "⏱️";
+  font-size: 0.7rem;
+  margin-right: 3px;
+}
+
+/* Subtle animation for time watched items */
+.episodes-progress.time-watched::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.media-grid-card:hover .episodes-progress.time-watched::after {
+  left: 100%;
+}
+
+/* Enhanced hover effects for time watched */
+.media-grid-card:hover .episodes-progress.time-watched {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+}
+
+/* Special styling for completed items */
+.episodes-progress.completed {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.episodes-progress.completed::before {
+  content: "✓";
+  font-size: 0.8rem;
+  margin-right: 2px;
+}
+
+/* Progress indicator for partial completion */
+.episodes-progress-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.progress-bar-mini {
+  width: 100%;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.progress-bar-mini .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+/* Enhanced tooltips for progress information */
+.episodes-progress[data-tooltip]:hover::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 100;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  animation: tooltipFadeIn 0.2s ease-out forwards;
+}
+
+.episodes-progress[data-tooltip]:hover::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 100;
+  opacity: 0;
+  animation: tooltipFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Different colors for different content types */
+.media-grid-card[data-content-type="movie"] .episodes-progress {
+  border-left: 3px solid #f59e0b;
+}
+
+.media-grid-card[data-content-type="series"] .episodes-progress {
+  border-left: 3px solid #8b5cf6;
+}
+
+/* Enhanced user score display with better contrast */
+.user-score-display {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+}
+
+.user-score-display.not-rated,
+.user-score-display[data-not-rated="true"] {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: #e5e5e5;
+  box-shadow: 0 1px 3px rgba(107, 114, 128, 0.2);
+}
+
+/* Score rating colors */
+.user-score-display.score-high {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+}
+
+.user-score-display.score-medium {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
+}
+
+.user-score-display.score-low {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+}
+
+/* Enhanced hover effects */
+.media-grid-card:hover .user-score-display {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(37, 99, 235, 0.3);
+}
+
+.media-grid-card:hover .user-score-display.not-rated,
+.media-grid-card:hover .user-score-display[data-not-rated="true"] {
+  box-shadow: 0 3px 6px rgba(107, 114, 128, 0.3);
+}
+
+.media-grid-card:hover .user-score-display.score-high {
+  box-shadow: 0 3px 6px rgba(16, 185, 129, 0.4);
+}
+
+.media-grid-card:hover .user-score-display.score-medium {
+  box-shadow: 0 3px 6px rgba(245, 158, 11, 0.4);
+}
+
+.media-grid-card:hover .user-score-display.score-low {
+  box-shadow: 0 3px 6px rgba(239, 68, 68, 0.4);
+}
+
+/* Loading animation for scores */
+.user-score-display.loading {
+  background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280);
+  background-size: 200% 100%;
+  animation: scoreLoading 1.5s ease-in-out infinite;
+  color: transparent;
+}
+
+@keyframes scoreLoading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive improvements for mobile */
+@media (max-width: 768px) {
+  .episodes-progress {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+  }
+
+  .user-score-display {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .episodes-progress::before {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .episodes-progress {
+    font-size: 0.65rem;
+    padding: 1px 3px;
+  }
+
+  .user-score-display {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+  }
+
+  .media-grid-footer {
+    gap: 4px;
+  }
+
+  .episodes-progress::before {
+    font-size: 0.55rem;
+  }
+}
