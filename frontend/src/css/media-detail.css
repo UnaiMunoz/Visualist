@@ -1096,7 +1096,7 @@
 /* Tooltip-like behavior for episodes progress */
 .episodes-progress {
   position: relative;
-  cursor: default;
+  cursor: pointer;
 }
 
 .episodes-progress:hover::after {
