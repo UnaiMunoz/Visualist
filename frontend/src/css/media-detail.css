@@ -176,6 +176,11 @@
   color: white;
 }
 
+.status-watching {
+  background-color: #f59e0b;
+  color: white;
+}
+
 .status-not-released {
   background-color: #6b7280;
   color: white;
