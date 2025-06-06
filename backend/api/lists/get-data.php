@@ -1,6 +1,6 @@
 <?php
 // backend/api/lists/get-data.php
-// This endpoint gets additional data (score, progress, notes) for content
+// This endpoint gets additional data (score, progress, time_watched, notes) for content
 
 // Set content type to JSON first
 header('Content-Type: application/json');
@@ -23,6 +23,7 @@ try {
             'data' => [
                 'score' => 0,
                 'progress' => 0,
+                'time_watched' => 0, // AÑADIDO
                 'notes' => ''
             ]
         ]);
@@ -32,12 +33,23 @@ try {
     // Get content ID from query parameters
     $contentId = isset($_GET['contentId']) ? intval($_GET['contentId']) : 0;
     $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'movie';
-    
+
     if (!$contentId) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
             'message' => 'Content ID is required'
+        ]);
+        exit;
+    }
+
+    // Validate content type
+    $validContentTypes = ['movie', 'series'];
+    if (!in_array($contentType, $validContentTypes)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid content type. Must be one of: ' . implode(', ', $validContentTypes)
         ]);
         exit;
     }

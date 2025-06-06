@@ -31,11 +31,33 @@ if (!isset($data['contentId']) || !isset($data['contentType']) || !isset($data['
     exit;
 }
 
+// Validate list type - ACTUALIZADO para incluir 'watching'
+$validListTypes = ['watched', 'watching', 'to_watch', 'favorites'];
+if (!in_array($data['listType'], $validListTypes)) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid list type. Must be one of: ' . implode(', ', $validListTypes)
+    ]);
+    exit;
+}
+
+// Validate content type
+$validContentTypes = ['movie', 'series'];
+if (!in_array($data['contentType'], $validContentTypes)) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid content type. Must be one of: ' . implode(', ', $validContentTypes)
+    ]);
+    exit;
+}
+
 // Get user ID from session
 $userId = $_SESSION['user_id'];
 $contentId = intval($data['contentId']);
 $contentType = $data['contentType']; // Should be 'movie', or 'series'
-$listType = $data['listType']; // Should be 'watched', 'to_watch', or 'favorites'
+$listType = $data['listType']; // Should be 'watched', 'watching', 'to_watch', or 'favorites'
 
 // Create ListManager instance
 $listManager = new ListManager();

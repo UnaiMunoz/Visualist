@@ -32,15 +32,27 @@ if (!isset($data['contentId']) || !isset($data['contentType'])) {
     exit;
 }
 
+// Validate content type
+$validContentTypes = ['movie', 'series'];
+if (!in_array($data['contentType'], $validContentTypes)) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid content type. Must be one of: ' . implode(', ', $validContentTypes)
+    ]);
+    exit;
+}
+
 // Get user ID from session
 $userId = $_SESSION['user_id'];
 $contentId = intval($data['contentId']);
 $contentType = $data['contentType'];
 
-// Prepare additional data
+// Prepare additional data - ACTUALIZADO para incluir time_watched
 $additionalData = [
     'score' => isset($data['score']) ? (float)$data['score'] : null,
     'progress' => isset($data['progress']) ? (int)$data['progress'] : null,
+    'time_watched' => isset($data['time_watched']) ? (int)$data['time_watched'] : null, // AÑADIDO
     'notes' => isset($data['notes']) ? $data['notes'] : null
 ];
 

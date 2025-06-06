@@ -22,6 +22,7 @@ try {
             'success' => true,
             'inLists' => [
                 'watched' => false,
+                'watching' => false, // AÑADIDO
                 'to_watch' => false,
                 'favorites' => false
             ]
@@ -32,12 +33,23 @@ try {
     // Get content ID from query parameters
     $contentId = isset($_GET['contentId']) ? intval($_GET['contentId']) : 0;
     $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'movie';
-    
+
     if (!$contentId) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
             'message' => 'Content ID is required'
+        ]);
+        exit;
+    }
+
+    // Validate content type
+    $validContentTypes = ['movie', 'series'];
+    if (!in_array($contentType, $validContentTypes)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid content type. Must be one of: ' . implode(', ', $validContentTypes)
         ]);
         exit;
     }

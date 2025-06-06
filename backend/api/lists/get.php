@@ -28,13 +28,24 @@ $contentType = isset($_GET['contentType']) ? $_GET['contentType'] : 'movie';
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $perPage = isset($_GET['perPage']) ? intval($_GET['perPage']) : 24;
 
-// Validate list type
-$validListTypes = ['watched', 'to_watch', 'favorites'];
+// Validate list type - ACTUALIZADO para incluir 'watching'
+$validListTypes = ['watched', 'watching', 'to_watch', 'favorites'];
 if (!in_array($listType, $validListTypes)) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
         'message' => 'Invalid list type. Must be one of: ' . implode(', ', $validListTypes)
+    ]);
+    exit;
+}
+
+// Validate content type
+$validContentTypes = ['movie', 'series'];
+if (!in_array($contentType, $validContentTypes)) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid content type. Must be one of: ' . implode(', ', $validContentTypes)
     ]);
     exit;
 }
