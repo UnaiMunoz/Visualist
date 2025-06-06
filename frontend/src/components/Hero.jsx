@@ -70,16 +70,11 @@ const Hero = () => {
 
         {isLoggedIn ? (
           <button
-            className="hero-btn"
+            className={`hero-btn hero-btn-surprise ${
+              isLoading ? "loading" : ""
+            }`}
             onClick={getRandomContent}
             disabled={isLoading}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              minWidth: "200px",
-            }}
           >
             {isLoading ? (
               <>
@@ -90,9 +85,7 @@ const Hero = () => {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  style={{
-                    animation: "spin 1s linear infinite",
-                  }}
+                  className="spinner-icon"
                 >
                   <path d="M21 12a9 9 0 11-6.219-8.56" />
                 </svg>

@@ -72,6 +72,7 @@ ul {
   margin-bottom: 24px;
 }
 
+/* Enhanced hero button styles */
 .hero-btn {
   background-color: #2563eb;
   color: white;
@@ -79,11 +80,79 @@ ul {
   border-radius: 8px;
   font-weight: 500;
   font-size: 1.1rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  min-width: 200px;
+  position: relative;
+  overflow: hidden;
 }
 
-.hero-btn:hover {
+.hero-btn:hover:not(:disabled) {
   background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.hero-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.hero-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Surprise Me button specific styles */
+.hero-btn-surprise {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+}
+
+.hero-btn-surprise:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+}
+
+/* Loading state animation */
+.hero-btn.loading {
+  pointer-events: none;
+}
+
+.hero-btn .spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive hero button */
+@media (max-width: 768px) {
+  .hero-btn {
+    min-width: 180px;
+    font-size: 1rem;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-btn {
+    min-width: 160px;
+    font-size: 0.95rem;
+    padding: 10px 16px;
+  }
 }
 
 /* Carousel styles */
