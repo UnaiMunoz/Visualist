@@ -659,7 +659,6 @@
   color: #ffffff;
 }
 
-
 /* Mejoras para imágenes de personajes */
 .character-image {
   width: 100%;
@@ -1005,7 +1004,12 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
   transition: left 0.5s ease;
 }
 
@@ -1013,76 +1017,156 @@
   left: 100%;
 }
 
-/* Estilos adicionales para UserList con información de progreso y puntuación */
+/* Agregar este CSS al final del archivo frontend/src/css/media-detail.css */
 
-.media-grid-progress {
-  margin-top: 8px;
-  padding: 4px 8px;
-  background-color: rgba(245, 158, 11, 0.1); /* Amber background for watching */
+/* Episodes progress styling for UserList */
+.episodes-progress {
+  background-color: #374151;
+  color: #e5e5e5;
+  padding: 2px 6px;
   border-radius: 4px;
-  border-left: 3px solid #f59e0b;
-}
-
-.progress-info {
-  color: #f59e0b;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
+  transition: all 0.2s ease;
 }
 
-.progress-info::before {
-  content: "⏱️";
+.episodes-progress::before {
+  content: "📺";
   font-size: 0.7rem;
 }
 
-.media-grid-user-score {
-  margin-top: 6px;
-  padding: 2px 6px;
-  background-color: rgba(37, 99, 235, 0.1);
-  border-radius: 3px;
-  text-align: center;
+/* Different icons for movies vs series */
+.media-grid-card[data-content-type="movie"] .episodes-progress::before {
+  content: "🎬";
 }
 
-.user-score {
-  color: #2563eb;
-  font-size: 0.7rem;
+.media-grid-card[data-content-type="series"] .episodes-progress::before {
+  content: "📺";
+}
+
+/* User score display styling */
+.user-score-display {
+  background-color: #2563eb;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
   font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-/* Enhanced media grid card for better information display */
-.media-grid-card .media-grid-body {
-  padding: 16px;
+/* Special styling for "Not Rated" */
+.user-score-display.not-rated,
+.user-score-display[data-not-rated="true"] {
+  background-color: #6b7280;
+  color: #e5e5e5;
+}
+
+/* Enhanced media grid footer for better spacing */
+.media-grid-footer {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  gap: 8px;
 }
 
-.media-grid-card:hover .media-grid-progress {
-  background-color: rgba(245, 158, 11, 0.15);
+/* Enhanced hover effects */
+.media-grid-card:hover .episodes-progress {
+  background-color: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.media-grid-card:hover .media-grid-user-score {
-  background-color: rgba(37, 99, 235, 0.15);
+.media-grid-card:hover .user-score-display {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive adjustments */
+.media-grid-card:hover .user-score-display.not-rated,
+.media-grid-card:hover .user-score-display[data-not-rated="true"] {
+  background-color: #4b5563;
+  transform: translateY(-1px);
+}
+
+/* Tooltip-like behavior for episodes progress */
+.episodes-progress {
+  position: relative;
+  cursor: help;
+}
+
+.episodes-progress:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  margin-bottom: 4px;
+}
+
+/* Responsive adjustments for UserList */
 @media (max-width: 768px) {
-  .progress-info {
+  .episodes-progress {
     font-size: 0.7rem;
-  }
-  
-  .user-score {
-    font-size: 0.65rem;
-  }
-  
-  .media-grid-progress {
-    padding: 3px 6px;
-  }
-  
-  .media-grid-user-score {
     padding: 2px 4px;
+  }
+
+  .user-score-display {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .media-grid-footer {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .episodes-progress {
+    font-size: 0.65rem;
+    padding: 1px 3px;
+  }
+
+  .user-score-display {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+  }
+
+  .media-grid-footer {
+    gap: 4px;
+  }
+
+  .episodes-progress::before {
+    font-size: 0.6rem;
+  }
+}
+
+/* Loading state for scores */
+.user-score-display.loading {
+  background-color: #6b7280;
+  color: #9ca3af;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 
@@ -1091,12 +1175,12 @@
   .image-placeholder {
     padding: 15px;
   }
-  
+
   .image-placeholder svg {
     width: 40px;
     height: 40px;
   }
-  
+
   .image-placeholder span {
     font-size: 0.75rem;
   }
@@ -1117,12 +1201,12 @@
   .image-placeholder {
     padding: 10px;
   }
-  
+
   .image-placeholder svg {
     width: 32px;
     height: 32px;
   }
-  
+
   .image-placeholder span {
     font-size: 0.7rem;
   }

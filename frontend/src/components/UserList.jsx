@@ -7,7 +7,7 @@ const UserList = ({ listType, contentType = "movie" }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true); // New state
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [pageInfo, setPageInfo] = useState({
     currentPage: 1,
     lastPage: 1,
@@ -20,7 +20,7 @@ const UserList = ({ listType, contentType = "movie" }) => {
   useEffect(() => {
     const fetchList = async (page) => {
       setLoading(true);
-      setIsInitialLoad(true); // Set initial load flag
+      setIsInitialLoad(true);
       try {
         const result = await getUserList(listType, contentType, page, 8);
         console.log(`=== Debug: ${contentType} ${listType} list ===`);
@@ -31,7 +31,6 @@ const UserList = ({ listType, contentType = "movie" }) => {
           console.log("First item title:", result.items[0].title);
         }
 
-        // Only update state if we have valid data or empty array
         if (result.items !== undefined) {
           setItems(result.items);
           setPageInfo(result.pageInfo);
@@ -43,7 +42,7 @@ const UserList = ({ listType, contentType = "movie" }) => {
         setItems([]);
       } finally {
         setLoading(false);
-        setIsInitialLoad(false); // Clear initial load flag
+        setIsInitialLoad(false);
       }
     };
 
@@ -113,7 +112,6 @@ const UserList = ({ listType, contentType = "movie" }) => {
 
   // Helper function to get the appropriate image URL
   const getImageUrl = (item) => {
-    // For movies and series (both use TMDB structure)
     return item.poster_path
       ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
       : "https://via.placeholder.com/225x338?text=No+Image";
@@ -129,7 +127,6 @@ const UserList = ({ listType, contentType = "movie" }) => {
           ? item.title.trim()
           : "Unknown Title";
       } else {
-        // For series
         const title = item.name || item.title;
         return typeof title === "string" && title.trim()
           ? title.trim()
@@ -141,38 +138,47 @@ const UserList = ({ listType, contentType = "movie" }) => {
     }
   };
 
-  // Helper function to get the appropriate year
-  const getYear = (item) => {
+  // Helper function to get episodes progress for content
+  const getEpisodesProgress = (item) => {
     try {
       if (contentType === "movie") {
-        if (item.release_date) {
-          const year = new Date(item.release_date).getFullYear();
-          return isNaN(year) ? "N/A" : String(year);
-        }
-        return "N/A";
+        // For movies, if it's in watched list or has progress, show 1/1, otherwise 0/1
+        const isCompleted =
+          listType === "watched" || (item.progress && item.progress > 0);
+        return isCompleted ? "1/1" : "0/1";
       } else {
-        // For series
-        if (item.first_air_date) {
-          const year = new Date(item.first_air_date).getFullYear();
-          return isNaN(year) ? "N/A" : String(year);
-        }
-        return "N/A";
+        // For series, show actual progress
+        const watchedEpisodes = item.progress || 0;
+        const totalEpisodes = item.number_of_episodes || "?";
+        return `${watchedEpisodes}/${totalEpisodes}`;
       }
     } catch (error) {
-      console.error("Error getting year:", error, item);
-      return "N/A";
+      console.error("Error getting episodes progress:", error, item);
+      return contentType === "movie" ? "0/1" : "0/?";
     }
   };
 
-  // Helper function to get the appropriate score
-  const getScore = (item) => {
+  // Helper function to get user score
+  const getUserScore = (item) => {
     try {
-      // For movies and series (both use TMDB structure)
-      const score = item.vote_average;
-      return score ? String(Math.round(score * 10)) + "%" : "N/A";
+      // Use the user's personal score if available
+      if (item.score && item.score > 0) {
+        return {
+          score: `${item.score}/10`,
+          isRated: true,
+        };
+      }
+      // If no user score, show "Not Rated"
+      return {
+        score: "Not Rated",
+        isRated: false,
+      };
     } catch (error) {
-      console.error("Error getting score:", error, item);
-      return "N/A";
+      console.error("Error getting user score:", error, item);
+      return {
+        score: "Not Rated",
+        isRated: false,
+      };
     }
   };
 
@@ -248,8 +254,8 @@ const UserList = ({ listType, contentType = "movie" }) => {
 
                 const imageUrl = getImageUrl(item);
                 const title = getTitle(item);
-                const year = getYear(item);
-                const score = getScore(item);
+                const episodesProgress = getEpisodesProgress(item);
+                const userScoreData = getUserScore(item);
 
                 // Get progress/time info for watching items
                 const progressInfo =
@@ -260,11 +266,7 @@ const UserList = ({ listType, contentType = "movie" }) => {
                     : null;
 
                 // Don't render if we don't have basic data
-                if (
-                  title === "Unknown Title" &&
-                  year === "N/A" &&
-                  score === "N/A"
-                ) {
+                if (title === "Unknown Title") {
                   console.warn("Item with insufficient data:", item);
                   return null;
                 }
@@ -276,6 +278,7 @@ const UserList = ({ listType, contentType = "movie" }) => {
                       item.id
                     }`}
                     className="media-grid-card"
+                    data-content-type={contentType}
                   >
                     <img
                       src={imageUrl}
@@ -290,27 +293,37 @@ const UserList = ({ listType, contentType = "movie" }) => {
                     <div className="media-grid-body">
                       <h3 className="media-grid-title">{title}</h3>
                       <div className="media-grid-footer">
-                        <span className="media-card-info">{year}</span>
-                        <span className="media-card-score">{score}</span>
+                        {/* Show episodes progress */}
+                        <span
+                          className="media-card-info episodes-progress"
+                          title={
+                            contentType === "movie"
+                              ? "Movie completion"
+                              : "Episodes watched"
+                          }
+                        >
+                          {episodesProgress}
+                        </span>
+                        {/* Show user score */}
+                        <span
+                          className={`media-card-score user-score-display ${
+                            !userScoreData.isRated ? "not-rated" : ""
+                          }`}
+                          data-not-rated={!userScoreData.isRated}
+                        >
+                          {userScoreData.score}
+                        </span>
                       </div>
                       {progressInfo && (
                         <div className="media-grid-progress">
                           <span className="progress-info">{progressInfo}</span>
                         </div>
                       )}
-                      {item.score && item.score > 0 && (
-                        <div className="media-grid-user-score">
-                          <span className="user-score">
-                            Your score: {item.score}/10
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </Link>
                 );
               })
-              .filter(Boolean)}{" "}
-            {/* Filter out null values */}
+              .filter(Boolean)}
           </div>
 
           {pageInfo.lastPage > 1 && (
