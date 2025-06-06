@@ -293,13 +293,7 @@ const UserList = ({ listType, contentType = "movie" }) => {
                               ? "time-watched"
                               : ""
                           }`}
-                          title={
-                            contentType === "movie"
-                              ? listType === "watching" && item.time_watched
-                                ? "Time watched"
-                                : "Movie completion"
-                              : "Episodes watched"
-                          }
+                          
                         >
                           {episodesProgress}
                         </span>
