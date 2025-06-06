@@ -1096,11 +1096,11 @@
 /* Tooltip-like behavior for episodes progress */
 .episodes-progress {
   position: relative;
-  cursor: help;
+  cursor: default;
 }
 
 .episodes-progress:hover::after {
-  content: attr(title);
+  content: "";
   position: absolute;
   bottom: 100%;
   left: 50%;
