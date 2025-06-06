@@ -2,13 +2,15 @@
 // backend/api/lists/get-data.php
 // This endpoint gets additional data (score, progress, time_watched, notes) for content
 
+// Include configuration first - handles all CORS headers
+require_once __DIR__ . '/../../config/config.php';
+
 // Set content type to JSON first
 header('Content-Type: application/json');
 
 // Error handling
 try {
-    // Include required files
-    require_once __DIR__ . '/../../config/config.php';
+    // Include required files in the correct order
     require_once __DIR__ . '/../../includes/Database.php';
     require_once __DIR__ . '/../../includes/ListManager.php';
 
@@ -23,7 +25,7 @@ try {
             'data' => [
                 'score' => 0,
                 'progress' => 0,
-                'time_watched' => 0, // AÑADIDO
+                'time_watched' => 0,
                 'notes' => ''
             ]
         ]);
@@ -68,10 +70,19 @@ try {
         'data' => $contentData
     ]);
 } catch (Exception $e) {
+    // Log the error for debugging
+    error_log("Error in get-data.php: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
+
     // Return error as JSON instead of showing PHP error
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Server error: ' . $e->getMessage()
+        'message' => 'Server error: ' . $e->getMessage(),
+        'debug' => APP_ENV !== 'production' ? [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ] : null
     ]);
 }

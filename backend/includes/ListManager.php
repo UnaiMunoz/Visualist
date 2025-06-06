@@ -599,4 +599,55 @@ class ListManager
             throw new Exception("Failed to remove from favorites");
         }
     }
+
+    /**
+     * Get additional content data (score, progress, time_watched, notes) for content in user's list
+     */
+    public function getContentData($userId, $contentId, $contentType)
+    {
+        try {
+            // Get the reference ID for this content
+            $referenceId = $this->getContentReferenceId($contentId, $contentType);
+
+            if (!$referenceId) {
+                // If content doesn't exist in references, return default values
+                return [
+                    'score' => 0,
+                    'progress' => 0,
+                    'time_watched' => 0,
+                    'notes' => ''
+                ];
+            }
+
+            // Get data from User_Content_Status table
+            $query = "SELECT score, progress, time_watched, notes 
+                      FROM User_Content_Status 
+                      WHERE user_id = :user_id AND reference_id = :reference_id";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':reference_id', $referenceId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                return [
+                    'score' => $row['score'] ? (float)$row['score'] : 0,
+                    'progress' => $row['progress'] ? (int)$row['progress'] : 0,
+                    'time_watched' => $row['time_watched'] ? (int)$row['time_watched'] : 0,
+                    'notes' => $row['notes'] ? $row['notes'] : ''
+                ];
+            } else {
+                // No record found, return default values
+                return [
+                    'score' => 0,
+                    'progress' => 0,
+                    'time_watched' => 0,
+                    'notes' => ''
+                ];
+            }
+        } catch (Exception $e) {
+            error_log("Error in getContentData: " . $e->getMessage());
+            throw new Exception("Failed to get content data: " . $e->getMessage());
+        }
+    }
 }
