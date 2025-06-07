@@ -51,7 +51,7 @@ Visualist es una aplicación web para hacer tracking de pelis y series que has v
 1. **Clona el repositorio**
 ```bash
 git clone https://github.com/UnaiMunoz/Visualist.git
-cd visualist/frontend
+cd Visualist/frontend
 ```
 
 2. **Instala las dependencias**
