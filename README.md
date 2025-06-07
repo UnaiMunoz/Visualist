@@ -32,9 +32,9 @@ Visualist es una aplicación web para hacer tracking de pelis y series que has v
 - **TMDb API** - Información de todos los datos de pelis y series
 
 ### Hosting
-- **Netlify** - Para el frontend (gratis y fácil)
+- **Netlify** - Para el frontend
 - **Railway** - Para el backend y la BD
-- **TMDb API** - La fuente de toda la info
+- **TMDb API** - Fuente de toda la información
 
 ## 📋 ¿Qué necesitas para montarlo?
 
