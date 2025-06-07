@@ -27,9 +27,9 @@ Visualist es una aplicación web para hacer tracking de pelis y series que has v
 
 ### Backend (la parte que hace la magia)
 - **PHP 7.4+** - Vieja escuela pero funciona
-- **MySQL** - Base de datos confiable
-- **Apache** - Servidor web clásico
-- **TMDb API** - De donde sacamos todos los datos de pelis y series
+- **MySQL** - Base de datos
+- **Apache** - Servidor web
+- **TMDb API** - Información de todos los datos de pelis y series
 
 ### Hosting
 - **Netlify** - Para el frontend (gratis y fácil)
@@ -38,19 +38,19 @@ Visualist es una aplicación web para hacer tracking de pelis y series que has v
 
 ## 📋 ¿Qué necesitas para montarlo?
 
-- **Node.js** 16+ y npm (para el frontend)
-- **PHP** 7.4+ (para el backend)
-- **MySQL** 5.7+ (para guardar datos)
+- **Node.js** 16+ y npm
+- **PHP** 7.4+
+- **MySQL** 5.7+
 - **Apache** con mod_rewrite habilitado
-- **Clave de TMDb API** (es gratis, solo tienes que registrarte)
+- **Clave de TMDb API** (es gratuita, solo hace falta registrarse)
 
-## 🔧 Cómo instalarlo
+## 🔧 Intalación
 
 ### Montar el Frontend
 
 1. **Clona el repositorio**
 ```bash
-git clone https://github.com/tuusuario/visualist.git
+git clone https://github.com/UnaiMunoz/Visualist.git
 cd visualist/frontend
 ```
 
