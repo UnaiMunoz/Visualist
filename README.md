@@ -14,6 +14,7 @@ Visualist es una aplicación web para hacer tracking de pelis y series que has v
 ## 🌐 Demo en vivo
 
 **Frontend**: [https://visualist.netlify.app](https://visualist.netlify.app)
+
 **API Backend**: [https://visualist-production.up.railway.app](https://visualist-production.up.railway.app)
 
 ## 🛠️ Tecnologías usadas
