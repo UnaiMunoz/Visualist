@@ -34,7 +34,6 @@ Visualist es una aplicación web hecha con React y PHP que te permite llevar con
 ### Hosting
 - **Netlify** - Para el frontend
 - **Railway** - Para el backend y la BD
-- **TMDb API** - Fuente de toda la información
 
 ## 📋 ¿Qué necesitas para montarlo?
 
