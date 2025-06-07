@@ -1,6 +1,6 @@
 # Visualist 🎬
 
-Visualist es una aplicación web para hacer tracking de pelis y series que has visto, quieres ver o estas viendo actualmente. Hecha con React y PHP, Visualist te permite llevar control de tus listas, puntuar contenido y descubrir cosas nuevas para ver.
+Visualist es una aplicación web hecha con React y PHP que te permite llevar control de tus listas (vistos, por ver y viendo), puntuar contenido y descubrir cosas nuevas para ver.
 
 ## ¿Qué puedes hacer? ✨
 
