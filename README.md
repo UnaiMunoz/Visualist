@@ -20,16 +20,16 @@ Visualist es una aplicación web hecha con React y PHP que te permite llevar con
 ## 🛠️ Tecnologías usadas
 
 ### Frontend
-- **React** - Para hacer la interfaz
-- **React Router** - Para navegar entre páginas
-- **CSS3** - Estilos custom (nada de frameworks pesados)
-- **Fetch API** - Para hablar con el backend
+- **React**
+- **React Router**
+- **CSS3**
+- **Fetch API**
 
-### Backend (la parte que hace la magia)
-- **PHP 7.4+** - Vieja escuela pero funciona
-- **MySQL** - Base de datos
-- **Apache** - Servidor web
-- **TMDb API** - Información de todos los datos de pelis y series
+### Backend
+- **PHP 7.4+**
+- **MySQL**
+- **Apache**
+- **TMDb API**
 
 ### Hosting
 - **Netlify** - Para el frontend
