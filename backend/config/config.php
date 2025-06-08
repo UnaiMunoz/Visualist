@@ -81,7 +81,7 @@ if (APP_ENV === 'production') {
 // CORS Configuration - ARREGLADO
 $allowedOrigins = [
     'https://visualist.netlify.app',
-    'http://localhost:5173', // Para desarrollo local
+    'http://localhost:5173',
     'http://localhost:3000',
 ];
 
